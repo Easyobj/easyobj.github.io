@@ -254,6 +254,7 @@
   function describeApiError(error){
     const known={
       activity_configuration_required:'活动时间尚未配置。',
+      activity_configuration_invalid:'活动时间配置无效。',
       activity_not_started:'活动尚未开始。',
       activity_ended:'今日活动已结束。',
       probability_not_configured:'抽奖概率尚未由活动方确认。',

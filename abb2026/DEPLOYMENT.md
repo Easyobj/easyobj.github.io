@@ -25,7 +25,7 @@ GitHub Pages 仅用于视觉验收。微信授权、答题记录、抽奖库存�
 3. 复制 `api/config.local.php.example` 为服务器专用的 `api/config.local.php`，填入真实配置并限制文件权限。
 4. 使用 `ABB_ADMIN_PASSWORD='强密码' php api/bin/create-admin.php <用户名>` 创建后台账号；不要把密码写入命令历史或 Git。
 5. 在后台填写活动方确认的抽奖权重。任一启用奖品缺少权重时，服务端会拒绝抽奖。
-6. 将完整 `html/` 部署到正式目录，访问 `/api/index.php?action=health` 验证 API 版本和活动状态。
+6. 将完整 `html/` 部署到正式目录，执行 `php api/bin/preflight.php`，并访问 `/api/index.php?action=health` 验证所有检查均为 `ready`。
 7. 在微信内走通授权、六站答题、一次抽奖、刷新后结果恢复、兑奖核销和开放题 CSV 导出。
 8. 使用两个并发请求验证同一用户只生成一个兑奖码，并核对总库存和当日库存各减少一次。
 

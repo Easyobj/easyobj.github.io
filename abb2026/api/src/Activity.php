@@ -9,9 +9,16 @@ final class Activity
         if ($activity['starts_at'] === '' || $activity['ends_at'] === '') {
             return ['code' => 'configuration_required', 'open' => false];
         }
-        $now = new DateTimeImmutable('now');
-        $startsAt = new DateTimeImmutable($activity['starts_at']);
-        $endsAt = new DateTimeImmutable($activity['ends_at']);
+        try {
+            $now = new DateTimeImmutable('now');
+            $startsAt = new DateTimeImmutable($activity['starts_at']);
+            $endsAt = new DateTimeImmutable($activity['ends_at']);
+        } catch (Throwable $error) {
+            return ['code' => 'configuration_invalid', 'open' => false];
+        }
+        if ($endsAt <= $startsAt) {
+            return ['code' => 'configuration_invalid', 'open' => false];
+        }
         if ($now < $startsAt) {
             return ['code' => 'not_started', 'open' => false, 'startsAt' => $startsAt->format(DATE_ATOM)];
         }

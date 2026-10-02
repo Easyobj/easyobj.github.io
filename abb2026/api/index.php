@@ -6,7 +6,8 @@ require __DIR__ . '/bootstrap.php';
 $action = trim((string) ($_GET['action'] ?? 'bootstrap'));
 
 if ($action === 'health') {
-    Api::ok(['status' => 'ok', 'activity' => Activity::status()]);
+    $health = Health::report();
+    Api::ok($health, $health['ready'] ? 200 : 503);
 }
 
 if ($action === 'bootstrap') {

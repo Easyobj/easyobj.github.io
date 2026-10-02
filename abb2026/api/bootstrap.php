@@ -49,6 +49,7 @@ require_once __DIR__ . '/src/AdminAuth.php';
 require_once __DIR__ . '/src/AnswerService.php';
 require_once __DIR__ . '/src/LotteryService.php';
 require_once __DIR__ . '/src/Wechat.php';
+require_once __DIR__ . '/src/Health.php';
 
 set_exception_handler(static function (Throwable $error) use ($config): void {
     error_log(sprintf('[ABB2026] %s in %s:%d', $error->getMessage(), $error->getFile(), $error->getLine()));
