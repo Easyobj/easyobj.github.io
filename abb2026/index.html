@@ -12,7 +12,7 @@
   <title>ABB Robotics H5</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/ABBvoice_CNSG_Rg.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=5.2.6">
+  <link rel="stylesheet" href="styles.css?v=5.3.1">
 </head>
 <body>
   <!-- 仅首次加载显示；SPA 内部切页不会再次出现 -->
@@ -95,6 +95,18 @@
         </section>
       </div>
     </main>
+
+    <!-- PSD RESULT / LOTTERY / ACTIVITY STATE VIEW -->
+    <main class="view view--status" id="statusView" data-view="status" aria-hidden="true">
+      <div class="status-shell">
+        <section class="status-stage" id="statusStage" aria-live="polite">
+          <img class="status-artwork" id="statusArtwork" src="" alt="">
+          <button class="status-back pressable" id="statusBack" type="button" aria-label="返回首页">‹</button>
+          <button class="status-action pressable" id="statusAction" type="button"></button>
+          <p class="status-safety" id="statusSafety" hidden></p>
+        </section>
+      </div>
+    </main>
   </div>
 
   <div class="modal" id="modal" aria-hidden="true">
@@ -109,6 +121,6 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
-  <script src="app.js?v=5.2.6"></script>
+  <script src="app.js?v=5.3.1"></script>
 </body>
 </html>

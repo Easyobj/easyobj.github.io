@@ -126,19 +126,52 @@
   };
   const homeView = $('#homeView');
   const interactionView = $('#interactionView');
+  const statusView = $('#statusView');
   const ui = $('#interactionUI');
   const backBtn = $('#interactionBack');
+  const statusStage = $('#statusStage');
+  const statusArtwork = $('#statusArtwork');
+  const statusAction = $('#statusAction');
+  const statusBack = $('#statusBack');
+  const statusSafety = $('#statusSafety');
   const toast = $('#toast');
   const appRoot = $('#app');
   const STORAGE_KEY = 'abb-robotics-h5-progress-v1';
   let homeScrollY = 0;
   let currentScene = null;
   let currentState = null;
+  let currentStatus = null;
+
+  const STATUS_VIEWS = {
+    'result-correct':{asset:'result-correct.webp',alt:'恭喜回答正确',action:'收下徽章'},
+    'result-fail':{asset:'result-fail.webp',alt:'很遗憾，本次回答未通过',action:'返回首页'},
+    'all-complete':{asset:'all-complete.webp',alt:'恭喜您已全部通关',action:'立即兑奖'},
+    'lottery':{asset:'lottery.webp',alt:'幸运大转盘界面预览',action:'立即抽奖',safety:'界面预览 · 未接入抽奖概率、奖品库存或核销接口'},
+    'lottery-win':{asset:'lottery-win.webp',alt:'中奖结果设计预览',action:'兑换礼品',safety:'设计预览 · 不代表真实中奖或奖品库存'},
+    'lottery-lose':{asset:'lottery-lose.webp',alt:'未中奖结果设计预览',safety:'设计预览 · 正式结果须由服务端产生'},
+    'activity-ended':{asset:'activity-ended.webp',alt:'今日活动已结束'}
+  };
 
   function readProgress(){
     try {
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      return parsed && typeof parsed === 'object' ? parsed : {};
+      if(!parsed || typeof parsed !== 'object')return {};
+      let migrated=false;
+      for(let id=1;id<=6;id++){
+        const saved=parsed[id];
+        const data=DATA[id];
+        if(!saved?.submitted || typeof saved.passed==='boolean')continue;
+        let passed=false;
+        if(data.type==='textarea')passed=typeof saved.answer==='string'&&Boolean(saved.answer.trim());
+        else if(data.type==='judge')passed=Array.isArray(saved.selected)&&saved.selected.length===data.correct.length&&data.correct.every((answer,i)=>saved.selected[i]===answer);
+        else if(data.type==='multi')passed=Array.isArray(saved.selected)&&saved.selected.length===data.correct.length&&data.correct.every(answer=>saved.selected.includes(answer));
+        else passed=saved.selected===data.correct;
+        saved.passed=passed;
+        if(!passed)saved.submitted=false;
+        migrated=true;
+      }
+      if(migrated)localStorage.setItem(STORAGE_KEY,JSON.stringify(parsed));
+      return parsed;
     } catch {
       return {};
     }
@@ -219,15 +252,40 @@
   },true));
 
   /* ---------- SPA view switching ---------- */
+  function activateView(name){
+    [[homeView,'home'],[interactionView,'interaction'],[statusView,'status']].forEach(([view,key])=>{
+      const active=name===key;
+      view.classList.toggle('is-active',active);
+      view.setAttribute('aria-hidden',active?'false':'true');
+    });
+  }
+
   function setView(name, {push=true}={}){
     const toInteraction = name === 'interaction';
-    homeView.classList.toggle('is-active', !toInteraction);
-    interactionView.classList.toggle('is-active', toInteraction);
-    homeView.setAttribute('aria-hidden', toInteraction ? 'true':'false');
-    interactionView.setAttribute('aria-hidden', toInteraction ? 'false':'true');
+    activateView(toInteraction?'interaction':'home');
     if(push){
       history.pushState(toInteraction ? {view:'interaction',scene:currentScene,fromHome:true}:{view:'home'}, '', toInteraction ? `#scene-${currentScene}` : '#home');
     }
+  }
+
+  function showStatus(kind,{push=true}={}){
+    const config=STATUS_VIEWS[kind];
+    if(!config)return;
+    currentStatus=kind;
+    statusStage.dataset.status=kind;
+    statusArtwork.src=`assets/states/${config.asset}`;
+    statusArtwork.alt=config.alt;
+    statusAction.hidden=!config.action;
+    statusAction.setAttribute('aria-label',config.action||'');
+    statusSafety.hidden=!config.safety;
+    statusSafety.textContent=config.safety||'';
+    activateView('status');
+    if(push)history.pushState({view:'status',kind,scene:currentScene,fromHome:true},'',`#${kind}`);
+    window.scrollTo(0,0);
+  }
+
+  function allScenesPassed(){
+    return Array.from({length:6},(_,i)=>Boolean(getSceneProgress(i+1).passed)).every(Boolean);
   }
 
   function openScene(id, {push=true}={}){
@@ -242,6 +300,7 @@
 
   function closeInteraction({fromPop=false}={}){
     currentScene = null;
+    currentStatus = null;
     ui.innerHTML = '';
     setView('home',{push:!fromPop});
     requestAnimationFrame(()=>window.scrollTo(0,homeScrollY));
@@ -258,7 +317,31 @@
   window.addEventListener('popstate',e=>{
     const st=e.state;
     if(st?.view==='interaction' && st.scene){ openScene(Number(st.scene), {push:false}); }
+    else if(st?.view==='status' && STATUS_VIEWS[st.kind]){currentScene=Number(st.scene)||null;showStatus(st.kind,{push:false});}
     else closeInteraction({fromPop:true});
+  });
+
+  statusBack.addEventListener('click',()=>closeInteraction());
+  statusAction.addEventListener('click',()=>{
+    if(currentStatus==='result-correct'){
+      if(allScenesPassed())showStatus('all-complete');
+      else closeInteraction();
+      return;
+    }
+    if(currentStatus==='result-fail'){
+      if(currentScene)saveSceneProgress(currentScene,{submitted:false,passed:false});
+      closeInteraction();
+      return;
+    }
+    if(currentStatus==='all-complete'){
+      showStatus('lottery');
+      return;
+    }
+    if(currentStatus==='lottery'){
+      openModal('LOTTERY','抽奖接口未配置','<div class="availability">该页已按 PSD 完成界面校对，但当前没有奖品库存、抽奖概率、用户身份或工作人员核销接口，因此不会生成伪造的中奖结果。</div>');
+      return;
+    }
+    if(currentStatus==='lottery-win')showToast('这是设计预览，未连接真实兑换和核销服务');
   });
 
   $$('.scene[data-scene]').forEach(el=>el.addEventListener('click',()=>openScene(Number(el.dataset.scene))));
@@ -374,12 +457,12 @@
     submit.addEventListener('click',()=>{
       if(submit.disabled||currentState.submitted)return;
       currentState.submitted=true;
-      saveSceneProgress(id,{selected:data.type==='single'?currentState.selected:[...currentState.selected],submitted:true});
-      revealResults();
       const ok=data.type==='single'
         ? currentState.selected===data.correct
         : currentState.selected.size===data.correct.length&&data.correct.every(v=>currentState.selected.has(v));
-      showToast(ok?'回答正确，已保存至本机':'答案已保存至本机，页面已标出正确项');
+      saveSceneProgress(id,{selected:data.type==='single'?currentState.selected:[...currentState.selected],submitted:true,passed:ok});
+      revealResults();
+      showStatus(ok?'result-correct':'result-fail');
     });
   }
 
@@ -439,9 +522,10 @@
       currentState.submitted=true;
       let score=0;
       data.correct.forEach((ans,i)=>{if(currentState.selected[i]===ans)score++;});
-      saveSceneProgress(id,{selected:[...currentState.selected],submitted:true,score});
+      const ok=score===data.correct.length;
+      saveSceneProgress(id,{selected:[...currentState.selected],submitted:true,score,passed:ok});
       revealResults();
-      showToast(`已完成 ${score}/${data.correct.length} 题，结果已保存至本机`);
+      showStatus(ok?'result-correct':'result-fail');
     });
   }
 
@@ -470,8 +554,8 @@
     submit.addEventListener('click',()=>{
       if(submit.disabled||currentState.submitted)return;
       currentState.submitted=true;
-      saveSceneProgress(id,{answer:ta.value,submitted:true});
-      ta.disabled=true;submit.disabled=true;submit.textContent='已保存至本机';showToast('您的回答已保存至本机');
+      saveSceneProgress(id,{answer:ta.value,submitted:true,passed:true});
+      ta.disabled=true;submit.disabled=true;submit.textContent='已保存至本机';showStatus('result-correct');
     });
   }
 
@@ -529,8 +613,9 @@
   });
   $('[data-action="rules"]').addEventListener('click',()=>openModal('ACTIVITY','体验说明','<ol class="rule-list"><li><i>1</i><span>浏览展区并完成 01～06 的互动题目。</span></li><li><i>2</i><span>07 为社交媒体关注指引，不计入本机答题进度。</span></li><li><i>3</i><span>当前进度仅保存在本机浏览器，不会上传到服务器。</span></li><li><i>4</i><span>正式活动时间、奖项、抽奖与兑奖条件以活动现场通知为准。</span></li></ol>'));
   $('[data-action="prize"]').addEventListener('click',()=>{
-    const completed=Array.from({length:6},(_,i)=>Boolean(getSceneProgress(i+1).submitted)).filter(Boolean).length;
+    const completed=Array.from({length:6},(_,i)=>Boolean(getSceneProgress(i+1).passed)).filter(Boolean).length;
     const ready=completed===6;
+    if(ready){showStatus('all-complete');return;}
     openModal('PRIZE','兑奖中心',`<div class="progress-summary"><b>互动完成进度</b><strong>${completed} / 6</strong><div class="progress-track" aria-label="已完成 ${completed} 个，共 6 个"><span style="width:${completed/6*100}%"></span></div></div><div class="empty"><b>${ready?'已完成全部互动':'尚未完成全部互动'}</b><p>${ready?'源稿中的下一步为抽奖与兑奖。当前版本没有奖品库存、随机抽奖或工作人员核销接口，因此不会生成虚假的中奖结果；请由活动现场工作人员操作。':'完成 01～06 后可查看现场抽奖与兑奖安排。当前进度只保存在本机。'}</p></div>`);
   });
 
@@ -546,8 +631,13 @@
   }
 
   // 初始化 SPA 路由：直接刷新 #scene-N 时仍能恢复互动页；返回首页不触发 Loading。
+  const statusRoute=location.hash.match(/^#(result-correct|result-fail|all-complete|lottery|lottery-win|lottery-lose|activity-ended)$/);
   const routeMatch = location.hash.match(/^#scene-([1-7])$/);
-  if(routeMatch){
+  if(statusRoute){
+    const kind=statusRoute[1];
+    history.replaceState({view:'status',kind,scene:null,fromHome:false},'',location.hash);
+    showStatus(kind,{push:false});
+  }else if(routeMatch){
     const id = Number(routeMatch[1]);
     history.replaceState({view:'interaction',scene:id,fromHome:false},'', location.hash);
     currentScene = id;

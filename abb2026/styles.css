@@ -174,6 +174,23 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .ui-scene-7 .social-list{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 .ui-scene-7 .social-note{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 
+/* PSD 结果、通关、抽奖与活动结束状态 */
+.view--status{background:#bad3ec}
+.status-shell{width:7.5rem;max-width:750px;min-height:100svh;margin:0 auto;background:#bad3ec;box-shadow:0 0 .28rem rgba(0,0,0,.20)}
+.status-stage{position:relative;width:7.5rem;height:max(13.326rem,100svh);overflow:hidden;background:#bad3ec}
+.status-artwork{position:absolute;z-index:0;left:0;top:0;width:7.5rem;height:13.326rem;object-fit:fill}
+.status-back{position:absolute;z-index:4;left:.18rem;top:calc(.16rem + var(--safe-top));width:.72rem;height:.72rem;border-radius:50%;display:grid;place-items:center;padding:0;background:rgba(255,255,255,.78);box-shadow:0 .03rem .10rem rgba(47,78,122,.16);color:#4f54ba;font-family:Arial,sans-serif;font-size:.46rem;font-weight:700;line-height:1;cursor:pointer}
+.status-action{position:absolute;z-index:3;left:2.524rem;top:8.625rem;width:2.438rem;height:.72rem;padding:0;border-radius:999px;background:transparent;color:transparent;cursor:pointer}
+.status-action:focus-visible{outline:.055rem solid #154fc1;outline-offset:.045rem}
+.status-stage[data-status="all-complete"] .status-action{top:10.07rem}
+.status-stage[data-status="lottery"] .status-action{left:2.494rem;top:8.976rem;width:2.498rem;height:.738rem}
+.status-stage[data-status="lottery-win"] .status-action{left:2.72rem;top:6.756rem;width:2.044rem;height:.604rem}
+.status-stage[data-status="lottery-lose"] .status-action,.status-stage[data-status="activity-ended"] .status-action{display:none}
+.status-stage[data-status="result-correct"] .status-back,.status-stage[data-status="result-fail"] .status-back,.status-stage[data-status="all-complete"] .status-back{display:none}
+.status-stage[data-status="activity-ended"] .status-back{left:5.84rem;top:4.03rem;width:.60rem;height:.60rem;background:transparent;box-shadow:none;color:transparent}
+.status-safety{position:absolute;z-index:4;left:.72rem;top:10.48rem;width:6.06rem;margin:0;padding:.13rem .20rem;border-radius:.12rem;background:rgba(255,255,255,.90);box-shadow:0 .03rem .10rem rgba(30,56,96,.16);color:#34445f;font-size:.21rem;line-height:1.35;text-align:center}
+.status-stage[data-status="lottery-win"] .status-safety,.status-stage[data-status="lottery-lose"] .status-safety{top:9.18rem}
+
 /* Modal / Sheet */
 .modal{position:fixed;z-index:1500;inset:0;display:grid;align-items:end;justify-items:center;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease,visibility .22s ease}
 .modal.open{opacity:1;visibility:visible;pointer-events:auto}
