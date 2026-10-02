@@ -1,6 +1,6 @@
 # ABB 2026 PHP 后端
 
-本目录是 2026 活动的服务端基础，目标环境为 PHP 7.4+、MySQL 5.7+/8.0、HTTPS 和微信公众号网页授权。正式活动入口为项目根目录 `index.php`，由 PHP 控制器处理表单并渲染模板，不依赖前端 JSON API。
+正式活动采用去年的 ThinkPHP 3.2.3 内核。入口 `index.php` 调度 `Application/Other` 与 `Application/Admin`，使用 PHP 模板和普通表单 POST；业务类位于 `Application/Common/Service`。本目录保留 CLI 运维脚本、SQL、本地配置和旧路径兼容入口，前端不使用 JSON 业务 API。
 
 ## 已实现
 
@@ -29,7 +29,7 @@
 - 新安装：执行完整的 `database/schema.sql`。
 - 已安装 V5.4/V5.5：执行 `database/migrations/2026_10_02_admin.sql`。
 - 创建或重置管理员：`ABB_ADMIN_PASSWORD='至少12位强密码' php api/bin/create-admin.php <用户名>`。
-- 登录地址：`/api/admin/`。连续 5 次登录失败会锁定 15 分钟。
+- 登录地址：`/index.php?m=Admin&c=Index&a=index`，旧 `/api/admin/` 自动跳转。连续 5 次登录失败会锁定 15 分钟。
 - 后台填写的是活动方最终确认的抽奖权重；代码不会根据库存自行推断概率。
 - 正式切流前运行 `php api/bin/preflight.php`；全部项目显示 `[OK]` 后再开放入口。
 - 本地开发使用 `php api/bin/preflight.php --local`；启动方式见项目根目录 `LOCAL_DEVELOPMENT.md`。

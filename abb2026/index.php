@@ -1,14 +1,9 @@
 <?php
 declare(strict_types=1);
 
-require __DIR__ . '/api/bootstrap.php';
-
-define('ABB_TEMPLATE_RENDER', true);
-$page = PageController::handle();
-if (($page['view'] ?? '') === 'wechat-required') {
-    require __DIR__ . '/templates/wechat-required.php';
-    exit;
-}
-
-$serverState = $page['serverState'];
-require __DIR__ . '/templates/activity.php';
+require __DIR__ . '/Application/Common/bootstrap.php';
+require __DIR__ . '/Application/Common/Conf/routes.php';
+define('APP_PATH', __DIR__ . '/Application/');
+define('RUNTIME_PATH', APP_PATH . 'Runtime/5.8.0/');
+define('APP_DEBUG', false);
+require __DIR__ . '/ThinkPHP/ThinkPHP.php';

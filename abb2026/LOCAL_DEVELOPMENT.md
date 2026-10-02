@@ -1,11 +1,11 @@
 # ABB 2026 本地开发环境
 
-当前 Mac 已安装 PHP 8.5 和 MariaDB 13，并建立了 `abb2026_local` 开发数据库。正式最低版本仍为 PHP 7.4、MySQL 5.7。
+当前 Mac 已安装 PHP 8.5 和 MariaDB 13，并建立了 `abb2026_local` 开发数据库。V5.8.0 已接入去年 ThinkPHP 3.2.3 内核并验证本项目使用的路径；生产同样需要 PHP 7.4+，以受安全支持且实测兼容的版本为准。
 
 ## 当前本机地址
 
 - PHP 模板活动页：`http://127.0.0.1:8080/index.php#home`
-- 运营后台：`http://127.0.0.1:8080/api/admin/`
+- 运营后台：`http://127.0.0.1:8080/index.php?m=Admin&c=Index&a=index`（旧 `/api/admin/` 会跳转）
 - 管理员用户名：`localadmin`
 - 管理员密码：使用本机初始化时单独提供的密码
 
@@ -30,7 +30,9 @@ cd /Users/asimov/Downloads/abb/html
 
 `api/config.local.php` 包含本机数据库信息和开发用户，已被 `api/.gitignore` 排除，不会提交到 Git。Pages 发布时也必须继续排除该文件。
 
-本地模式通过固定的开发 OpenID 自动登录，不调用真实微信授权。`index.php` 使用 PHP 控制器和模板渲染；`index.html` 仅用于 GitHub Pages 静态预览。
+本地模式通过固定的开发 OpenID 自动登录，不调用真实微信授权。`index.php` 使用 ThinkPHP 控制器及 `Application/Other/View/Index/` 下的 PHP 模板；`index.html` 仅用于 GitHub Pages 静态预览。启动脚本的 router 会禁止下载内核、Application、配置及运行缓存；本机访问 `/index.html` 会转到 PHP 入口。
+
+正式凭据另存到 Web 根目录之外的 `private/abb2026.production.php`。本地开发仍读 `api/config.local.php`；生产使用 `ABB_CONFIG_FILE` 指向服务器私有文件，目标数据库固定为 `abb2026`。设置实际域名和活动时间后才能执行生产预检。
 
 本机 `api/config.local.php` 将 `wechat.browser_required` 设为 `false`，仅为桌面浏览器调试绕过微信环境检查。该文件不会提交；生产默认强制微信内置浏览器和公众号 OAuth。
 
@@ -42,7 +44,7 @@ node --check app.js
 node --check runtime-config.js
 ```
 
-`--local` 只跳过正式环境专属的 HTTPS 和微信公众号凭据检查，数据库、表结构、活动时间与奖品权重仍会真实验证。正式发布必须去掉 `--local`。
+`--local` 跳过生产模式、HTTPS、微信凭据和微信门禁检查；数据库、内核、活动时间与奖品权重仍会真实验证。正式发布必须去掉 `--local`。
 
 ## 重新建库
 

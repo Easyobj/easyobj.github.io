@@ -34,5 +34,5 @@ fi
 
 php "$project_root/api/bin/preflight.php" --local
 echo "ABB 2026 local site: http://$local_host:$local_port/index.php#home"
-echo "Admin console:       http://$local_host:$local_port/api/admin/"
-exec php -S "$local_host:$local_port" -t "$project_root"
+echo "Admin console:       http://$local_host:$local_port/index.php?m=Admin&c=Index&a=index"
+exec php -S "$local_host:$local_port" -t "$project_root" "$script_dir/local-router.php"

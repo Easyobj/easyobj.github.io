@@ -7,7 +7,7 @@ if (PHP_SAPI !== 'cli') {
 }
 
 $projectRoot = dirname(__DIR__, 2);
-$template = $projectRoot . '/templates/activity.php';
+$template = $projectRoot . '/Application/Other/View/Index/activity.php';
 $target = $projectRoot . '/index.html';
 $serverState = null;
 define('ABB_TEMPLATE_RENDER', true);
@@ -23,4 +23,4 @@ if (file_put_contents($target, $html) === false) {
     fwrite(STDERR, "Unable to write index.html.\n");
     exit(1);
 }
-fwrite(STDOUT, "Generated index.html from templates/activity.php.\n");
+fwrite(STDOUT, "Generated index.html from the ThinkPHP activity view.\n");

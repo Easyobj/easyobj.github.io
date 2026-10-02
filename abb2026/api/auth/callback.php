@@ -1,15 +1,6 @@
 <?php
 declare(strict_types=1);
-
-require dirname(__DIR__) . '/bootstrap.php';
-
-$code = trim((string) ($_GET['code'] ?? ''));
-$state = trim((string) ($_GET['state'] ?? ''));
-$expected = (string) ($_SESSION['oauth_state'] ?? '');
-if ($code === '' || $state === '' || $expected === '' || !hash_equals($expected, $state)) {
-    Api::error('oauth_state_failed', '微信授权校验失败，请重新进入活动。', 400);
-}
-
-Auth::signInByWechat(Wechat::exchange($code));
-header('Location: ' . rtrim((string) abbConfig()['app_url'], '/') . '/index.php#home', true, 302);
-exit;
+$_GET['m'] = 'Other';
+$_GET['c'] = 'Auth';
+$_GET['a'] = 'callback';
+require dirname(__DIR__, 2) . '/index.php';

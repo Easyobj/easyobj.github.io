@@ -1,2 +1,3 @@
 config.local.php
+config.production.php
 *.log

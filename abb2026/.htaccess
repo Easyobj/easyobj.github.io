@@ -1,4 +1,10 @@
 DirectoryIndex index.php index.html
+Options -Indexes
+
+RewriteEngine On
+RewriteRule ^(?:Application|ThinkPHP|templates)(?:/|$) - [F,L,NC]
+RewriteRule (^|/)\. - [F,L]
+RewriteRule ^index\.html$ index.php [R=302,L]
 
 <IfModule mod_expires.c>
   ExpiresActive On
@@ -10,7 +16,10 @@ DirectoryIndex index.php index.html
   <FilesMatch "\.(woff2|webp)$">
     Header set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
-  <FilesMatch "\.(html|php)$">
+  <FilesMatch "\.html$">
     Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.php$">
+    Header always set Cache-Control "no-store"
   </FilesMatch>
 </IfModule>

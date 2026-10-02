@@ -12,7 +12,7 @@ $report = Health::report();
 $localMode = in_array('--local', $argv, true);
 $localReady = true;
 foreach ($report['checks'] as $name => $check) {
-    $skipped = $localMode && in_array($name, ['https', 'wechat', 'wechat_browser'], true);
+    $skipped = $localMode && in_array($name, ['production', 'https', 'wechat', 'wechat_browser'], true);
     $label = $skipped ? 'SKIP' : ($check['ok'] ? 'OK' : 'FAIL');
     fwrite(STDOUT, sprintf("[%s] %-10s %s\n", $label, $name, $check['message']));
     if (!$skipped) {

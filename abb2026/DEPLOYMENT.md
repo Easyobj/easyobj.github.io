@@ -1,42 +1,30 @@
 # ABB 2026 正式服务器部署清单
 
-GitHub Pages 仅用于视觉验收。微信授权、答题记录、抽奖库存和现场核销必须部署到正式 PHP/MySQL 服务器。
+V5.8.0：沿用去年 ThinkPHP 3.2.3、同一服务器、同一数据库账号及微信公众号；新建独立 `abb2026` 数据库，不复用或修改去年数据库中的表和用户数据。Pages 只提供静态视觉预览。
 
-从空白 Linux 云服务器开始的逐步部署命令、Nginx/PHP-FPM 配置、微信域名授权、备份与回滚说明见 [`SERVER_DEPLOYMENT.md`](SERVER_DEPLOYMENT.md)。本文件保留部署前确认项和项目验收清单。
+操作命令见 [SERVER_DEPLOYMENT.md](SERVER_DEPLOYMENT.md)，迁移说明见 [FRAMEWORK_MIGRATION.md](FRAMEWORK_MIGRATION.md)。
 
-## 运行环境
+## 上线前确认
 
-- PHP 7.4 或更高版本，启用 `pdo_mysql`、`curl`、`mbstring`、`openssl`、`json` 和 `session`
-- MySQL 5.7+ 或 MySQL 8.0，数据表使用 InnoDB 与 `utf8mb4`
-- 全站 HTTPS；`index.php` 与静态资源使用同一域名和目录
-- Web 服务器将 `index.php` 设为默认入口（Apache 的 `DirectoryIndex index.php index.html` 或 Nginx 等价配置）
-- Web 根目录支持 `.htaccess`，或在 Nginx 中等价禁止访问 `api/src/`、`api/database/`、`api/bin/` 和配置文件
+- 现有服务器 SSH 地址/别名、端口、用户名及旧配置文件位置。
+- 今年正式 HTTPS 域名、公众号授权域名及活动起止时间。
+- 活动方确认的奖品库存和抽奖权重；未确认权重保持空值。
+- 备份和回滚负责人。独立库不等于独立账号权限。
 
-## 上线前必须由活动方确认
+## 操作顺序
 
-- 正式 HTTPS 域名及服务器登录/发布方式
-- 微信公众号 AppID、AppSecret 和网页授权域名
-- 活动开始、结束时间与时区
-- 四个奖品最终总库存、每日库存和抽奖权重
-- 第一位后台管理员用户名；密码只在服务器环境变量中输入
-- 今年是否沿用去年域名。若不用，必须在微信公众平台同步修改授权域名
-
-## 部署步骤
-
-1. 备份旧数据库；新建独立的 `abb2026` 数据库和最小权限数据库账号。
-2. 执行 `api/database/schema.sql`。从早期 2026 测试版升级时，执行 `api/database/migrations/2026_10_02_admin.sql`。
-3. 复制 `api/config.local.php.example` 为服务器专用的 `api/config.local.php`，填入真实配置并限制文件权限。
-   正式环境必须保持 `wechat.browser_required` 为 `true`（或环境变量 `ABB_WECHAT_BROWSER_REQUIRED=true`）。
-4. 使用 `ABB_ADMIN_PASSWORD='强密码' php api/bin/create-admin.php <用户名>` 创建后台账号；不要把密码写入命令历史或 Git。
-5. 在后台填写活动方确认的抽奖权重。任一启用奖品缺少权重时，服务端会拒绝抽奖。
-6. 执行 `php api/bin/build-static-preview.php` 刷新 Pages 验收版，再将完整 `html/` 部署到正式目录。
-7. 执行 `php api/bin/preflight.php`，并访问 `/api/index.php?action=health` 验证所有检查均为 `ready`。该 JSON 端点仅供运维监控。
-8. 先用非微信浏览器访问 `/index.php`，确认只显示微信打开提示；再在微信内确认首次访问立即进入 OAuth，并走通六站普通表单提交、一次抽奖、刷新后结果恢复、兑奖核销和开放题 CSV 导出。
-9. 使用两个并发请求验证同一用户只生成一个兑奖码，并核对总库存和当日库存各减少一次。
+1. 检查旧服务器的 PHP 及扩展；不直接升级系统或替换旧站点。
+2. 部署到独立目录，创建独立 FPM 池、日志、Session 和 Runtime。
+3. 用 `import-legacy-config.php` 读取原私密配置，生成 Web 根之外的配置；数据库名自动改为 `abb2026`，账号与公众号凭据保持原值。
+4. 用 `provision-database.php --config=/etc/abb2026/settings.php` 无连接预演；确认在原服务器后加 `--execute`。已有非空库拒绝初始化。
+5. 填写真实域名和活动时间，FPM 通过 `ABB_CONFIG_FILE` 加载配置；保持 `app_env=production`、`dev_openid=''`、`browser_required=true`。
+6. 配置 HTTPS 和源码访问限制，创建后台账号，录入已确认权重。
+7. 完整预检后，用真实微信验收授权、六站答题、结果恢复与核销。并发测试只用独立测试库或获批准的测试奖品。
 
 ## 安全要求
 
-- 去年项目中出现过的数据库密码和公众号密钥应视为已泄露，正式上线前必须轮换。
-- 不上传去年 `Application/Runtime`、访问日志、用户 OpenID、昵称或头像缓存。
-- 数据库、PHP 错误日志和导出的开放题答案只能由授权人员访问。
-- 正式发布后关闭 PHP 屏幕错误输出，仅保留受控服务端日志。
+- 密钥和密码不进入 Git、Pages、截图、命令参数或聊天记录。旧凭据的历史暴露风险仍存在；本次按活动方决定沿用，后续轮换需要协调旧活动。
+- 禁止访问 `Application/`、`ThinkPHP/`、数据库脚本、CLI 脚本、私密配置和 Git 元数据。
+- 不上传旧 Runtime、日志或用户缓存；新 Runtime 不进入 Git。
+- PHP 保留 `Cache-Control: no-store`，关闭屏幕错误与框架调试，日志不输出异常消息中的凭据。
+- 微信 User-Agent 门禁不能代替 OAuth 身份校验；必须验收真实授权往返。

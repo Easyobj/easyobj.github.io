@@ -1,4 +1,6 @@
-# ABB Robotics H5（PHP 模板 / 多文件）
+# ABB Robotics H5（ThinkPHP 3.2.3 / PHP 模板）
+
+当前 V5.8.0 复用去年的 ThinkPHP 3.2.3 内核，采用 `Other` / `Admin` 模块及 PHP 视图渲染。生产沿用去年服务器、数据库账号和公众号，但今年使用独立数据库 `abb2026`。迁移说明见 [`FRAMEWORK_MIGRATION.md`](FRAMEWORK_MIGRATION.md)。
 
 本版本针对反馈做了三项重点调整：
 
@@ -7,18 +9,29 @@
 3. 互动页以原 PSD 合成图作为视觉基准，标题、卡片、说明文字和可操作控件使用真实 HTML/CSS 还原。
 
 ## 文件结构
-- `index.php`：正式服务器入口，处理普通表单 POST 并调用 PHP 模板
-- `templates/activity.php`：首页、互动视图和服务器状态的 PHP 页面模板
+- `index.php`：ThinkPHP 入口，先校验允许的路由，再调度控制器
+- `ThinkPHP/`：从去年项目复制的 3.2.3 内核及 PHP 8 兼容修改，保留原许可
+- `Application/Other/`：活动与微信授权控制器、PHP 页面模板
+- `Application/Admin/`：运营后台控制器和 PHP 模板
+- `Application/Common/Service/`：微信会话、PDO 数据访问、答题和事务抽奖业务类
 - `index.html`：从同一 PHP 模板生成的 GitHub Pages 静态预览，不承担正式业务
 - `styles.css`：rem 适配、首页微动、PSD 对齐的互动控件
 - `app.js`：首次 Loading、页内视图切换、01–06 交互及普通表单提交
 - `runtime-config.js`：标记 PHP 服务器模式或 GitHub Pages 静态预览模式
-- `api/`：PHP 7.4+ / MySQL 业务类、微信 OAuth、答题进度、事务抽奖和运维健康检查
+- `api/`：CLI 运维脚本、SQL、被忽略的本地配置、旧路径兼容入口及健康检查
 - `DEPLOYMENT.md`：正式服务器、微信授权、数据库和上线验收清单
-- `SERVER_DEPLOYMENT.md`：从空白 Ubuntu 服务器开始的 Nginx、PHP-FPM、数据库、HTTPS 和公众号授权操作指南
+- `SERVER_DEPLOYMENT.md`：在去年服务器新增今年站点、私密配置、新数据库、PHP-FPM、HTTPS 和公众号授权指南
 - `assets/home/`：首页 PSD 图层
 - `assets/scene6/`：从 06 PSD 提取的四张答题图片
 - `assets/social/`：从 07 PSD 提取的社交平台视觉素材
+
+## V5.8.0 复用去年框架与独立数据库
+
+- 真正使用 ThinkPHP 3.2.3 控制器和 PHP 视图，保留今年答题与事务抽奖服务，不搬运旧用户数据。
+- 沿用服务器、数据库账号和公众号，初始化库名固定为 `abb2026`，已有非空库不覆盖。
+- 真实凭据导入独立私密配置，生产通过 `ABB_CONFIG_FILE` 加载，不进入源码或 Pages。
+- 路由白名单、PHP 8 兼容修改、后台 CSV 防公式注入和安全错误响应。
+- 以下旧版本章节是历史记录；当前目录与部署方式以上述 V5.8.0 和迁移指南为准。
 
 ## 适配
 ```css
