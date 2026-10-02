@@ -1,7 +1,11 @@
 <?php
 declare(strict_types=1);
+if (!defined('ABB_TEMPLATE_RENDER')) {
+    http_response_code(404);
+    exit;
+}
 $serverState = isset($serverState) && is_array($serverState) ? $serverState : null;
-$release = '5.7.0-php-template';
+$release = '5.7.1-wechat-oauth';
 ?>
 <!doctype html>
 <html lang="zh-CN">
@@ -18,7 +22,7 @@ $release = '5.7.0-php-template';
   <title>ABB Robotics H5</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/ABBvoice_CNSG_Rg.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=5.3.1">
+  <link rel="stylesheet" href="styles.css?v=5.7.1">
 </head>
 <body>
   <!-- 仅首次加载显示；SPA 内部切页不会再次出现 -->
@@ -137,7 +141,7 @@ $release = '5.7.0-php-template';
 
   <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
   <script>window.ABB_SERVER_STATE=<?= json_encode($serverState, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
-  <script src="runtime-config.js?v=5.7.0"></script>
-  <script src="app.js?v=5.7.0"></script>
+  <script src="runtime-config.js?v=5.7.1"></script>
+  <script src="app.js?v=5.7.1"></script>
 </body>
 </html>

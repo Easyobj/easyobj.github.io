@@ -31,6 +31,13 @@ final class Health
             'ok' => $wechatReady,
             'message' => $wechatReady ? '微信公众号凭据已配置。' : '微信公众号 AppID 或 AppSecret 未配置。',
         ];
+        $wechatBrowserRequired = (bool) ($config['wechat']['browser_required'] ?? true);
+        $checks['wechat_browser'] = [
+            'ok' => $wechatBrowserRequired,
+            'message' => $wechatBrowserRequired
+                ? '已启用微信内置浏览器强制门禁。'
+                : '微信浏览器门禁未启用，仅允许本地开发使用。',
+        ];
 
         try {
             $activity = Activity::status();

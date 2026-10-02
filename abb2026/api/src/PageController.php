@@ -5,6 +5,10 @@ final class PageController
 {
     public static function handle(): array
     {
+        if (Wechat::browserRequired() && !Wechat::isBrowser()) {
+            return ['view' => 'wechat-required'];
+        }
+
         $user = Auth::user(false);
         if ($user === null) {
             $appUrl = abbConfig()['app_url'];
@@ -22,13 +26,16 @@ final class PageController
         $flash = $_SESSION['activity_flash'] ?? null;
         unset($_SESSION['activity_flash']);
         return [
-            'serverRendered' => true,
-            'csrfToken' => Auth::csrfToken(),
-            'user' => $user,
-            'activity' => Activity::status(),
-            'progress' => AnswerService::progress($user['id']),
-            'draw' => LotteryService::existing($user['id']),
-            'flash' => $flash,
+            'view' => 'activity',
+            'serverState' => [
+                'serverRendered' => true,
+                'csrfToken' => Auth::csrfToken(),
+                'user' => $user,
+                'activity' => Activity::status(),
+                'progress' => AnswerService::progress($user['id']),
+                'draw' => LotteryService::existing($user['id']),
+                'flash' => $flash,
+            ],
         ];
     }
 

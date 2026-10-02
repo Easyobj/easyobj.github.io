@@ -145,6 +145,13 @@ html { font-size: calc(100vw / 7.5); }
 - `api/index.php` 仅保留健康检查，用于部署运维，不是浏览器业务接口。
 - `php api/bin/build-static-preview.php` 从同一 PHP 模板生成 `index.html`，仅供 GitHub Pages 设计验收。
 
+## V5.7.1 微信环境与授权门禁
+
+- 正式 PHP 入口会先校验浏览器 User-Agent；非微信内置浏览器只渲染“请在微信中打开”提示，不读取用户进度也不进入活动。
+- 微信内访问且尚未建立会话时，立即跳转微信公众号 OAuth；授权回调后才渲染活动页。
+- 生产默认 `ABB_WECHAT_BROWSER_REQUIRED=true`；只有被 Git 忽略的本地配置可关闭门禁，用于桌面浏览器回归。
+- GitHub Pages 仍为不承载业务的静态设计预览，不代替正式微信授权入口。
+
 ### 部署配置说明
 
 - `_headers` 仅适用于支持该格式的静态托管平台。

@@ -16,6 +16,7 @@ return [
         'app_id' => 'replace-me',
         'app_secret' => 'replace-me',
         'scope' => 'snsapi_userinfo',
+        'browser_required' => true,
     ],
     'activity' => [
         'starts_at' => 'YYYY-MM-DD HH:MM:SS',

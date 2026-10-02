@@ -32,6 +32,8 @@ cd /Users/asimov/Downloads/abb/html
 
 本地模式通过固定的开发 OpenID 自动登录，不调用真实微信授权。`index.php` 使用 PHP 控制器和模板渲染；`index.html` 仅用于 GitHub Pages 静态预览。
 
+本机 `api/config.local.php` 将 `wechat.browser_required` 设为 `false`，仅为桌面浏览器调试绕过微信环境检查。该文件不会提交；生产默认强制微信内置浏览器和公众号 OAuth。
+
 ## 检查
 
 ```bash

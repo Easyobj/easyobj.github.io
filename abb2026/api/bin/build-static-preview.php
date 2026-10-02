@@ -10,6 +10,7 @@ $projectRoot = dirname(__DIR__, 2);
 $template = $projectRoot . '/templates/activity.php';
 $target = $projectRoot . '/index.html';
 $serverState = null;
+define('ABB_TEMPLATE_RENDER', true);
 
 ob_start();
 require $template;

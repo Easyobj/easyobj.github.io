@@ -3,6 +3,17 @@ declare(strict_types=1);
 
 final class Wechat
 {
+    public static function browserRequired(): bool
+    {
+        return (bool) (abbConfig()['wechat']['browser_required'] ?? true);
+    }
+
+    public static function isBrowser(?string $userAgent = null): bool
+    {
+        $agent = $userAgent ?? (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
+        return $agent !== '' && stripos($agent, 'MicroMessenger') !== false;
+    }
+
     public static function authorizationUrl(): string
     {
         $config = abbConfig();

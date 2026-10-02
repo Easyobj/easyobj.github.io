@@ -24,11 +24,12 @@ GitHub Pages 仅用于视觉验收。微信授权、答题记录、抽奖库存�
 1. 备份旧数据库；新建独立的 `abb2026` 数据库和最小权限数据库账号。
 2. 执行 `api/database/schema.sql`。从早期 2026 测试版升级时，执行 `api/database/migrations/2026_10_02_admin.sql`。
 3. 复制 `api/config.local.php.example` 为服务器专用的 `api/config.local.php`，填入真实配置并限制文件权限。
+   正式环境必须保持 `wechat.browser_required` 为 `true`（或环境变量 `ABB_WECHAT_BROWSER_REQUIRED=true`）。
 4. 使用 `ABB_ADMIN_PASSWORD='强密码' php api/bin/create-admin.php <用户名>` 创建后台账号；不要把密码写入命令历史或 Git。
 5. 在后台填写活动方确认的抽奖权重。任一启用奖品缺少权重时，服务端会拒绝抽奖。
 6. 执行 `php api/bin/build-static-preview.php` 刷新 Pages 验收版，再将完整 `html/` 部署到正式目录。
 7. 执行 `php api/bin/preflight.php`，并访问 `/api/index.php?action=health` 验证所有检查均为 `ready`。该 JSON 端点仅供运维监控。
-8. 访问 `/index.php`，在微信内走通授权、六站普通表单提交、一次抽奖、刷新后结果恢复、兑奖核销和开放题 CSV 导出。
+8. 先用非微信浏览器访问 `/index.php`，确认只显示微信打开提示；再在微信内确认首次访问立即进入 OAuth，并走通六站普通表单提交、一次抽奖、刷新后结果恢复、兑奖核销和开放题 CSV 导出。
 9. 使用两个并发请求验证同一用户只生成一个兑奖码，并核对总库存和当日库存各减少一次。
 
 ## 安全要求

@@ -2,13 +2,20 @@
 declare(strict_types=1);
 
 /**
- * ABB 2026 API configuration.
+ * ABB 2026 PHP application configuration.
  *
  * Production secrets must be provided through environment variables or an
  * ignored config.local.php file. Never commit real credentials.
  */
 $csv = static function (string $value): array {
     return array_values(array_filter(array_map('trim', explode(',', $value))));
+};
+$boolean = static function ($value, bool $default): bool {
+    if ($value === false || $value === '') {
+        return $default;
+    }
+    $parsed = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+    return $parsed === null ? $default : $parsed;
 };
 
 $config = [
@@ -26,6 +33,7 @@ $config = [
         'app_id' => getenv('ABB_WECHAT_APP_ID') ?: '',
         'app_secret' => getenv('ABB_WECHAT_APP_SECRET') ?: '',
         'scope' => getenv('ABB_WECHAT_SCOPE') ?: 'snsapi_userinfo',
+        'browser_required' => $boolean(getenv('ABB_WECHAT_BROWSER_REQUIRED'), true),
     ],
     'activity' => [
         'starts_at' => getenv('ABB_ACTIVITY_STARTS_AT') ?: '',

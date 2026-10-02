@@ -210,6 +210,22 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .social-btn{min-height:.82rem;border:.018rem solid #ccd4e2;border-radius:.12rem;background:#f2f4f8;color:#6b778b;font-size:.25rem}
 .empty{padding:.22rem;border:.018rem solid #d4dbea;border-radius:.16rem;background:#f7f9fc;font-size:.29rem;line-height:1.6}
 .empty b{display:block;margin-bottom:.08rem}.empty p{margin:0;color:#51627a}
+
+/* PHP 正式入口：非微信浏览器门禁 */
+.wechat-gate-page{min-height:100%;margin:0;background:#dcecff;color:#111;font-family:"ABBvoice CNSG","PingFang SC","Microsoft YaHei",sans-serif}
+.wechat-gate{min-height:100svh;display:grid;place-items:center;padding:max(.48rem,env(safe-area-inset-top)) .34rem max(.48rem,env(safe-area-inset-bottom));box-sizing:border-box;background:linear-gradient(150deg,rgba(255,255,255,.62),rgba(215,232,250,.42)),url("assets/home/layer_1.webp") center/cover no-repeat}
+.wechat-gate__card{width:min(6.4rem,100%);box-sizing:border-box;padding:.52rem .42rem .46rem;border:1px solid rgba(255,255,255,.74);border-radius:.28rem;background:rgba(255,255,255,.82);box-shadow:0 .24rem .7rem rgba(39,69,105,.18);text-align:center;backdrop-filter:blur(14px)}
+.wechat-gate__brand{width:1.46rem;margin:0 auto .38rem;background:#f20d22;color:#fff;font-size:.46rem;font-weight:700;line-height:.64rem;letter-spacing:-.035rem}
+.wechat-gate__icon{position:relative;width:1.5rem;height:1.18rem;margin:0 auto .26rem}
+.wechat-gate__icon span{position:absolute;border-radius:50%;background:#28c445}
+.wechat-gate__icon span:first-child{left:.03rem;top:.05rem;width:1.02rem;height:.82rem}
+.wechat-gate__icon span:nth-child(2){right:.02rem;bottom:.02rem;width:.88rem;height:.7rem;border:.05rem solid #fff}
+.wechat-gate__icon i,.wechat-gate__icon b{position:absolute;top:.35rem;width:.1rem;height:.1rem;border-radius:50%;background:#fff}
+.wechat-gate__icon i{left:.34rem}.wechat-gate__icon b{left:.62rem}
+.wechat-gate__kicker{margin:0 0 .12rem;color:#71829b;font-size:.2rem;letter-spacing:.035rem}
+.wechat-gate h1{margin:0;font-size:.42rem;line-height:1.35}
+.wechat-gate__card>p:not(.wechat-gate__kicker){margin:.22rem 0 0;color:#506176;font-size:.28rem;line-height:1.7}
+.wechat-gate__notice{margin-top:.3rem;padding:.18rem .22rem;border-radius:.14rem;background:#edf8f0;color:#198535;font-size:.25rem;line-height:1.5}
 .progress-summary{margin-bottom:.18rem;padding:.22rem;border:.018rem solid #d4dbea;border-radius:.16rem;background:#fff;font-size:.27rem}
 .progress-summary b{display:block;color:#40516a}.progress-summary strong{display:block;margin:.08rem 0;font-size:.44rem;color:#514bb8}
 .progress-track{height:.12rem;overflow:hidden;border-radius:999px;background:#e5e9f1}
