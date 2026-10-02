@@ -30,5 +30,6 @@
 - 登录地址：`/api/admin/`。连续 5 次登录失败会锁定 15 分钟。
 - 后台填写的是活动方最终确认的抽奖权重；代码不会根据库存自行推断概率。
 - 正式切流前运行 `php api/bin/preflight.php`；全部项目显示 `[OK]` 后再开放入口。
+- 本地开发使用 `php api/bin/preflight.php --local`；启动方式见项目根目录 `LOCAL_DEVELOPMENT.md`。
 
 真实数据库密码、公众号 AppSecret、历史用户数据和运行日志禁止提交到 Git。

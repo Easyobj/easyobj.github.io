@@ -131,6 +131,13 @@ html { font-size: calc(100vw / 7.5); }
 - `php api/bin/preflight.php` 提供相同的命令行检查，并以退出码阻止配置不完整的版本上线。
 - 活动结束时间早于或等于开始时间时会被识别为无效配置，前端不再把它当成正常活动状态。
 
+## V5.6.2 本地开发环境
+
+- 新增 `LOCAL_DEVELOPMENT.md` 和 `api/bin/start-local.sh`，统一启动 MariaDB 检查、开发预检与 PHP 服务。
+- `php api/bin/preflight.php --local` 只跳过本地不需要的 HTTPS 和真实微信凭据，其余业务配置仍执行真实检查。
+- 本机已建立独立开发数据库、自动登录开发用户和后台账号，并通过浏览器实测真实 PHP 答题接口与后台登录。
+- `api/config.local.php` 始终由 Git 忽略，发布同步时必须排除。
+
 ### 部署配置说明
 
 - `_headers` 仅适用于支持该格式的静态托管平台。
