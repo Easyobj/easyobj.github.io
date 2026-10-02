@@ -32,7 +32,7 @@ final class Activity
     {
         $status = self::status();
         if (!$status['open']) {
-            Api::error('activity_' . $status['code'], '当前不在活动开放时间内。', 403);
+            throw new BusinessError('activity_' . $status['code'], '当前不在活动开放时间内。', 403);
         }
     }
 }

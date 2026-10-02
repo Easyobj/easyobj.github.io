@@ -1,17 +1,19 @@
-# ABB Robotics H5（SPA / 多文件）
+# ABB Robotics H5（PHP 模板 / 多文件）
 
 本版本针对反馈做了三项重点调整：
 
 1. 首页 01–07 的整体微动幅度加大：增加约 6–9px 的纵向漂浮、少量横向位移、轻微旋转与 1% 左右缩放，并为 7 个场景错开周期。
-2. 改为真正的单页面应用：01–07 点击后不再跳转其他 HTML，而是在同一个 `index.html` 内切换视图；返回首页不会再次出现 Loading，也会恢复之前的滚动位置。
+2. 01–07 点击后在同一个 PHP 模板页内切换视图；返回首页不会再次出现 Loading，也会恢复之前的滚动位置。
 3. 互动页以原 PSD 合成图作为视觉基准，标题、卡片、说明文字和可操作控件使用真实 HTML/CSS 还原。
 
 ## 文件结构
-- `index.html`：唯一入口、SPA 首页 + 互动视图
+- `index.php`：正式服务器入口，处理普通表单 POST 并调用 PHP 模板
+- `templates/activity.php`：首页、互动视图和服务器状态的 PHP 页面模板
+- `index.html`：从同一 PHP 模板生成的 GitHub Pages 静态预览，不承担正式业务
 - `styles.css`：rem 适配、首页微动、PSD 对齐的互动控件
-- `app.js`：首次 Loading、SPA history、首页交互、01–06 答题逻辑及 07 社交指引
-- `runtime-config.js`：区分正式 HTTPS 服务器与 GitHub Pages 演示环境
-- `api/`：PHP 7.4+ / MySQL 服务端、微信 OAuth、答题进度和事务抽奖基础
+- `app.js`：首次 Loading、页内视图切换、01–06 交互及普通表单提交
+- `runtime-config.js`：标记 PHP 服务器模式或 GitHub Pages 静态预览模式
+- `api/`：PHP 7.4+ / MySQL 业务类、微信 OAuth、答题进度、事务抽奖和运维健康检查
 - `DEPLOYMENT.md`：正式服务器、微信授权、数据库和上线验收清单
 - `assets/home/`：首页 PSD 图层
 - `assets/scene6/`：从 06 PSD 提取的四张答题图片
@@ -103,19 +105,16 @@ html { font-size: calc(100vw / 7.5); }
 ## V5.4.0 PHP/MySQL 后端基础
 
 - 以去年活动的微信授权、答题、抽奖与核销链路为业务参考，不复制 ThinkPHP 3、明文凭据或历史用户日志。
-- 新增无框架 PHP API、PDO 参数化查询、微信 OAuth state 校验、会话 CSRF 与生产 HTTPS 配置。
+- 新增无框架 PHP 业务层、PDO 参数化查询、微信 OAuth state 校验、会话 CSRF 与生产 HTTPS 配置。
 - 六站答案改由服务端校验；开放题原始回答保存到 MySQL，供活动结束后导出。
 - 抽奖使用数据库事务和行锁，同时限制总库存、每日库存和每位用户一次抽奖，避免并发超发。
 - 奖品名称与库存取自 `resources/2026题目.docx`；未确认的抽奖权重保持为空，配置前服务端会拒绝产生抽奖结果。
 - GitHub Pages 仍是静态视觉预览；正式业务必须把同一份前端与 `api/` 部署在已备案并配置微信网页授权的 HTTPS 服务器。
 
-## V5.5.0 前后端业务接入
+## V5.5.0 前后端业务接入（已被 V5.7 替代）
 
-- 正式 HTTPS 域名自动启用同源 PHP API；GitHub Pages 和 `file://` 明确保持视觉演示模式。
-- 微信会话建立后，页面从服务器恢复六站进度；选择过程仍可本机暂存，点击提交后以服务端判题结果为准。
-- 抽奖按钮只调用服务端事务接口，不在浏览器生成随机结果；已中奖用户再次进入会恢复原奖品和兑奖码。
-- 服务端未连接、活动未开放、概率未确认或当日库存用尽时，页面给出明确状态且不会伪造成功。
-- 本机开发可通过 `?backend=1` 显式打开 API 模式，便于用模拟接口完成自动化回归。
+- 该版曾使用浏览器 JSON 请求接入业务；V5.7 起已撤销这种正式运行方式。
+- 答题、抽奖与进度恢复的业务规则继续保留，改由 PHP 入口和模板执行。
 
 ## V5.6.0 运营后台与核销
 
@@ -135,8 +134,16 @@ html { font-size: calc(100vw / 7.5); }
 
 - 新增 `LOCAL_DEVELOPMENT.md` 和 `api/bin/start-local.sh`，统一启动 MariaDB 检查、开发预检与 PHP 服务。
 - `php api/bin/preflight.php --local` 只跳过本地不需要的 HTTPS 和真实微信凭据，其余业务配置仍执行真实检查。
-- 本机已建立独立开发数据库、自动登录开发用户和后台账号，并通过浏览器实测真实 PHP 答题接口与后台登录。
+- 本机已建立独立开发数据库、自动登录开发用户和后台账号，并通过浏览器实测 PHP 业务与后台登录。
 - `api/config.local.php` 始终由 Git 忽略，发布同步时必须排除。
+
+## V5.7.0 PHP 模板渲染
+
+- 正式入口改为 `index.php`，由 `PageController` 读取微信会话、MySQL 进度与抽奖结果，再渲染 `templates/activity.php`。
+- 答题和抽奖使用同页普通 POST 表单、CSRF 校验和 303 重定向；浏览器不再通过 JSON API 完成业务。
+- 服务器判题、事务抽奖、库存与兑奖规则保持不变；提交后整页重新渲染并恢复对应结果视图。
+- `api/index.php` 仅保留健康检查，用于部署运维，不是浏览器业务接口。
+- `php api/bin/build-static-preview.php` 从同一 PHP 模板生成 `index.html`，仅供 GitHub Pages 设计验收。
 
 ### 部署配置说明
 

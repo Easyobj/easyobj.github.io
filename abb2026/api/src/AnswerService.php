@@ -14,7 +14,7 @@ final class AnswerService
     public static function submit(int $userId, int $station, $answer): array
     {
         if ($station < 1 || $station > 6) {
-            Api::error('invalid_station', '互动站点编号无效。', 422);
+            throw new BusinessError('invalid_station', '互动站点编号无效。', 422);
         }
         $normalized = self::normalize($station, $answer);
         $passed = self::grade($station, $normalized);
@@ -73,22 +73,22 @@ final class AnswerService
     {
         if ($station === 1) {
             if (!is_array($answer)) {
-                Api::error('invalid_answer', '请选择有效答案。', 422);
+                throw new BusinessError('invalid_answer', '请选择有效答案。', 422);
             }
             $values = array_values(array_unique(array_map('strval', $answer)));
             sort($values);
             if (count($values) < 1 || array_diff($values, ['A', 'B', 'C', 'D', 'E'])) {
-                Api::error('invalid_answer', '请选择有效答案。', 422);
+                throw new BusinessError('invalid_answer', '请选择有效答案。', 422);
             }
             return $values;
         }
         if ($station === 3) {
             if (!is_array($answer) || count($answer) !== 5) {
-                Api::error('invalid_answer', '请完成全部判断题。', 422);
+                throw new BusinessError('invalid_answer', '请完成全部判断题。', 422);
             }
             foreach ($answer as $value) {
                 if (!is_bool($value)) {
-                    Api::error('invalid_answer', '判断题答案格式无效。', 422);
+                    throw new BusinessError('invalid_answer', '判断题答案格式无效。', 422);
                 }
             }
             return array_values($answer);
@@ -96,13 +96,13 @@ final class AnswerService
         if ($station === 4) {
             $value = trim((string) $answer);
             if ($value === '' || mb_strlen($value) > 200) {
-                Api::error('invalid_answer', '回答需为 1 至 200 个字符。', 422);
+                throw new BusinessError('invalid_answer', '回答需为 1 至 200 个字符。', 422);
             }
             return $value;
         }
         $value = strtoupper(trim((string) $answer));
         if (!in_array($value, ['A', 'B', 'C', 'D', 'E'], true)) {
-            Api::error('invalid_answer', '请选择有效答案。', 422);
+            throw new BusinessError('invalid_answer', '请选择有效答案。', 422);
         }
         return $value;
     }

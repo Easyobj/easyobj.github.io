@@ -4,7 +4,7 @@
 
 ## 当前本机地址
 
-- 前端与真实本地 API：`http://127.0.0.1:8080/?backend=1#home`
+- PHP 模板活动页：`http://127.0.0.1:8080/index.php#home`
 - 运营后台：`http://127.0.0.1:8080/api/admin/`
 - 管理员用户名：`localadmin`
 - 管理员密码：使用本机初始化时单独提供的密码
@@ -30,7 +30,7 @@ cd /Users/asimov/Downloads/abb/html
 
 `api/config.local.php` 包含本机数据库信息和开发用户，已被 `api/.gitignore` 排除，不会提交到 Git。Pages 发布时也必须继续排除该文件。
 
-本地模式通过固定的开发 OpenID 自动登录，不调用真实微信授权。URL 必须带 `?backend=1` 才会启用 PHP API；不带该参数时仍是静态演示模式。
+本地模式通过固定的开发 OpenID 自动登录，不调用真实微信授权。`index.php` 使用 PHP 控制器和模板渲染；`index.html` 仅用于 GitHub Pages 静态预览。
 
 ## 检查
 

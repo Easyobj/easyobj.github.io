@@ -1,3 +1,8 @@
+<?php
+declare(strict_types=1);
+$serverState = isset($serverState) && is_array($serverState) ? $serverState : null;
+$release = '5.7.0-php-template';
+?>
 <!doctype html>
 <html lang="zh-CN">
 <head>
@@ -6,7 +11,7 @@
   <meta name="format-detection" content="telephone=no,email=no,address=no">
   <meta name="theme-color" content="#dcecff">
   <meta name="description" content="ABB Robotics 互动体验页面">
-  <meta name="abb-release" content="5.7.0-php-template">
+  <meta name="abb-release" content="<?= htmlspecialchars($release, ENT_QUOTES, 'UTF-8') ?>">
   <meta property="og:title" content="ABB Robotics H5">
   <meta property="og:description" content="探索 ABB Robotics 互动体验">
   <meta property="og:type" content="website">
@@ -110,6 +115,14 @@
     </main>
   </div>
 
+<?php if ($serverState !== null): ?>
+  <form id="serverActionForm" method="post" action="index.php" hidden>
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string) ($serverState['csrfToken'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" name="action" value="">
+    <input type="hidden" name="station" value="">
+    <input type="hidden" name="answer_json" value="">
+  </form>
+<?php endif; ?>
 
   <div class="modal" id="modal" aria-hidden="true">
     <div class="modal__mask" data-close></div>
@@ -123,7 +136,7 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
-  <script>window.ABB_SERVER_STATE=null;</script>
+  <script>window.ABB_SERVER_STATE=<?= json_encode($serverState, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
   <script src="runtime-config.js?v=5.7.0"></script>
   <script src="app.js?v=5.7.0"></script>
 </body>

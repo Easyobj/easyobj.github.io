@@ -1,3 +1,5 @@
+DirectoryIndex index.php index.html
+
 <IfModule mod_expires.c>
   ExpiresActive On
   <FilesMatch "\.(woff2|webp)$">
@@ -8,7 +10,7 @@
   <FilesMatch "\.(woff2|webp)$">
     Header set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
-  <FilesMatch "\.(html)$">
+  <FilesMatch "\.(html|php)$">
     Header set Cache-Control "no-cache"
   </FilesMatch>
 </IfModule>

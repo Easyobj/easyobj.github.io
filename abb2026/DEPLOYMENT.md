@@ -6,7 +6,8 @@ GitHub Pages 仅用于视觉验收。微信授权、答题记录、抽奖库存�
 
 - PHP 7.4 或更高版本，启用 `pdo_mysql`、`curl`、`mbstring`、`openssl`、`json` 和 `session`
 - MySQL 5.7+ 或 MySQL 8.0，数据表使用 InnoDB 与 `utf8mb4`
-- 全站 HTTPS；PHP 与前端使用同一域名和目录
+- 全站 HTTPS；`index.php` 与静态资源使用同一域名和目录
+- Web 服务器将 `index.php` 设为默认入口（Apache 的 `DirectoryIndex index.php index.html` 或 Nginx 等价配置）
 - Web 根目录支持 `.htaccess`，或在 Nginx 中等价禁止访问 `api/src/`、`api/database/`、`api/bin/` 和配置文件
 
 ## 上线前必须由活动方确认
@@ -25,9 +26,10 @@ GitHub Pages 仅用于视觉验收。微信授权、答题记录、抽奖库存�
 3. 复制 `api/config.local.php.example` 为服务器专用的 `api/config.local.php`，填入真实配置并限制文件权限。
 4. 使用 `ABB_ADMIN_PASSWORD='强密码' php api/bin/create-admin.php <用户名>` 创建后台账号；不要把密码写入命令历史或 Git。
 5. 在后台填写活动方确认的抽奖权重。任一启用奖品缺少权重时，服务端会拒绝抽奖。
-6. 将完整 `html/` 部署到正式目录，执行 `php api/bin/preflight.php`，并访问 `/api/index.php?action=health` 验证所有检查均为 `ready`。
-7. 在微信内走通授权、六站答题、一次抽奖、刷新后结果恢复、兑奖核销和开放题 CSV 导出。
-8. 使用两个并发请求验证同一用户只生成一个兑奖码，并核对总库存和当日库存各减少一次。
+6. 执行 `php api/bin/build-static-preview.php` 刷新 Pages 验收版，再将完整 `html/` 部署到正式目录。
+7. 执行 `php api/bin/preflight.php`，并访问 `/api/index.php?action=health` 验证所有检查均为 `ready`。该 JSON 端点仅供运维监控。
+8. 访问 `/index.php`，在微信内走通授权、六站普通表单提交、一次抽奖、刷新后结果恢复、兑奖核销和开放题 CSV 导出。
+9. 使用两个并发请求验证同一用户只生成一个兑奖码，并核对总库存和当日库存各减少一次。
 
 ## 安全要求
 

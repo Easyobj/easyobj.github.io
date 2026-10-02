@@ -11,5 +11,5 @@ if ($code === '' || $state === '' || $expected === '' || !hash_equals($expected,
 }
 
 Auth::signInByWechat(Wechat::exchange($code));
-header('Location: ' . abbConfig()['app_url'] . '/#home', true, 302);
+header('Location: ' . rtrim((string) abbConfig()['app_url'], '/') . '/index.php#home', true, 302);
 exit;

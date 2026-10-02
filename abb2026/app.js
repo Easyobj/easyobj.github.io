@@ -139,17 +139,18 @@
   const STORAGE_KEY = 'abb-robotics-h5-progress-v1';
   const runtime = Object.freeze({
     release:'development',
-    apiBase:'api/index.php',
-    apiEnabled:false,
+    serverRendered:false,
     ...(window.ABB_RUNTIME || {})
   });
-  const apiState = {
-    enabled:Boolean(runtime.apiEnabled),
-    ready:!runtime.apiEnabled,
-    csrfToken:'',
-    user:null,
-    draw:null,
-    error:null
+  const renderedState = window.ABB_SERVER_STATE && typeof window.ABB_SERVER_STATE === 'object'
+    ? window.ABB_SERVER_STATE
+    : null;
+  const pageState = {
+    serverRendered:Boolean(runtime.serverRendered && renderedState),
+    user:renderedState?.user||null,
+    draw:renderedState?.draw||null,
+    activity:renderedState?.activity||null,
+    flash:renderedState?.flash||null
   };
   let homeScrollY = 0;
   let currentScene = null;
@@ -199,32 +200,6 @@
     catch { showToast('浏览器未允许本机保存，本次进度仅在当前页面有效'); }
   }
 
-  class ApiError extends Error {
-    constructor(code,message,status){super(message);this.name='ApiError';this.code=code;this.status=status;}
-  }
-
-  async function apiRequest(action,{method='GET',body}={}){
-    const separator=runtime.apiBase.includes('?')?'&':'?';
-    const response=await fetch(`${runtime.apiBase}${separator}action=${encodeURIComponent(action)}`,{
-      method,
-      credentials:'include',
-      headers:{
-        'Accept':'application/json',
-        ...(body?{'Content-Type':'application/json'}:{}),
-        ...(apiState.csrfToken?{'X-CSRF-Token':apiState.csrfToken}:{})
-      },
-      body:body?JSON.stringify(body):undefined
-    });
-    const contentType=response.headers.get('content-type')||'';
-    if(!contentType.includes('application/json'))throw new ApiError('invalid_response','服务器返回了无法识别的内容。',response.status);
-    const payload=await response.json();
-    if(!response.ok||!payload.ok){
-      const error=payload?.error||{};
-      throw new ApiError(error.code||'request_failed',error.message||'请求失败，请稍后重试。',response.status);
-    }
-    return payload.data;
-  }
-
   function serverProgressToLocal(serverProgress){
     const merged={};
     for(let id=1;id<=6;id++){
@@ -243,48 +218,25 @@
     try{localStorage.setItem(STORAGE_KEY,JSON.stringify(progress));}catch{}
   }
 
-  function savedLabel(){return apiState.enabled?'已保存到服务器':'已保存至本机';}
+  if(pageState.serverRendered)serverProgressToLocal(renderedState.progress||{});
+
+  function savedLabel(){return pageState.serverRendered?'已由 PHP 保存':'已保存至本机';}
+
+  function submitServerForm(action,fields={}){
+    const form=$('#serverActionForm');
+    if(!form)throw new Error('PHP 提交表单未渲染，请刷新页面。');
+    const values={action,...fields};
+    Object.entries(values).forEach(([name,value])=>{
+      const input=form.elements.namedItem(name);
+      if(input)input.value=String(value);
+    });
+    form.submit();
+  }
 
   async function submitAnswer(station,answer,previewPassed){
-    if(!apiState.enabled)return {passed:previewPassed};
-    if(!apiState.ready)throw new ApiError('backend_unavailable','服务器连接尚未就绪，请稍后重试。',503);
-    return apiRequest('answer',{method:'POST',body:{station,answer}});
-  }
-
-  function describeApiError(error){
-    const known={
-      activity_configuration_required:'活动时间尚未配置。',
-      activity_configuration_invalid:'活动时间配置无效。',
-      activity_not_started:'活动尚未开始。',
-      activity_ended:'今日活动已结束。',
-      probability_not_configured:'抽奖概率尚未由活动方确认。',
-      sold_out_today:'今日奖品已全部发放完毕。',
-      not_eligible:'完成全部六个互动站点后才可抽奖。',
-      csrf_failed:'页面会话已失效，请刷新后重试。'
-    };
-    return known[error?.code]||error?.message||'网络异常，请稍后重试。';
-  }
-
-  async function initBackend(){
-    if(!apiState.enabled)return;
-    try{
-      const data=await apiRequest('bootstrap');
-      if(!data.authenticated){
-        if(data.loginUrl){location.replace(data.loginUrl);return;}
-        throw new ApiError('oauth_not_configured','微信授权尚未配置。',503);
-      }
-      apiState.csrfToken=data.csrfToken||'';
-      apiState.user=data.user||null;
-      apiState.draw=data.draw||null;
-      serverProgressToLocal(data.progress||{});
-      apiState.ready=true;
-      if(currentScene&&interactionView.classList.contains('is-active'))renderInteraction(currentScene);
-      if(data.activity?.code==='ended')showStatus('activity-ended');
-      else if(data.activity?.code!=='open')showToast(describeApiError({code:`activity_${data.activity?.code}`}));
-    }catch(error){
-      apiState.error=error;
-      showToast(`服务器连接失败：${describeApiError(error)}`);
-    }
+    if(!pageState.serverRendered)return {passed:previewPassed};
+    submitServerForm('answer',{station,answer_json:JSON.stringify(answer)});
+    return new Promise(()=>{});
   }
 
   /* ---------- Loading：仅加载首屏关键资源 ---------- */
@@ -380,8 +332,8 @@
     statusAction.hidden=!config.action;
     statusAction.setAttribute('aria-label',config.action||'');
     let safety=config.safety||'';
-    if(apiState.enabled&&apiState.ready&&kind==='lottery')safety='抽奖结果由服务器生成，并在事务中同步扣减库存';
-    if(apiState.enabled&&apiState.ready&&kind==='lottery-win'&&apiState.draw)safety=`中奖礼品：${apiState.draw.prize.name}`;
+    if(pageState.serverRendered&&kind==='lottery')safety='抽奖结果由 PHP 控制器生成，并在事务中同步扣减库存';
+    if(pageState.serverRendered&&kind==='lottery-win'&&pageState.draw)safety=`中奖礼品：${pageState.draw.prize.name}`;
     statusSafety.hidden=!safety;
     statusSafety.textContent=safety;
     activateView('status');
@@ -443,25 +395,17 @@
       return;
     }
     if(currentStatus==='lottery'){
-      if(!apiState.enabled){
+      if(!pageState.serverRendered){
         openModal('LOTTERY','Pages 演示模式','<div class="availability">GitHub Pages 仅用于视觉验收，不会生成抽奖结果。正式活动将在微信服务器上校验资格并扣减库存。</div>');
         return;
       }
-      if(!apiState.ready){showToast('服务器连接尚未就绪，请稍后重试');return;}
       statusAction.disabled=true;
-      try{
-        apiState.draw=await apiRequest('draw',{method:'POST'});
-        showStatus('lottery-win');
-      }catch(error){
-        const message=describeApiError(error);
-        if(error?.code==='activity_ended'||error?.code==='sold_out_today')showStatus('activity-ended');
-        else openModal('LOTTERY','暂时无法抽奖',`<div class="availability">${escapeHtml(message)}</div>`);
-      }finally{statusAction.disabled=false;}
+      submitServerForm('draw');
       return;
     }
     if(currentStatus==='lottery-win'){
-      if(!apiState.enabled||!apiState.draw){showToast('这是设计预览，不代表真实中奖结果');return;}
-      openModal('PRIZE','兑奖凭证',`<div class="empty"><b>${escapeHtml(apiState.draw.prize.name)}</b><p>兑奖码：${escapeHtml(apiState.draw.claimCode)}</p><p>${apiState.draw.redeemedAt?'该奖品已完成核销。':'请向现场工作人员出示此页面完成核销。'}</p></div>`);
+      if(!pageState.serverRendered||!pageState.draw){showToast('这是设计预览，不代表真实中奖结果');return;}
+      openModal('PRIZE','兑奖凭证',`<div class="empty"><b>${escapeHtml(pageState.draw.prize.name)}</b><p>兑奖码：${escapeHtml(pageState.draw.claimCode)}</p><p>${pageState.draw.redeemedAt?'该奖品已完成核销。':'请向现场工作人员出示此页面完成核销。'}</p></div>`);
     }
   });
 
@@ -592,7 +536,7 @@
         currentState.submitted=false;
         submit.textContent='提交';
         syncSelection();
-        showToast(describeApiError(error));
+        showToast(error?.message||'提交失败，请重试');
       }
     });
   }
@@ -665,7 +609,7 @@
         currentState.submitted=false;
         submit.textContent='提交';
         syncSelection();
-        showToast(describeApiError(error));
+        showToast(error?.message||'提交失败，请重试');
       }
     });
   }
@@ -704,7 +648,7 @@
       }catch(error){
         currentState.submitted=false;
         ta.disabled=false;submit.disabled=false;submit.textContent='提交';
-        showToast(describeApiError(error));
+        showToast(error?.message||'提交失败，请重试');
       }
     });
   }
@@ -765,17 +709,17 @@
     else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   });
   $('[data-action="rules"]').addEventListener('click',()=>{
-    const storageRule=apiState.enabled
-      ? '答题结果保存到活动服务器；浏览器只保留未提交草稿。'
+    const storageRule=pageState.serverRendered
+      ? '答题结果由 PHP 表单提交并保存到活动服务器；浏览器只保留未提交草稿。'
       : '当前为 Pages 演示模式，进度只保存在本机浏览器。';
     openModal('ACTIVITY','体验说明',`<ol class="rule-list"><li><i>1</i><span>浏览展区并完成 01～06 的互动题目。</span></li><li><i>2</i><span>07 为社交媒体关注指引，不计入答题进度。</span></li><li><i>3</i><span>${storageRule}</span></li><li><i>4</i><span>正式活动时间、奖项、抽奖与兑奖条件以活动现场通知为准。</span></li></ol>`);
   });
   $('[data-action="prize"]').addEventListener('click',()=>{
-    if(apiState.enabled&&apiState.draw){showStatus('lottery-win');return;}
+    if(pageState.serverRendered&&pageState.draw){showStatus('lottery-win');return;}
     const completed=Array.from({length:6},(_,i)=>Boolean(getSceneProgress(i+1).passed)).filter(Boolean).length;
     const ready=completed===6;
     if(ready){showStatus('all-complete');return;}
-    const progressNote=apiState.enabled?'进度以活动服务器记录为准。':'当前为 Pages 演示模式，进度只保存在本机。';
+    const progressNote=pageState.serverRendered?'进度以 PHP 模板中的服务器记录为准。':'当前为 Pages 演示模式，进度只保存在本机。';
     openModal('PRIZE','兑奖中心',`<div class="progress-summary"><b>互动完成进度</b><strong>${completed} / 6</strong><div class="progress-track" aria-label="已完成 ${completed} 个，共 6 个"><span style="width:${completed/6*100}%"></span></div></div><div class="empty"><b>尚未完成全部互动</b><p>完成 01～06 后可进入抽奖与兑奖。${progressNote}</p></div>`);
   });
 
@@ -808,7 +752,8 @@
     history.replaceState({view:'home'},'', '#home');
   }
 
-  initBackend();
+  if(pageState.serverRendered&&pageState.activity?.code==='ended'&&!statusRoute)showStatus('activity-ended',{push:false});
+  if(pageState.serverRendered&&pageState.flash?.message)setTimeout(()=>showToast(pageState.flash.message),300);
 
   // 字体缓存：Service Worker 只做运行时缓存，不预下载 Bold。
   if('serviceWorker' in navigator && location.protocol !== 'file:'){

@@ -7,7 +7,7 @@ final class LotteryService
     {
         Activity::requireOpen();
         if (AnswerService::completedStations($userId) !== 6) {
-            Api::error('not_eligible', '完成全部六个互动站点后才可抽奖。', 403);
+            throw new BusinessError('not_eligible', '完成全部六个互动站点后才可抽奖。', 403);
         }
 
         $pdo = Database::connection();
@@ -41,12 +41,12 @@ final class LotteryService
 
             if (!$prizes) {
                 $pdo->rollBack();
-                Api::error('prizes_not_configured', '奖品尚未配置。', 503);
+                throw new BusinessError('prizes_not_configured', '奖品尚未配置。', 503);
             }
             foreach ($prizes as $prize) {
                 if ($prize['draw_weight'] === null || (int) $prize['draw_weight'] <= 0) {
                     $pdo->rollBack();
-                    Api::error('probability_not_configured', '抽奖概率尚未由活动方确认。', 503);
+                    throw new BusinessError('probability_not_configured', '抽奖概率尚未由活动方确认。', 503);
                 }
                 $seed = $pdo->prepare(
                     'INSERT IGNORE INTO prize_daily_stock (prize_id, stock_date, allocated, used)
@@ -70,7 +70,7 @@ final class LotteryService
             $candidates = $available->fetchAll();
             if (!$candidates) {
                 $pdo->rollBack();
-                Api::error('sold_out_today', '今日奖品已全部发放完毕。', 409);
+                throw new BusinessError('sold_out_today', '今日奖品已全部发放完毕。', 409);
             }
 
             $winner = self::weightedChoice($candidates);

@@ -11,6 +11,12 @@ final class Auth
         return (string) $_SESSION['csrf_token'];
     }
 
+    public static function validCsrf(string $token): bool
+    {
+        $sessionToken = (string) ($_SESSION['csrf_token'] ?? '');
+        return $token !== '' && $sessionToken !== '' && hash_equals($sessionToken, $token);
+    }
+
     public static function user(bool $required = true): ?array
     {
         if (empty($_SESSION['user_id']) && abbConfig()['app_env'] === 'development' && abbConfig()['dev_openid'] !== '') {
