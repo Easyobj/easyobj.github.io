@@ -137,6 +137,20 @@
   const toast = $('#toast');
   const appRoot = $('#app');
   const STORAGE_KEY = 'abb-robotics-h5-progress-v1';
+  const runtime = Object.freeze({
+    release:'development',
+    apiBase:'api/index.php',
+    apiEnabled:false,
+    ...(window.ABB_RUNTIME || {})
+  });
+  const apiState = {
+    enabled:Boolean(runtime.apiEnabled),
+    ready:!runtime.apiEnabled,
+    csrfToken:'',
+    user:null,
+    draw:null,
+    error:null
+  };
   let homeScrollY = 0;
   let currentScene = null;
   let currentState = null;
@@ -183,6 +197,93 @@
     progress[id] = {...getSceneProgress(id), ...value};
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }
     catch { showToast('浏览器未允许本机保存，本次进度仅在当前页面有效'); }
+  }
+
+  class ApiError extends Error {
+    constructor(code,message,status){super(message);this.name='ApiError';this.code=code;this.status=status;}
+  }
+
+  async function apiRequest(action,{method='GET',body}={}){
+    const separator=runtime.apiBase.includes('?')?'&':'?';
+    const response=await fetch(`${runtime.apiBase}${separator}action=${encodeURIComponent(action)}`,{
+      method,
+      credentials:'include',
+      headers:{
+        'Accept':'application/json',
+        ...(body?{'Content-Type':'application/json'}:{}),
+        ...(apiState.csrfToken?{'X-CSRF-Token':apiState.csrfToken}:{})
+      },
+      body:body?JSON.stringify(body):undefined
+    });
+    const contentType=response.headers.get('content-type')||'';
+    if(!contentType.includes('application/json'))throw new ApiError('invalid_response','服务器返回了无法识别的内容。',response.status);
+    const payload=await response.json();
+    if(!response.ok||!payload.ok){
+      const error=payload?.error||{};
+      throw new ApiError(error.code||'request_failed',error.message||'请求失败，请稍后重试。',response.status);
+    }
+    return payload.data;
+  }
+
+  function serverProgressToLocal(serverProgress){
+    const merged={};
+    for(let id=1;id<=6;id++){
+      const remote=serverProgress?.[String(id)];
+      const draft=getSceneProgress(id);
+      if(!remote){
+        merged[id]={...draft,submitted:false,passed:false};
+        continue;
+      }
+      const value={submitted:Boolean(remote.submitted),passed:Boolean(remote.passed)};
+      if(id===4)value.answer=typeof remote.answer==='string'?remote.answer:'';
+      else value.selected=remote.answer;
+      merged[id]=value;
+    }
+    progress=merged;
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(progress));}catch{}
+  }
+
+  function savedLabel(){return apiState.enabled?'已保存到服务器':'已保存至本机';}
+
+  async function submitAnswer(station,answer,previewPassed){
+    if(!apiState.enabled)return {passed:previewPassed};
+    if(!apiState.ready)throw new ApiError('backend_unavailable','服务器连接尚未就绪，请稍后重试。',503);
+    return apiRequest('answer',{method:'POST',body:{station,answer}});
+  }
+
+  function describeApiError(error){
+    const known={
+      activity_configuration_required:'活动时间尚未配置。',
+      activity_not_started:'活动尚未开始。',
+      activity_ended:'今日活动已结束。',
+      probability_not_configured:'抽奖概率尚未由活动方确认。',
+      sold_out_today:'今日奖品已全部发放完毕。',
+      not_eligible:'完成全部六个互动站点后才可抽奖。',
+      csrf_failed:'页面会话已失效，请刷新后重试。'
+    };
+    return known[error?.code]||error?.message||'网络异常，请稍后重试。';
+  }
+
+  async function initBackend(){
+    if(!apiState.enabled)return;
+    try{
+      const data=await apiRequest('bootstrap');
+      if(!data.authenticated){
+        if(data.loginUrl){location.replace(data.loginUrl);return;}
+        throw new ApiError('oauth_not_configured','微信授权尚未配置。',503);
+      }
+      apiState.csrfToken=data.csrfToken||'';
+      apiState.user=data.user||null;
+      apiState.draw=data.draw||null;
+      serverProgressToLocal(data.progress||{});
+      apiState.ready=true;
+      if(currentScene&&interactionView.classList.contains('is-active'))renderInteraction(currentScene);
+      if(data.activity?.code==='ended')showStatus('activity-ended');
+      else if(data.activity?.code!=='open')showToast(describeApiError({code:`activity_${data.activity?.code}`}));
+    }catch(error){
+      apiState.error=error;
+      showToast(`服务器连接失败：${describeApiError(error)}`);
+    }
   }
 
   /* ---------- Loading：仅加载首屏关键资源 ---------- */
@@ -277,8 +378,11 @@
     statusArtwork.alt=config.alt;
     statusAction.hidden=!config.action;
     statusAction.setAttribute('aria-label',config.action||'');
-    statusSafety.hidden=!config.safety;
-    statusSafety.textContent=config.safety||'';
+    let safety=config.safety||'';
+    if(apiState.enabled&&apiState.ready&&kind==='lottery')safety='抽奖结果由服务器生成，并在事务中同步扣减库存';
+    if(apiState.enabled&&apiState.ready&&kind==='lottery-win'&&apiState.draw)safety=`中奖礼品：${apiState.draw.prize.name}`;
+    statusSafety.hidden=!safety;
+    statusSafety.textContent=safety;
     activateView('status');
     if(push)history.pushState({view:'status',kind,scene:currentScene,fromHome:true},'',`#${kind}`);
     window.scrollTo(0,0);
@@ -322,7 +426,7 @@
   });
 
   statusBack.addEventListener('click',()=>closeInteraction());
-  statusAction.addEventListener('click',()=>{
+  statusAction.addEventListener('click',async()=>{
     if(currentStatus==='result-correct'){
       if(allScenesPassed())showStatus('all-complete');
       else closeInteraction();
@@ -338,10 +442,26 @@
       return;
     }
     if(currentStatus==='lottery'){
-      openModal('LOTTERY','抽奖接口未配置','<div class="availability">该页已按 PSD 完成界面校对，但当前没有奖品库存、抽奖概率、用户身份或工作人员核销接口，因此不会生成伪造的中奖结果。</div>');
+      if(!apiState.enabled){
+        openModal('LOTTERY','Pages 演示模式','<div class="availability">GitHub Pages 仅用于视觉验收，不会生成抽奖结果。正式活动将在微信服务器上校验资格并扣减库存。</div>');
+        return;
+      }
+      if(!apiState.ready){showToast('服务器连接尚未就绪，请稍后重试');return;}
+      statusAction.disabled=true;
+      try{
+        apiState.draw=await apiRequest('draw',{method:'POST'});
+        showStatus('lottery-win');
+      }catch(error){
+        const message=describeApiError(error);
+        if(error?.code==='activity_ended'||error?.code==='sold_out_today')showStatus('activity-ended');
+        else openModal('LOTTERY','暂时无法抽奖',`<div class="availability">${escapeHtml(message)}</div>`);
+      }finally{statusAction.disabled=false;}
       return;
     }
-    if(currentStatus==='lottery-win')showToast('这是设计预览，未连接真实兑换和核销服务');
+    if(currentStatus==='lottery-win'){
+      if(!apiState.enabled||!apiState.draw){showToast('这是设计预览，不代表真实中奖结果');return;}
+      openModal('PRIZE','兑奖凭证',`<div class="empty"><b>${escapeHtml(apiState.draw.prize.name)}</b><p>兑奖码：${escapeHtml(apiState.draw.claimCode)}</p><p>${apiState.draw.redeemedAt?'该奖品已完成核销。':'请向现场工作人员出示此页面完成核销。'}</p></div>`);
+    }
   });
 
   $$('.scene[data-scene]').forEach(el=>el.addEventListener('click',()=>openScene(Number(el.dataset.scene))));
@@ -439,7 +559,7 @@
         }
       });
       submit.disabled=true;
-      submit.textContent='已保存至本机';
+      submit.textContent=savedLabel();
     };
 
     syncSelection();
@@ -454,15 +574,25 @@
       saveSceneProgress(id,{selected:data.type==='single'?currentState.selected:[...currentState.selected],submitted:false});
       syncSelection();
     });
-    submit.addEventListener('click',()=>{
+    submit.addEventListener('click',async()=>{
       if(submit.disabled||currentState.submitted)return;
       currentState.submitted=true;
-      const ok=data.type==='single'
+      const previewPassed=data.type==='single'
         ? currentState.selected===data.correct
         : currentState.selected.size===data.correct.length&&data.correct.every(v=>currentState.selected.has(v));
-      saveSceneProgress(id,{selected:data.type==='single'?currentState.selected:[...currentState.selected],submitted:true,passed:ok});
-      revealResults();
-      showStatus(ok?'result-correct':'result-fail');
+      const answer=data.type==='single'?currentState.selected:[...currentState.selected];
+      submit.disabled=true;submit.textContent='提交中…';
+      try{
+        const result=await submitAnswer(id,answer,previewPassed);
+        saveSceneProgress(id,{selected:answer,submitted:true,passed:Boolean(result.passed)});
+        revealResults();
+        showStatus(result.passed?'result-correct':'result-fail');
+      }catch(error){
+        currentState.submitted=false;
+        submit.textContent='提交';
+        syncSelection();
+        showToast(describeApiError(error));
+      }
     });
   }
 
@@ -505,7 +635,7 @@
         });
       });
       submit.disabled=true;
-      submit.textContent='已保存至本机';
+      submit.textContent=savedLabel();
     };
 
     syncSelection();
@@ -517,15 +647,25 @@
       saveSceneProgress(id,{selected:[...currentState.selected],submitted:false});
       syncSelection();
     });
-    submit.addEventListener('click',()=>{
+    submit.addEventListener('click',async()=>{
       if(submit.disabled||currentState.submitted)return;
       currentState.submitted=true;
       let score=0;
       data.correct.forEach((ans,i)=>{if(currentState.selected[i]===ans)score++;});
-      const ok=score===data.correct.length;
-      saveSceneProgress(id,{selected:[...currentState.selected],submitted:true,score,passed:ok});
-      revealResults();
-      showStatus(ok?'result-correct':'result-fail');
+      const previewPassed=score===data.correct.length;
+      const answer=[...currentState.selected];
+      submit.disabled=true;submit.textContent='提交中…';
+      try{
+        const result=await submitAnswer(id,answer,previewPassed);
+        saveSceneProgress(id,{selected:answer,submitted:true,score,passed:Boolean(result.passed)});
+        revealResults();
+        showStatus(result.passed?'result-correct':'result-fail');
+      }catch(error){
+        currentState.submitted=false;
+        submit.textContent='提交';
+        syncSelection();
+        showToast(describeApiError(error));
+      }
     });
   }
 
@@ -544,18 +684,27 @@
     ta.value=typeof saved.answer==='string'?saved.answer:'';
     count.textContent=ta.value.length;
     submit.disabled=currentState.submitted||!ta.value.trim();
-    if(currentState.submitted){ta.disabled=true;submit.textContent='已保存至本机';}
+    if(currentState.submitted){ta.disabled=true;submit.textContent=savedLabel();}
     ta.addEventListener('input',()=>{
       count.textContent=ta.value.length;
       submit.disabled=!ta.value.trim();
       saveSceneProgress(id,{answer:ta.value,submitted:false});
     });
     ta.addEventListener('focus',()=>setTimeout(()=>ta.scrollIntoView({block:'center',behavior:'smooth'}),180));
-    submit.addEventListener('click',()=>{
+    submit.addEventListener('click',async()=>{
       if(submit.disabled||currentState.submitted)return;
       currentState.submitted=true;
-      saveSceneProgress(id,{answer:ta.value,submitted:true,passed:true});
-      ta.disabled=true;submit.disabled=true;submit.textContent='已保存至本机';showStatus('result-correct');
+      ta.disabled=true;submit.disabled=true;submit.textContent='提交中…';
+      try{
+        const result=await submitAnswer(id,ta.value,true);
+        saveSceneProgress(id,{answer:ta.value,submitted:true,passed:Boolean(result.passed)});
+        submit.textContent=savedLabel();
+        showStatus(result.passed?'result-correct':'result-fail');
+      }catch(error){
+        currentState.submitted=false;
+        ta.disabled=false;submit.disabled=false;submit.textContent='提交';
+        showToast(describeApiError(error));
+      }
     });
   }
 
@@ -581,6 +730,9 @@
   /* ---------- Modal ---------- */
   const modal=$('#modal'), sheet=$('.sheet',modal), kicker=$('#modalKicker'), modalTitle=$('#modalTitle'), modalBody=$('#modalBody');
   let lastModalTrigger=null;
+  function escapeHtml(value){
+    return String(value).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+  }
   function openModal(k,t,html){
     lastModalTrigger=document.activeElement instanceof HTMLElement?document.activeElement:null;
     kicker.textContent=k;modalTitle.textContent=t;modalBody.innerHTML=html;
@@ -611,12 +763,19 @@
     if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
     else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   });
-  $('[data-action="rules"]').addEventListener('click',()=>openModal('ACTIVITY','体验说明','<ol class="rule-list"><li><i>1</i><span>浏览展区并完成 01～06 的互动题目。</span></li><li><i>2</i><span>07 为社交媒体关注指引，不计入本机答题进度。</span></li><li><i>3</i><span>当前进度仅保存在本机浏览器，不会上传到服务器。</span></li><li><i>4</i><span>正式活动时间、奖项、抽奖与兑奖条件以活动现场通知为准。</span></li></ol>'));
+  $('[data-action="rules"]').addEventListener('click',()=>{
+    const storageRule=apiState.enabled
+      ? '答题结果保存到活动服务器；浏览器只保留未提交草稿。'
+      : '当前为 Pages 演示模式，进度只保存在本机浏览器。';
+    openModal('ACTIVITY','体验说明',`<ol class="rule-list"><li><i>1</i><span>浏览展区并完成 01～06 的互动题目。</span></li><li><i>2</i><span>07 为社交媒体关注指引，不计入答题进度。</span></li><li><i>3</i><span>${storageRule}</span></li><li><i>4</i><span>正式活动时间、奖项、抽奖与兑奖条件以活动现场通知为准。</span></li></ol>`);
+  });
   $('[data-action="prize"]').addEventListener('click',()=>{
+    if(apiState.enabled&&apiState.draw){showStatus('lottery-win');return;}
     const completed=Array.from({length:6},(_,i)=>Boolean(getSceneProgress(i+1).passed)).filter(Boolean).length;
     const ready=completed===6;
     if(ready){showStatus('all-complete');return;}
-    openModal('PRIZE','兑奖中心',`<div class="progress-summary"><b>互动完成进度</b><strong>${completed} / 6</strong><div class="progress-track" aria-label="已完成 ${completed} 个，共 6 个"><span style="width:${completed/6*100}%"></span></div></div><div class="empty"><b>${ready?'已完成全部互动':'尚未完成全部互动'}</b><p>${ready?'源稿中的下一步为抽奖与兑奖。当前版本没有奖品库存、随机抽奖或工作人员核销接口，因此不会生成虚假的中奖结果；请由活动现场工作人员操作。':'完成 01～06 后可查看现场抽奖与兑奖安排。当前进度只保存在本机。'}</p></div>`);
+    const progressNote=apiState.enabled?'进度以活动服务器记录为准。':'当前为 Pages 演示模式，进度只保存在本机。';
+    openModal('PRIZE','兑奖中心',`<div class="progress-summary"><b>互动完成进度</b><strong>${completed} / 6</strong><div class="progress-track" aria-label="已完成 ${completed} 个，共 6 个"><span style="width:${completed/6*100}%"></span></div></div><div class="empty"><b>尚未完成全部互动</b><p>完成 01～06 后可进入抽奖与兑奖。${progressNote}</p></div>`);
   });
 
   let toastTimer;
@@ -647,6 +806,8 @@
   }else{
     history.replaceState({view:'home'},'', '#home');
   }
+
+  initBackend();
 
   // 字体缓存：Service Worker 只做运行时缓存，不预下载 Bold。
   if('serviceWorker' in navigator && location.protocol !== 'file:'){
