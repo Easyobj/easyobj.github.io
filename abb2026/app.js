@@ -118,9 +118,9 @@
       hero:'assets/home/layer_15.webp',
       intro:['关注 ABB 机器人官方社交媒体账号，解锁更多机器人资讯与精彩内容。'],
       channels:[
-        {name:'微博',image:'assets/social/weibo.png',instruction:'搜索“ABB机器人”，进入官方微博并点击关注。'},
-        {name:'抖音',image:'assets/social/douyin.png',instruction:'打开抖音搜索“ABB机器人”，进入官方账号并点击关注。'},
-        {name:'B站',image:'assets/social/bilibili.png',instruction:'搜索“ABB机器人官方”，进入官方账号并点击关注。'}
+        {name:'点击关注',image:'assets/social/weibo.png',imageAlt:'微博',instruction:'ABB机器人官方微博'},
+        {name:'打开抖音搜索ABB机器人',image:'assets/social/douyin.png',imageAlt:'抖音',instruction:'点击关注'},
+        {name:'点击关注',image:'assets/social/bilibili.png',imageAlt:'B站',instruction:'ABB机器人B站'}
       ]
     }
   };
@@ -326,7 +326,7 @@
       ? `<button class="quiz-option image-option pressable" type="button" role="${data.type==='single'?'radio':'checkbox'}" aria-label="${t}" aria-checked="false" data-key="${k}"><span class="image-option__media"><img src="${src}" alt=""></span><span class="image-option__label">${t}</span></button>`
       : `<button class="quiz-option pressable" type="button" role="${data.type==='single'?'radio':'checkbox'}" aria-checked="false" data-key="${k}">${k}. ${t}</button>`).join('');
     const submit=document.createElement('button');
-    submit.className='quiz-submit pressable'; submit.type='button'; submit.textContent='保存答案';
+    submit.className='quiz-submit pressable'; submit.type='button'; submit.textContent='提交';
     card.append(options,submit);
 
     const isSelected=key=>data.type==='single'?currentState.selected===key:currentState.selected.has(key);
@@ -398,7 +398,7 @@
         </div>
       </div>`).join('');
     const submit=document.createElement('button');
-    submit.className='quiz-submit pressable'; submit.type='button'; submit.textContent='保存答案';
+    submit.className='quiz-submit pressable'; submit.type='button'; submit.textContent='提交';
     card.append(wrap,submit);
 
     const syncSelection=()=>{
@@ -454,7 +454,7 @@
       <textarea id="answerText" class="answer-textarea" maxlength="${data.maxLength}" placeholder=""></textarea>
       <div class="answer-count"><span>0</span> / ${data.maxLength}</div>`;
     const submit=document.createElement('button');
-    submit.className='quiz-submit pressable'; submit.type='button'; submit.textContent='保存回答';
+    submit.className='quiz-submit pressable'; submit.type='button'; submit.textContent='提交';
     card.append(wrap,submit);
     const ta=$('textarea',wrap), count=$('.answer-count span',wrap);
     ta.value=typeof saved.answer==='string'?saved.answer:'';
@@ -476,18 +476,22 @@
   }
 
   function renderSocial(data,card){
+    const art=document.createElement('img');
+    art.className='social-guide-art';
+    art.src='assets/social/social-guide.webp';
+    art.alt='';
     const list=document.createElement('div');
     list.className='social-list';
     list.setAttribute('role','list');
     list.innerHTML=data.channels.map(channel=>`
       <article class="social-card" role="listitem">
-        <img class="social-card__logo" src="${channel.image}" alt="${channel.name}">
+        <img class="social-card__logo" src="${channel.image}" alt="${channel.imageAlt || channel.name}">
         <div><h2>${channel.name}</h2><p>${channel.instruction}</p></div>
       </article>`).join('');
     const note=document.createElement('p');
     note.className='social-note';
     note.textContent='源稿未包含可核验的账号链接，因此本页提供准确的站内搜索指引，不会跳转到未经确认的账号。';
-    card.append(list,note);
+    card.append(art,list,note);
   }
 
   /* ---------- Modal ---------- */
