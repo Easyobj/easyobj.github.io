@@ -2,12 +2,17 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="format-detection" content="telephone=no,email=no,address=no">
   <meta name="theme-color" content="#dcecff">
+  <meta name="description" content="ABB Robotics 互动体验页面">
+  <meta property="og:title" content="ABB Robotics H5">
+  <meta property="og:description" content="探索 ABB Robotics 互动体验">
+  <meta property="og:type" content="website">
   <title>ABB Robotics H5</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/ABBvoice_CNSG_Rg.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=4.4.1">
+  <link rel="stylesheet" href="styles.css?v=5.1.0">
 </head>
 <body>
   <!-- 仅首次加载显示；SPA 内部切页不会再次出现 -->
@@ -26,7 +31,7 @@
       <div class="h5-shell">
         <section class="home-page">
           <div class="layer background" style="--x:0rem;--y:0rem;--w:7.5rem;--h:13.326rem"><img src="assets/home/layer_1.webp" alt="" decoding="async" fetchpriority="high"></div>
-          <div class="layer saucer" style="--x:.939rem;--y:1.113rem;--w:2.058rem;--h:1.176rem"><img src="assets/home/layer_14.webp" decoding="async" alt="" decoding="async"></div>
+          <div class="layer saucer" style="--x:.939rem;--y:1.113rem;--w:2.058rem;--h:1.176rem"><img src="assets/home/layer_14.webp" decoding="async" alt=""></div>
 
           <button class="layer scene scene-1 js-reveal" data-scene="1" aria-label="打开 01 PoWa应用展示区" style="--x:2.526rem;--y:0.621rem;--w:4.311rem;--h:3.999rem">
             <span class="scene-content">
@@ -94,7 +99,7 @@
 
   <div class="modal" id="modal" aria-hidden="true">
     <div class="modal__mask" data-close></div>
-    <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1">
       <div class="sheet__grab"></div>
       <button class="sheet__close" data-close aria-label="关闭">×</button>
       <div class="sheet__kicker" id="modalKicker"></div>
@@ -103,7 +108,7 @@
     </section>
   </div>
 
-  <div class="toast" id="toast" role="status"></div>
-  <script src="app.js?v=4.4.1"></script>
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <script src="app.js?v=5.1.0"></script>
 </body>
 </html>

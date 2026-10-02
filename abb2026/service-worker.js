@@ -1,4 +1,5 @@
-const FONT_CACHE='abb-fonts-v1';
+const FONT_CACHE='abb-fonts-v2';
+self.addEventListener('install',event=>event.waitUntil(self.skipWaiting()));
 self.addEventListener('activate',event=>{
   event.waitUntil(caches.keys().then(keys=>Promise.all(
     keys.filter(k=>k.startsWith('abb-fonts-')&&k!==FONT_CACHE).map(k=>caches.delete(k))
@@ -13,9 +14,14 @@ self.addEventListener('fetch',event=>{
     caches.open(FONT_CACHE).then(async cache=>{
       const hit=await cache.match(req);
       if(hit) return hit;
-      const res=await fetch(req);
-      if(res && res.ok) cache.put(req,res.clone());
-      return res;
+      try{
+        const res=await fetch(req);
+        if(res && res.ok) await cache.put(req,res.clone());
+        return res;
+      }catch(error){
+        if(hit) return hit;
+        throw error;
+      }
     })
   );
 });
