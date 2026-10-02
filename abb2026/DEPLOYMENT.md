@@ -2,6 +2,8 @@
 
 GitHub Pages 仅用于视觉验收。微信授权、答题记录、抽奖库存和现场核销必须部署到正式 PHP/MySQL 服务器。
 
+从空白 Linux 云服务器开始的逐步部署命令、Nginx/PHP-FPM 配置、微信域名授权、备份与回滚说明见 [`SERVER_DEPLOYMENT.md`](SERVER_DEPLOYMENT.md)。本文件保留部署前确认项和项目验收清单。
+
 ## 运行环境
 
 - PHP 7.4 或更高版本，启用 `pdo_mysql`、`curl`、`mbstring`、`openssl`、`json` 和 `session`

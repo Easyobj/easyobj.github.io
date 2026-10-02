@@ -15,6 +15,7 @@
 - `runtime-config.js`：标记 PHP 服务器模式或 GitHub Pages 静态预览模式
 - `api/`：PHP 7.4+ / MySQL 业务类、微信 OAuth、答题进度、事务抽奖和运维健康检查
 - `DEPLOYMENT.md`：正式服务器、微信授权、数据库和上线验收清单
+- `SERVER_DEPLOYMENT.md`：从空白 Ubuntu 服务器开始的 Nginx、PHP-FPM、数据库、HTTPS 和公众号授权操作指南
 - `assets/home/`：首页 PSD 图层
 - `assets/scene6/`：从 06 PSD 提取的四张答题图片
 - `assets/social/`：从 07 PSD 提取的社交平台视觉素材
