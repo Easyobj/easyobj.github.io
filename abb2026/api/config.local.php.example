@@ -1,0 +1,24 @@
+<?php
+declare(strict_types=1);
+
+// Copy to config.local.php on the server. config.local.php is ignored by Git.
+return [
+    'app_env' => 'production',
+    'app_url' => 'https://your-approved-domain.example/abb2026',
+    'db' => [
+        'host' => '127.0.0.1',
+        'port' => 3306,
+        'name' => 'abb2026',
+        'user' => 'replace-me',
+        'password' => 'replace-me',
+    ],
+    'wechat' => [
+        'app_id' => 'replace-me',
+        'app_secret' => 'replace-me',
+        'scope' => 'snsapi_userinfo',
+    ],
+    'activity' => [
+        'starts_at' => 'YYYY-MM-DD HH:MM:SS',
+        'ends_at' => 'YYYY-MM-DD HH:MM:SS',
+    ],
+];

@@ -1,0 +1,8 @@
+Options -Indexes
+
+<FilesMatch "^(config(?:\.local)?\.php|bootstrap\.php)$">
+  Require all denied
+</FilesMatch>
+
+RewriteEngine On
+RewriteRule ^(?:src|database)/ - [F,L,NC]

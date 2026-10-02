@@ -10,6 +10,7 @@
 - `index.html`：唯一入口、SPA 首页 + 互动视图
 - `styles.css`：rem 适配、首页微动、PSD 对齐的互动控件
 - `app.js`：首次 Loading、SPA history、首页交互、01–06 答题逻辑及 07 社交指引
+- `api/`：PHP 7.4+ / MySQL 服务端、微信 OAuth、答题进度和事务抽奖基础
 - `assets/home/`：首页 PSD 图层
 - `assets/scene6/`：从 06 PSD 提取的四张答题图片
 - `assets/social/`：从 07 PSD 提取的社交平台视觉素材
@@ -96,6 +97,15 @@ html { font-size: calc(100vw / 7.5); }
 - 01～06 全部通过后显示全部通关页，并可进入抽奖机界面。
 - 抽奖入口不使用前端随机数生成业务结果；在未配置概率、库存、用户和核销接口时，会明确标识为界面预览。
 - 用于设计验收的直接预览路由：`#result-correct`、`#result-fail`、`#all-complete`、`#lottery`、`#lottery-win`、`#lottery-lose`、`#activity-ended`。
+
+## V5.4.0 PHP/MySQL 后端基础
+
+- 以去年活动的微信授权、答题、抽奖与核销链路为业务参考，不复制 ThinkPHP 3、明文凭据或历史用户日志。
+- 新增无框架 PHP API、PDO 参数化查询、微信 OAuth state 校验、会话 CSRF 与生产 HTTPS 配置。
+- 六站答案改由服务端校验；开放题原始回答保存到 MySQL，供活动结束后导出。
+- 抽奖使用数据库事务和行锁，同时限制总库存、每日库存和每位用户一次抽奖，避免并发超发。
+- 奖品名称与库存取自 `resources/2026题目.docx`；未确认的抽奖权重保持为空，配置前服务端会拒绝产生抽奖结果。
+- GitHub Pages 仍是静态视觉预览；正式业务必须把同一份前端与 `api/` 部署在已备案并配置微信网页授权的 HTTPS 服务器。
 
 ### 部署配置说明
 
