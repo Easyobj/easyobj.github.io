@@ -5,7 +5,7 @@
   const localBackendTest = isLocal && new URL(location.href).searchParams.get('backend') === '1';
 
   window.ABB_RUNTIME = Object.freeze({
-    release: '5.5.0-api-client',
+    release: '5.6.0-operations-console',
     apiBase: 'api/index.php',
     // GitHub Pages and file:// are explicit visual-preview environments.
     // The official server must use HTTPS; localhost can opt in for tests.

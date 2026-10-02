@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-const ABB_API_VERSION = '2026.1.0';
+const ABB_API_VERSION = '2026.2.0';
 
 $config = require __DIR__ . '/config.php';
 date_default_timezone_set((string) $config['timezone']);
@@ -45,12 +45,17 @@ require_once __DIR__ . '/src/Api.php';
 require_once __DIR__ . '/src/Database.php';
 require_once __DIR__ . '/src/Activity.php';
 require_once __DIR__ . '/src/Auth.php';
+require_once __DIR__ . '/src/AdminAuth.php';
 require_once __DIR__ . '/src/AnswerService.php';
 require_once __DIR__ . '/src/LotteryService.php';
 require_once __DIR__ . '/src/Wechat.php';
 
 set_exception_handler(static function (Throwable $error) use ($config): void {
     error_log(sprintf('[ABB2026] %s in %s:%d', $error->getMessage(), $error->getFile(), $error->getLine()));
+    if (PHP_SAPI === 'cli') {
+        fwrite(STDERR, "ABB2026 API error: " . $error->getMessage() . PHP_EOL);
+        exit(1);
+    }
     $detail = $config['app_env'] === 'development' ? $error->getMessage() : null;
     Api::error('server_error', '服务暂时不可用，请稍后重试。', 500, $detail);
 });

@@ -82,7 +82,9 @@ final class LotteryService
                  WHERE p.id = :prize_id AND p.total_remaining > 0 AND s.used < s.allocated'
             );
             $decrement->execute(['stock_date' => $today, 'prize_id' => (int) $winner['id']]);
-            if ($decrement->rowCount() !== 1) {
+            // A multi-table UPDATE may report two changed rows (one in each
+            // table), so only zero means the guarded decrement did not occur.
+            if ($decrement->rowCount() < 1) {
                 throw new RuntimeException('Prize inventory changed during draw.');
             }
 

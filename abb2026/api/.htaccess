@@ -5,4 +5,4 @@ Options -Indexes
 </FilesMatch>
 
 RewriteEngine On
-RewriteRule ^(?:src|database)/ - [F,L,NC]
+RewriteRule ^(?:src|database|bin)/ - [F,L,NC]
