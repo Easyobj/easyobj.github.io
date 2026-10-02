@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no,email=no,address=no">
+  <meta name="theme-color" content="#dcecff">
+  <title>ABB Robotics H5</title>
+  <link rel="preload" href="assets/fonts/ABBvoice_CNSG_Rg.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css?v=4.4.1">
+</head>
+<body>
+  <!-- 仅首次加载显示；SPA 内部切页不会再次出现 -->
+  <div class="loader" id="loader" aria-label="页面加载中">
+    <div class="loader__card">
+      <div class="loader__brand">ABB</div>
+      <div class="loader__sub">ROBOTICS EXPERIENCE</div>
+      <div class="loader__track"><div class="loader__bar" id="loaderBar"></div></div>
+      <div class="loader__pct" id="loaderPct">0%</div>
+    </div>
+  </div>
+
+  <div class="app" id="app">
+    <!-- HOME -->
+    <main class="view view--home is-active" id="homeView" data-view="home" aria-label="ABB Robotics 互动首页">
+      <div class="h5-shell">
+        <section class="home-page">
+          <div class="layer background" style="--x:0rem;--y:0rem;--w:7.5rem;--h:13.326rem"><img src="assets/home/layer_1.webp" alt="" decoding="async" fetchpriority="high"></div>
+          <div class="layer saucer" style="--x:.939rem;--y:1.113rem;--w:2.058rem;--h:1.176rem"><img src="assets/home/layer_14.webp" decoding="async" alt="" decoding="async"></div>
+
+          <button class="layer scene scene-1 js-reveal" data-scene="1" aria-label="打开 01 PoWa应用展示区" style="--x:2.526rem;--y:0.621rem;--w:4.311rem;--h:3.999rem">
+            <span class="scene-content">
+              <img class="scene-art" src="assets/home/layer_2.webp" decoding="async" alt="PoWa应用展示区">
+              <img class="scene-number" src="assets/home/layer_3.webp" decoding="async" alt="" style="--nx:0.345rem;--ny:2.220rem;--nw:0.228rem;--nh:0.285rem">
+            </span>
+          </button>
+
+          <button class="layer scene scene-2 js-reveal" data-scene="2" aria-label="打开 02 OmniCore EyeMotion" style="--x:0.222rem;--y:3.225rem;--w:3.663rem;--h:3.456rem">
+            <span class="scene-content">
+              <img class="scene-art" src="assets/home/layer_4.webp" decoding="async" alt="OmniCore EyeMotion">
+              <img class="scene-number" src="assets/home/layer_5.webp" decoding="async" alt="" style="--nx:0.798rem;--ny:-0.045rem;--nw:0.228rem;--nh:0.285rem">
+            </span>
+          </button>
+
+          <button class="layer scene scene-3 js-reveal" data-scene="3" aria-label="打开 03 ABB机器人原装备品备件" style="--x:3.840rem;--y:3.708rem;--w:3.762rem;--h:3.828rem">
+            <span class="scene-content">
+              <img class="scene-art" src="assets/home/layer_6.webp" decoding="async" loading="lazy" alt="ABB机器人原装备品备件">
+              <img class="scene-number" src="assets/home/layer_7.webp" decoding="async" loading="lazy" alt="" style="--nx:1.287rem;--ny:0.009rem;--nw:0.228rem;--nh:0.285rem">
+            </span>
+          </button>
+
+          <button class="layer scene scene-4 js-reveal" data-scene="4" aria-label="打开 04 机器人视觉AI绘画师" style="--x:0.099rem;--y:6.072rem;--w:3.729rem;--h:3.372rem">
+            <span class="scene-content">
+              <img class="scene-art" src="assets/home/layer_8.webp" decoding="async" loading="lazy" alt="机器人视觉AI绘画师">
+              <img class="scene-number" src="assets/home/layer_9.webp" decoding="async" loading="lazy" alt="" style="--nx:0.669rem;--ny:-0.069rem;--nw:0.228rem;--nh:0.285rem">
+            </span>
+          </button>
+
+          <button class="layer scene scene-5 js-reveal" data-scene="5" aria-label="打开 05 制药机说明书与包装盒上料站" style="--x:3.816rem;--y:6.612rem;--w:3.426rem;--h:3.624rem">
+            <span class="scene-content">
+              <img class="scene-art" src="assets/home/layer_10.webp" decoding="async" loading="lazy" alt="制药机说明书与包装盒上料站">
+              <img class="scene-number" src="assets/home/layer_11.webp" decoding="async" loading="lazy" alt="" style="--nx:0.639rem;--ny:-0.084rem;--nw:0.228rem;--nh:0.285rem">
+            </span>
+          </button>
+
+          <button class="layer scene scene-6 js-reveal" data-scene="6" aria-label="打开 06 机器人激光焊接演示站" style="--x:0.174rem;--y:8.853rem;--w:3.402rem;--h:3.198rem">
+            <span class="scene-content">
+              <img class="scene-art" src="assets/home/layer_12.webp" decoding="async" loading="lazy" alt="机器人激光焊接演示站">
+              <img class="scene-number" src="assets/home/layer_13.webp" decoding="async" loading="lazy" alt="" style="--nx:0.594rem;--ny:-0.054rem;--nw:0.228rem;--nh:0.285rem">
+            </span>
+          </button>
+
+          <button class="layer scene scene-7 scene07 js-reveal" data-scene="7" aria-label="打开 07 社交媒体关注站" style="--x:3.759rem;--y:9.417rem;--w:3.519rem;--h:3.453rem">
+            <span class="scene-content"><img src="assets/home/layer_15.webp" decoding="async" loading="lazy" alt="社交媒体关注站"></span>
+          </button>
+
+          <button class="layer utility" data-action="rules" aria-label="活动规则" style="--x:.279rem;--y:.327rem;--w:1.965rem;--h:.606rem"><img src="assets/home/layer_16.webp" decoding="async" alt="活动规则"></button>
+          <button class="layer utility" data-action="prize" aria-label="兑奖中心" style="--x:5.130rem;--y:12.387rem;--w:1.929rem;--h:.699rem"><img src="assets/home/layer_17.webp" decoding="async" loading="lazy" alt="兑奖中心"></button>
+        </section>
+      </div>
+    </main>
+
+    <!-- INTERACTION SPA VIEW -->
+    <main class="view view--interaction" id="interactionView" data-view="interaction" aria-hidden="true">
+      <div class="interaction-shell">
+        <section class="interaction-stage" id="interactionStage">
+          <div class="interaction-bg" aria-hidden="true"></div>
+          <button class="interaction-back pressable" id="interactionBack" type="button" aria-label="返回首页">‹</button>
+          <div class="interaction-ui" id="interactionUI"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal__mask" data-close></div>
+    <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="sheet__grab"></div>
+      <button class="sheet__close" data-close aria-label="关闭">×</button>
+      <div class="sheet__kicker" id="modalKicker"></div>
+      <h2 class="sheet__title" id="modalTitle"></h2>
+      <div id="modalBody"></div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="app.js?v=4.4.1"></script>
+</body>
+</html>
