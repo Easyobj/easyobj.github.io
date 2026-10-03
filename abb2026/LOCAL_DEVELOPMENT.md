@@ -44,6 +44,8 @@ V5.9.0 本机已执行增量安全表迁移，未清空 `abb2026_local`。后台
 
 V5.9.1 使用同一安全表，不重建本地数据库。正常六站可连续完成；每用户 12 次答题/分钟、3 次抽奖尝试/分钟，达到上限后等窗口恢复。不要在生产库手动删除限速记录以“修复”冷却。公开 health 仅存活，详细就绪检查使用 CLI preflight。PHP 内置服务器不能代替 Nginx 请求体/连接数保护，生产按 SERVER_DEPLOYMENT.md 配置。
 
+V5.9.2 本机仅增量增加 `form_challenges`、`risk_events`，保留业务进度和库存。凭证 10 分钟过期或提交后失效，刷新即可重新领取；不同标签页互不覆盖。每用户每分钟最多签发 30 页凭证，冷却时仍可查询保存结果。Pages 不再进行本机判题，实际六站流程在 PHP 本地环境验收。
+
 ```bash
 php api/bin/preflight.php --local
 node --check app.js

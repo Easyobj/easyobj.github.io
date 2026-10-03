@@ -1,6 +1,6 @@
 # ABB 2026 正式服务器部署指南
 
-版本：2026-10-03，ThinkPHP 3.2.3 / V5.9.1。安全分阶段计划见 `SECURITY_REMEDIATION_PLAN.md`。
+版本：2026-10-03，ThinkPHP 3.2.3 / V5.9.2。安全分阶段计划见 `SECURITY_REMEDIATION_PLAN.md`。
 
 已确定：沿用去年的服务器、数据库账号和公众号，为今年新建独立 `abb2026` 数据库。不要替换旧站点、升级旧服务器整个系统、导入去年用户数据或清空已有库。Pages 是静态验收页，不能运行 PHP 或微信授权。
 
@@ -36,7 +36,7 @@ sudo find /srv/abb2026/app -type d -exec chmod 750 {} +
 sudo find /srv/abb2026/app -type f -exec chmod 640 {} +
 sudo install -d -o www-data -g www-data -m 750 \
   /srv/abb2026/app/Application/Runtime \
-  /srv/abb2026/app/Application/Runtime/5.9.1
+  /srv/abb2026/app/Application/Runtime/5.9.2
 sudo install -d -o www-data -g www-data -m 700 /var/lib/php/abb2026-sessions
 ```
 
@@ -74,6 +74,7 @@ V5.8.0 已有库升级 V5.9.0 时，由数据库管理员执行以下增量迁�
 
 ```bash
 sudo mariadb abb2026 < api/database/migrations/2026_10_03_security_baseline.sql
+sudo mariadb abb2026 < api/database/migrations/2026_10_03_form_challenges.sql
 ```
 
 该迁移仅创建安全计数表，不修改用户/答案/库存。先迁移，再切换代码并预检。旧后台会话在升级后重新登录。
@@ -224,6 +225,12 @@ sudo -u www-data env ABB_CONFIG_FILE=/etc/abb2026/settings.php \
 密码至少 12 位，存入企业密码管理器。后台地址 `https://实际域名/index.php?m=Admin&c=Index&a=index`。录入已确认权重后再次完整预检，所有项应 OK；不能用 `--local` 的跳过项代替上线通过。公开 `/api/index.php?action=health` 只报告 PHP 存活，不读取数据库、私密配置、Session，也不代表业务就绪。详细健康检查仅通过有服务器权限的 CLI `sudo -u www-data env ABB_CONFIG_FILE=/etc/abb2026/settings.php php api/bin/preflight.php` 执行；禁止将详细报告重新暴露到公网。前端业务采用 PHP 模板和表单而不是 JSON API。
 
 V5.9.1 默认每用户答题 12 次/分钟、抽奖尝试 3 次/分钟（资格不足、配置未就绪也计数），后台敏感动作每管理员 30 次/分钟、答案导出 2 次/分钟，OAuth 启动/回调各 IP 300 次/分钟。限频发生在业务事务之前，拒绝不写答案或扣库存；数据库安全桶计数仍会增加。有效用户换 Session 不会重置额度；普通结果 GET 查询免费。已通过站点的重复有效答案保留原答案/时间/次数。私密配置 `security` 可覆盖默认值，所有计数共用第一阶段的增量安全表，无第二次业务表重建。
+
+V5.9.2 每次活动页面签发 7 个随机凭证（六站各一、抽奖一），仅存 SHA-256 摘要，绑定用户/操作/站点，10 分钟过期，一次 UPDATE 原子消费。请求拒绝、网络错误或浏览器后退导致旧凭证不可用时，刷新后以数据库进度恢复，不重复扣库存；多标签页凭证独立。每用户每分钟最多签发 30 页，额度耗尽时保留结果查询但暂停签发。后台维护工具也清理过期凭证，请把已有安全清理任务调整至每小时（不要建立冲突的第二套任务）。OAuth state 同样十分钟过期且兑换前消费，失败后重新进入授权。
+
+风险线索只记录六站已通过答案时间跨度少于 60 秒、同网络十分钟至少 20 个账号等启发式事件，不包含答案原文或原始 IP，不自动冻结/拒奖。IP 摘要并非不可还原的匿名数据，仍按受限运营数据处理；共享 NAT 可能触发正常线索，必须人工结合实际规则审核。界面/运营操作在后续阶段接入，保留期限由活动方最终确认。公开源码仍包含服务端题库，正式防刷不能依赖源码保密。
+
+Pages 发布使用静态白名单，不同步任何 PHP、Application、ThinkPHP、api、SQL、私密配置或 Runtime。在确认 Pages 工作树干净后运行 `php api/bin/build-static-preview.php`，再执行 `php api/bin/build-pages.php /实际路径/easyobj-github-io/abb2026` 查看差异，确认后加 `--execute`。该工具仅接受约定的 Pages 目录，保留 AGENTS.md；旧已发布服务端文件从当前分支移除，Git 历史仍可恢复。完整 PHP 代码继续进入源码仓库和正式服务器。
 
 ## 7. 真实上线验收
 

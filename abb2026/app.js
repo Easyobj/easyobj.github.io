@@ -47,7 +47,6 @@
         '在ABB机器人协作机器人专区，您可以看到 PoWa 机器人实现以下哪三种应用？'
       ],
       note:'（多选）',
-      correct:['A','C','D'],
       options:[['A','上下料'],['B','喷涂'],['C','焊接'],['D','码垛'],['E','组装']]
     },
     2:{
@@ -59,7 +58,6 @@
         '在物理 AI 赋能的一体化压铸件检测方案中，ABB 机器人使用到的软件方案是？'
       ],
       note:'（单选）',
-      correct:'C',
       options:[['A','PickMaster® Lite & Wizard简易编程软件'],['B','PickMaster® Lite & RobotStudio HyperReality'],['C','OmniCore EyeMotion & AI Robot Trainer'],['D','OmniCore EyeMotion & 高速定位软件']]
     },
     3:{
@@ -74,7 +72,6 @@
         'ABB备件带有激光刻字和OIOC技术，便于验证真伪。',
         'ABB原装备件旨在最大程度提高机器人的可靠性和正常运行时间。'
       ],
-      correct:[false,true,false,true,true],
       tip:'可进入 ABB机器人 Connected Care 展区寻找答案哦！'
     },
     4:{
@@ -92,7 +89,6 @@
       title:'制药机说明书与包装盒上料站',
       hero:'assets/home/layer_10.webp',
       intro:['如果您在制药厂工作，希望实现制药机说明书和包装盒的自动上料，以下哪种方案是最优的解决方案？'],
-      correct:'B',
       options:[['A','使用单一吸盘抓取所有物料'],['B','使用CRB 1810机器人 + 真空/气动复合抓手 + 多功能物料小车'],['C','人工上料'],['D','使用AGV小车替代机器人']],
       tip:'您可前往 ABB机器人渠道合作伙伴华太机器人的料箱识别机器人解决方案展区，寻找答案哦！'
     },
@@ -104,7 +100,6 @@
         '该工作站由 ABB 机器人渠道合作伙伴——厦门航天思尔特打造，搭载 ABB IRB 1300 工业机器人，展示了面向金属工件的自动化连接需求，结合焊缝位置规划焊接路径，并集成机器人、激光焊接头与工装夹具的一体化工艺。',
         '请问下图中哪一款机器人是 IRB 1300？'
       ],
-      correct:'D',
       options:[
         ['A','选项 A','assets/scene6/option-a.png'],
         ['B','选项 B','assets/scene6/option-b.png'],
@@ -174,15 +169,11 @@
       let migrated=false;
       for(let id=1;id<=6;id++){
         const saved=parsed[id];
-        const data=DATA[id];
-        if(!saved?.submitted || typeof saved.passed==='boolean')continue;
-        let passed=false;
-        if(data.type==='textarea')passed=typeof saved.answer==='string'&&Boolean(saved.answer.trim());
-        else if(data.type==='judge')passed=Array.isArray(saved.selected)&&saved.selected.length===data.correct.length&&data.correct.every((answer,i)=>saved.selected[i]===answer);
-        else if(data.type==='multi')passed=Array.isArray(saved.selected)&&saved.selected.length===data.correct.length&&data.correct.every(answer=>saved.selected.includes(answer));
-        else passed=saved.selected===data.correct;
-        saved.passed=passed;
-        if(!passed)saved.submitted=false;
+        if(!saved || (pageState.serverRendered && typeof saved.passed==='boolean'))continue;
+        // Static previews never grade or grant badges. PHP records override
+        // browser drafts in the real activity; legacy drafts cannot grant access.
+        saved.passed=false;
+        saved.submitted=false;
         migrated=true;
       }
       if(migrated)localStorage.setItem(STORAGE_KEY,JSON.stringify(parsed));
@@ -225,7 +216,10 @@
   function submitServerForm(action,fields={}){
     const form=$('#serverActionForm');
     if(!form)throw new Error('PHP 提交表单未渲染，请刷新页面。');
-    const values={action,...fields};
+    const key=action==='answer'?`answer-${fields.station}`:action;
+    const token=renderedState?.formChallenges?.[key];
+    if(!token)throw new Error('提交凭证不可用，请稍后刷新页面。已保存进度不会丢失。');
+    const values={action,station:'',answer_json:'',...fields,form_token:token};
     Object.entries(values).forEach(([name,value])=>{
       const input=form.elements.namedItem(name);
       if(input)input.value=String(value);
@@ -233,8 +227,8 @@
     form.submit();
   }
 
-  async function submitAnswer(station,answer,previewPassed){
-    if(!pageState.serverRendered)return {passed:previewPassed};
+  async function submitAnswer(station,answer){
+    if(!pageState.serverRendered)throw new Error('当前为设计预览，不执行判题；请在正式微信活动页面提交。');
     submitServerForm('answer',{station,answer_json:JSON.stringify(answer)});
     return new Promise(()=>{});
   }
@@ -332,6 +326,7 @@
     statusAction.hidden=!config.action;
     statusAction.setAttribute('aria-label',config.action||'');
     let safety=config.safety||'';
+    if(!pageState.serverRendered && ['result-correct','result-fail','all-complete'].includes(kind))safety='设计预览 · 不执行判题、不记录活动资格';
     if(pageState.serverRendered&&kind==='lottery')safety='抽奖结果由 PHP 控制器生成，并在事务中同步扣减库存';
     if(pageState.serverRendered&&kind==='lottery-win'&&pageState.draw)safety=`中奖礼品：${pageState.draw.prize.name}`;
     statusSafety.hidden=!safety;
@@ -492,16 +487,7 @@
         const selected=isSelected(key);
         btn.classList.remove('selected');
         btn.disabled=true;
-        if(data.type==='single'){
-          if(key===data.correct){btn.classList.add('correct');addResultBadge(btn,selected?'回答正确':'正确答案');}
-          else if(selected){btn.classList.add('wrong');addResultBadge(btn,'您的选择');}
-        }else if(data.correct.includes(key)&&selected){
-          btn.classList.add('correct');addResultBadge(btn,'选择正确');
-        }else if(selected&&!data.correct.includes(key)){
-          btn.classList.add('wrong');addResultBadge(btn,'选择错误');
-        }else if(data.correct.includes(key)){
-          btn.classList.add('missed');addResultBadge(btn,'正确答案');
-        }
+        if(selected){btn.classList.add(saved.passed?'correct':'wrong');addResultBadge(btn,saved.passed?'回答正确':'您的选择');}
       });
       submit.disabled=true;
       submit.textContent=savedLabel();
@@ -522,13 +508,10 @@
     submit.addEventListener('click',async()=>{
       if(submit.disabled||currentState.submitted)return;
       currentState.submitted=true;
-      const previewPassed=data.type==='single'
-        ? currentState.selected===data.correct
-        : currentState.selected.size===data.correct.length&&data.correct.every(v=>currentState.selected.has(v));
       const answer=data.type==='single'?currentState.selected:[...currentState.selected];
       submit.disabled=true;submit.textContent='提交中…';
       try{
-        const result=await submitAnswer(id,answer,previewPassed);
+        const result=await submitAnswer(id,answer);
         saveSceneProgress(id,{selected:answer,submitted:true,passed:Boolean(result.passed)});
         revealResults();
         showStatus(result.passed?'result-correct':'result-fail');
@@ -543,7 +526,7 @@
 
   function renderJudge(id,data,card){
     const saved=getSceneProgress(id);
-    currentState.selected=Array.isArray(saved.selected)&&saved.selected.length===data.correct.length?saved.selected:Array(data.correct.length).fill(null);
+    currentState.selected=Array.isArray(saved.selected)&&saved.selected.length===data.questions.length?saved.selected:Array(data.questions.length).fill(null);
     currentState.submitted=Boolean(saved.submitted);
     const wrap=document.createElement('div');
     wrap.className='judge-list';
@@ -569,14 +552,13 @@
       submit.disabled=currentState.submitted||currentState.selected.some(v=>v===null);
     };
     const revealResults=()=>{
-      data.correct.forEach((ans,i)=>{
+      data.questions.forEach((_,i)=>{
         $$(`[data-i="${i}"]`,wrap).forEach(btn=>{
           const value=btn.dataset.v==='true';
           const selected=currentState.selected[i]===value;
           btn.classList.remove('selected');
           btn.disabled=true;
-          if(value===ans){btn.classList.add('correct-answer');addResultBadge(btn,selected?'回答正确':'正确答案');}
-          else if(selected){btn.classList.add('wrong-answer');addResultBadge(btn,'您的选择');}
+          if(selected){btn.classList.add(saved.passed?'correct-answer':'wrong-answer');addResultBadge(btn,saved.passed?'回答正确':'您的选择');}
         });
       });
       submit.disabled=true;
@@ -595,14 +577,11 @@
     submit.addEventListener('click',async()=>{
       if(submit.disabled||currentState.submitted)return;
       currentState.submitted=true;
-      let score=0;
-      data.correct.forEach((ans,i)=>{if(currentState.selected[i]===ans)score++;});
-      const previewPassed=score===data.correct.length;
       const answer=[...currentState.selected];
       submit.disabled=true;submit.textContent='提交中…';
       try{
-        const result=await submitAnswer(id,answer,previewPassed);
-        saveSceneProgress(id,{selected:answer,submitted:true,score,passed:Boolean(result.passed)});
+        const result=await submitAnswer(id,answer);
+        saveSceneProgress(id,{selected:answer,submitted:true,passed:Boolean(result.passed)});
         revealResults();
         showStatus(result.passed?'result-correct':'result-fail');
       }catch(error){
@@ -641,7 +620,7 @@
       currentState.submitted=true;
       ta.disabled=true;submit.disabled=true;submit.textContent='提交中…';
       try{
-        const result=await submitAnswer(id,ta.value,true);
+        const result=await submitAnswer(id,ta.value);
         saveSceneProgress(id,{answer:ta.value,submitted:true,passed:Boolean(result.passed)});
         submit.textContent=savedLabel();
         showStatus(result.passed?'result-correct':'result-fail');
