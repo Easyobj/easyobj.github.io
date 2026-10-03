@@ -144,6 +144,7 @@
     serverRendered:Boolean(runtime.serverRendered && renderedState),
     user:renderedState?.user||null,
     draw:renderedState?.draw||null,
+    drawPaused:Boolean(renderedState?.drawPaused),
     activity:renderedState?.activity||null,
     flash:renderedState?.flash||null
   };
@@ -328,6 +329,7 @@
     let safety=config.safety||'';
     if(!pageState.serverRendered && ['result-correct','result-fail','all-complete'].includes(kind))safety='设计预览 · 不执行判题、不记录活动资格';
     if(pageState.serverRendered&&kind==='lottery')safety='抽奖结果由 PHP 控制器生成，并在事务中同步扣减库存';
+    if(pageState.serverRendered&&kind==='lottery'&&pageState.drawPaused)safety='运营已暂停新增抽奖，已有中奖记录和核销继续。';
     if(pageState.serverRendered&&kind==='lottery-win'&&pageState.draw)safety=`中奖礼品：${pageState.draw.prize.name}`;
     statusSafety.hidden=!safety;
     statusSafety.textContent=safety;

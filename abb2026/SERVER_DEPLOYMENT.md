@@ -1,6 +1,6 @@
 # ABB 2026 正式服务器部署指南
 
-版本：2026-10-03，ThinkPHP 3.2.3 / V5.9.2。安全分阶段计划见 `SECURITY_REMEDIATION_PLAN.md`。
+版本：2026-10-03，ThinkPHP 3.2.3 / V5.9.3。安全分阶段计划见 `SECURITY_REMEDIATION_PLAN.md`。
 
 已确定：沿用去年的服务器、数据库账号和公众号，为今年新建独立 `abb2026` 数据库。不要替换旧站点、升级旧服务器整个系统、导入去年用户数据或清空已有库。Pages 是静态验收页，不能运行 PHP 或微信授权。
 
@@ -36,7 +36,7 @@ sudo find /srv/abb2026/app -type d -exec chmod 750 {} +
 sudo find /srv/abb2026/app -type f -exec chmod 640 {} +
 sudo install -d -o www-data -g www-data -m 750 \
   /srv/abb2026/app/Application/Runtime \
-  /srv/abb2026/app/Application/Runtime/5.9.2
+  /srv/abb2026/app/Application/Runtime/5.9.3
 sudo install -d -o www-data -g www-data -m 700 /var/lib/php/abb2026-sessions
 ```
 
@@ -75,6 +75,7 @@ V5.8.0 已有库升级 V5.9.0 时，由数据库管理员执行以下增量迁�
 ```bash
 sudo mariadb abb2026 < api/database/migrations/2026_10_03_security_baseline.sql
 sudo mariadb abb2026 < api/database/migrations/2026_10_03_form_challenges.sql
+sudo mariadb abb2026 < api/database/migrations/2026_10_03_operations.sql
 ```
 
 该迁移仅创建安全计数表，不修改用户/答案/库存。先迁移，再切换代码并预检。旧后台会话在升级后重新登录。
@@ -154,10 +155,10 @@ server {
     location = /index.html {
         return 302 /index.php$is_args$args;
     }
-    location ~* ^/(?:Application|ThinkPHP|templates)(?:/|$) {
+    location ~* ^/+(?:Application|ThinkPHP|templates)(?:/|$) {
         deny all;
     }
-    location ~* ^/api/(?:database/|bin/|config[^/]*|bootstrap\.php$) {
+    location ~* ^/+api/(?:src/|database/|bin/|config[^/]*|bootstrap\.php$) {
         deny all;
     }
     location ~ (^|/)\. {
@@ -216,7 +217,7 @@ printf '\n'
 export ABB_ADMIN_PASSWORD
 sudo --preserve-env=ABB_ADMIN_PASSWORD -u www-data \
   env ABB_CONFIG_FILE=/etc/abb2026/settings.php \
-  php api/bin/create-admin.php eventadmin
+  php api/bin/create-admin.php eventadmin --role=operator
 unset ABB_ADMIN_PASSWORD
 sudo -u www-data env ABB_CONFIG_FILE=/etc/abb2026/settings.php \
   php api/bin/preflight.php
@@ -228,7 +229,15 @@ V5.9.1 默认每用户答题 12 次/分钟、抽奖尝试 3 次/分钟（资格�
 
 V5.9.2 每次活动页面签发 7 个随机凭证（六站各一、抽奖一），仅存 SHA-256 摘要，绑定用户/操作/站点，10 分钟过期，一次 UPDATE 原子消费。请求拒绝、网络错误或浏览器后退导致旧凭证不可用时，刷新后以数据库进度恢复，不重复扣库存；多标签页凭证独立。每用户每分钟最多签发 30 页，额度耗尽时保留结果查询但暂停签发。后台维护工具也清理过期凭证，请把已有安全清理任务调整至每小时（不要建立冲突的第二套任务）。OAuth state 同样十分钟过期且兑换前消费，失败后重新进入授权。
 
-风险线索只记录六站已通过答案时间跨度少于 60 秒、同网络十分钟至少 20 个账号等启发式事件，不包含答案原文或原始 IP，不自动冻结/拒奖。IP 摘要并非不可还原的匿名数据，仍按受限运营数据处理；共享 NAT 可能触发正常线索，必须人工结合实际规则审核。界面/运营操作在后续阶段接入，保留期限由活动方最终确认。公开源码仍包含服务端题库，正式防刷不能依赖源码保密。
+风险线索只记录六站已通过答案时间跨度少于 60 秒、同网络十分钟至少 20 个账号等启发式事件，不包含答案原文或原始 IP，不自动冻结/拒奖。IP 摘要并非不可还原的匿名数据，仍按受限运营数据处理；共享 NAT 可能触发正常线索，必须人工结合实际规则审核。V5.9.3 在运营后台提供审核标记/解除、说明和前后值审计，新线索晚于审核时重新提示；保留期限由活动方最终确认。公开源码仍包含服务端题库，正式防刷不能依赖源码保密。
+
+V5.9.3 角色 `operator` 可以管理奖池、导出、暂停/恢复新增抽奖和风险审核；`redeemer` 只能按兑奖码查询单条记录并核销，不显示批量用户/中奖信息。旧管理员迁移后默认 operator，密码不变；角色加入会话指纹后旧 Session 需重新登录。新建/重置账号必须传 `--role=operator` 或 `--role=redeemer`；仅更换角色用 `php api/bin/set-admin-role.php 用户名 角色`，变更审计标记来源为受控服务器 CLI，不虚构网页操作员身份。CLI 可恢复误设角色，须限制 SSH 权限。
+
+核销人员先查询奖品、昵称、已领取状态和风险提示，再“已核对，确认核销”。服务器签发工作人员 Session 内的随机确认，绑定管理员/兑奖码/风险审核版本，有效两分钟、一次消费；过期、重放、角色变更、审核变更需重新登录或查询。并发核销受事务行锁保护，只有一次发奖和审计。该凭证由工作人员发起，不是参与者本人授权证明；本人领取或参会资格凭证仍待阶段 5 的活动规则，不能仅据截图认定身份。人工标记只提示，不自动改变奖品资格。
+
+“暂停新增抽奖”与抽奖事务使用同一控制行锁，提交暂停后不再创建新中奖记录；既有结果 GET 查询、核销继续。若用户页面未刷新，服务器仍会拒绝新抽奖，并显示暂停提示。库存超过总库存/每日已用超过配额、默认每分钟至少 100 次发奖和待复核风险用户，会在运营页提示；阈值只告警、不自动制裁，共享网络场景需现场核对。当前没有配置短信/邮件告警通道，不假装已外发通知。
+
+每个 ABB2026 PDO 连接设置活动时区对应的 MySQL Session time_zone，默认 +08:00，确保 NOW()/每日配额与 PHP 日期一致；不修改共享数据库服务器 GLOBAL 设置，也不重写历史记录。切流前核对原记录的时间基准，发现不一致须先备份、由活动方批准修正，不能猜测迁移偏移量。
 
 Pages 发布使用静态白名单，不同步任何 PHP、Application、ThinkPHP、api、SQL、私密配置或 Runtime。在确认 Pages 工作树干净后运行 `php api/bin/build-static-preview.php`，再执行 `php api/bin/build-pages.php /实际路径/easyobj-github-io/abb2026` 查看差异，确认后加 `--execute`。该工具仅接受约定的 Pages 目录，保留 AGENTS.md；旧已发布服务端文件从当前分支移除，Git 历史仍可恢复。完整 PHP 代码继续进入源码仓库和正式服务器。
 

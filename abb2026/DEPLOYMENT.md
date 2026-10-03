@@ -1,6 +1,6 @@
 # ABB 2026 正式服务器部署清单
 
-V5.9.2：沿用去年 ThinkPHP 3.2.3、同一服务器、同一数据库账号及微信公众号；新建独立 `abb2026` 数据库，不复用或修改去年数据库中的表和用户数据。Pages 只发布静态白名单预览，不包含 PHP/框架/配置/SQL。已有今年库须执行 `2026_10_03_security_baseline.sql` 和 `2026_10_03_form_challenges.sql` 增量迁移后再更新代码。Nginx 两级保护及受信代理配置见 SERVER_DEPLOYMENT.md。公开 health 仅报告存活，不代表业务就绪；一次性提交凭证与正确判题只在正式 PHP 环境生效。
+V5.9.3：沿用去年 ThinkPHP 3.2.3、同一服务器、同一数据库账号及微信公众号；新建独立 `abb2026` 数据库，不复用或修改去年数据库中的表和用户数据。Pages 只发布静态白名单预览，不包含 PHP/框架/配置/SQL。已有今年库须依次执行 `2026_10_03_security_baseline.sql`、`2026_10_03_form_challenges.sql`、`2026_10_03_operations.sql` 增量迁移后更新代码。Nginx 两级保护、受信代理、后台角色与核销流程见 SERVER_DEPLOYMENT.md。公开 health 仅报告存活，不代表业务就绪；判题、限频和运营控制只在正式 PHP 环境生效。
 
 操作命令见 [SERVER_DEPLOYMENT.md](SERVER_DEPLOYMENT.md)，迁移说明见 [FRAMEWORK_MIGRATION.md](FRAMEWORK_MIGRATION.md)。
 

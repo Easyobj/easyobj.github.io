@@ -14,7 +14,7 @@
 需要重置本地管理员密码时运行：
 
 ```bash
-ABB_ADMIN_PASSWORD='新的至少12位密码' php api/bin/create-admin.php localadmin
+ABB_ADMIN_PASSWORD='新的至少12位密码' php api/bin/create-admin.php localadmin --role=operator
 ```
 
 ## 启动
@@ -45,6 +45,10 @@ V5.9.0 本机已执行增量安全表迁移，未清空 `abb2026_local`。后台
 V5.9.1 使用同一安全表，不重建本地数据库。正常六站可连续完成；每用户 12 次答题/分钟、3 次抽奖尝试/分钟，达到上限后等窗口恢复。不要在生产库手动删除限速记录以“修复”冷却。公开 health 仅存活，详细就绪检查使用 CLI preflight。PHP 内置服务器不能代替 Nginx 请求体/连接数保护，生产按 SERVER_DEPLOYMENT.md 配置。
 
 V5.9.2 本机仅增量增加 `form_challenges`、`risk_events`，保留业务进度和库存。凭证 10 分钟过期或提交后失效，刷新即可重新领取；不同标签页互不覆盖。每用户每分钟最多签发 30 页凭证，冷却时仍可查询保存结果。Pages 不再进行本机判题，实际六站流程在 PHP 本地环境验收。
+
+V5.9.3 本机已执行运营增量迁移，原 localadmin 保持 operator、密码不变，旧后台会话需重新登录。核销先查询后确认，有效期两分钟，一次使用；重新查询会替换同会话之前的核销确认。若审核状态变化，必须重新查询。仅核销账号不展示批量用户/中奖记录或运营配置。创建测试核销账号时显式使用 `--role=redeemer`；更换已有角色使用 `php api/bin/set-admin-role.php <用户名> operator|redeemer`，此命令不改密码并撤销旧后台会话。操作仅在你确实需要管理本地测试账号时执行。
+
+每个数据库连接显式使用活动时区（默认 Asia/Shanghai 对应 +08:00），不改数据库 GLOBAL 时区。既有记录不重写；若旧测试数据用不同时间基准，需先备份并人工核对，不能批量猜测平移。
 
 ```bash
 php api/bin/preflight.php --local
