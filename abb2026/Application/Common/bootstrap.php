@@ -1,13 +1,16 @@
 <?php
 declare(strict_types=1);
 
-const ABB_API_VERSION = '2026.3.0';
+const ABB_API_VERSION = '2026.3.1';
+
+require_once __DIR__ . '/Service/RequestGuard.class.php';
+RequestGuard::enforce();
 
 $config = require __DIR__ . '/Conf/settings.php';
 date_default_timezone_set((string) $config['timezone']);
 
 $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-    || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+    || ($config['app_env'] === 'production' && strncmp($config['app_url'], 'https://', 8) === 0);
 
 session_name('abb2026_session');
 ini_set('session.use_strict_mode', '1');

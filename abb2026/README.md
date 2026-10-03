@@ -1,8 +1,10 @@
 # ABB Robotics H5（ThinkPHP 3.2.3 / PHP 模板）
 
-当前 V5.9.0 使用去年的 ThinkPHP 3.2.3 内核，采用 `Other` / `Admin` 模块及 PHP 视图渲染。生产沿用去年服务器、数据库账号和公众号，今年使用独立数据库 `abb2026`。迁移说明见 [`FRAMEWORK_MIGRATION.md`](FRAMEWORK_MIGRATION.md)，逐阶段安全计划见 [`SECURITY_REMEDIATION_PLAN.md`](SECURITY_REMEDIATION_PLAN.md)。
+当前 V5.9.1 使用去年的 ThinkPHP 3.2.3 内核，采用 `Other` / `Admin` 模块及 PHP 视图渲染。生产沿用去年服务器、数据库账号和公众号，今年使用独立数据库 `abb2026`。迁移说明见 [`FRAMEWORK_MIGRATION.md`](FRAMEWORK_MIGRATION.md)，逐阶段安全计划见 [`SECURITY_REMEDIATION_PLAN.md`](SECURITY_REMEDIATION_PLAN.md)。
 
 V5.9.0 已实现后台用户名规则统一、账号/IP 独立原子限速、会话空闲/绝对过期、密码变更撤销旧会话与 CSRF 旋转。已有数据库需先执行 `api/database/migrations/2026_10_03_security_baseline.sql`；这只是安全计划第一阶段，不代表多账号刷奖问题已解决。
+
+V5.9.1 接入答题/抽奖/OAuth/后台敏感动作限频，限制请求体和答案类型，冻结已通过答案的重复写入；公开健康检查变为不查库的存活检查。提供 Nginx HTTP/PHP 两级配置片段，真实部署前需按共享网络情况验证。跨多微信账号的重复领取仍需活动方确认资格规则。
 
 本版本针对反馈做了三项重点调整：
 
@@ -142,7 +144,7 @@ html { font-size: calc(100vw / 7.5); }
 
 ## V5.6.1 正式上线预检
 
-- `/api/index.php?action=health` 会检查 PHP 版本与扩展、HTTPS、微信配置、活动时间、数据库表和奖品权重；未就绪时返回 HTTP 503。
+- `/api/index.php?action=health` 只提供无 Session、无数据库的公开存活检查。PHP 版本、配置、活动时间、表结构和奖池就绪性通过运维 CLI `api/bin/preflight.php` 检查，不对公网暴露详细报告。
 - `php api/bin/preflight.php` 提供相同的命令行检查，并以退出码阻止配置不完整的版本上线。
 - 活动结束时间早于或等于开始时间时会被识别为无效配置，前端不再把它当成正常活动状态。
 

@@ -47,6 +47,14 @@ $config = [
         'admin_login_account_limit' => 5,
         'admin_login_ip_limit' => 50,
         'admin_login_window_seconds' => 900,
+        'answer_limit' => 12,
+        'draw_limit' => 3,
+        'business_window_seconds' => 60,
+        'oauth_ip_limit' => 300,
+        'oauth_window_seconds' => 60,
+        'admin_action_limit' => 30,
+        'admin_export_limit' => 2,
+        'admin_action_window_seconds' => 60,
     ],
 ];
 

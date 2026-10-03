@@ -41,16 +41,15 @@ final class PageController
 
     private static function handlePost(array $user): void
     {
-        $action = trim((string) ($_POST['action'] ?? ''));
-        $station = (int) ($_POST['station'] ?? 0);
+        $action = is_string($_POST['action'] ?? null) ? trim($_POST['action']) : '';
+        $station = is_string($_POST['station'] ?? null) && preg_match('/^[1-6]$/', $_POST['station']) ? (int) $_POST['station'] : 0;
         try {
-            if (!Auth::validCsrf((string) ($_POST['csrf_token'] ?? ''))) {
+            if (!Auth::validCsrf(is_string($_POST['csrf_token'] ?? null) ? $_POST['csrf_token'] : '')) {
                 throw new BusinessError('csrf_failed', '页面会话已失效，请刷新后重试。', 419);
             }
             if ($action === 'answer') {
-                $answer = json_decode((string) ($_POST['answer_json'] ?? ''), true, 32, JSON_THROW_ON_ERROR);
-                Activity::requireOpen();
-                $result = AnswerService::submit($user['id'], $station, $answer);
+                $json = is_string($_POST['answer_json'] ?? null) ? $_POST['answer_json'] : '';
+                $result = AnswerService::submitJson($user['id'], $station, $json);
                 $_SESSION['activity_flash'] = [
                     'type' => $result['passed'] ? 'success' : 'error',
                     'message' => $result['passed'] ? '回答正确，徽章已保存。' : '本次回答未通过，可以返回后重新作答。',
@@ -71,7 +70,7 @@ final class PageController
             self::redirect($station >= 1 && $station <= 6 ? 'scene-' . $station : 'home', $station);
         } catch (BusinessError $error) {
             $_SESSION['activity_flash'] = ['type' => 'error', 'message' => $error->getMessage()];
-            $target = in_array($error->errorCode, ['activity_ended', 'sold_out_today'], true) ? 'activity-ended' : ($action === 'draw' ? 'lottery' : 'scene-' . $station);
+            $target = in_array($error->errorCode, ['activity_ended', 'sold_out_today'], true) ? 'activity-ended' : ($action === 'draw' ? 'lottery' : ($station >= 1 && $station <= 6 ? 'scene-' . $station : 'home'));
             self::redirect($target, $station);
         } catch (Throwable $error) {
             error_log(sprintf('[ABB2026 Page] %s in %s:%d', get_class($error), $error->getFile(), $error->getLine()));

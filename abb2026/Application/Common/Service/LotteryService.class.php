@@ -5,6 +5,8 @@ final class LotteryService
 {
     public static function draw(int $userId): array
     {
+        $security = abbConfig()['security'];
+        RateLimiter::consume('draw', (string) $userId, (int) $security['draw_limit'], (int) $security['business_window_seconds']);
         Activity::requireOpen();
         if (AnswerService::completedStations($userId) !== 6) {
             throw new BusinessError('not_eligible', '完成全部六个互动站点后才可抽奖。', 403);

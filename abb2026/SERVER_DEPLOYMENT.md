@@ -1,6 +1,6 @@
 # ABB 2026 正式服务器部署指南
 
-版本：2026-10-03，ThinkPHP 3.2.3 / V5.9.0。安全分阶段计划见 `SECURITY_REMEDIATION_PLAN.md`。
+版本：2026-10-03，ThinkPHP 3.2.3 / V5.9.1。安全分阶段计划见 `SECURITY_REMEDIATION_PLAN.md`。
 
 已确定：沿用去年的服务器、数据库账号和公众号，为今年新建独立 `abb2026` 数据库。不要替换旧站点、升级旧服务器整个系统、导入去年用户数据或清空已有库。Pages 是静态验收页，不能运行 PHP 或微信授权。
 
@@ -36,7 +36,7 @@ sudo find /srv/abb2026/app -type d -exec chmod 750 {} +
 sudo find /srv/abb2026/app -type f -exec chmod 640 {} +
 sudo install -d -o www-data -g www-data -m 750 \
   /srv/abb2026/app/Application/Runtime \
-  /srv/abb2026/app/Application/Runtime/5.9.0
+  /srv/abb2026/app/Application/Runtime/5.9.1
 sudo install -d -o www-data -g www-data -m 700 /var/lib/php/abb2026-sessions
 ```
 
@@ -134,6 +134,8 @@ php_admin_value[session.save_path] = /var/lib/php/abb2026-sessions
 
 为今年域名单独创建站点。下面是最终 HTTPS server 示例；证书路径、域名和 FPM socket 必须实际存在。签发证书前，按现有服务器的证书管理方式设置 80 验证站点，不删除旧配置。
 
+在已有 Nginx `http {}` 中仅包含一次 `include /srv/abb2026/app/nginx-security-http.conf;`。在下面 PHP location 中包含 `nginx-security-php.conf`。默认 PHP 30 请求/秒、POST 10 请求/秒，分别允许 100/30 突发，同 IP PHP 并发上限 50；这里只是共享网络的资源保护，不能当作一人一次资格校验。根据展会出口 NAT 和服务器容量压测后调整。静态图片不受 PHP 桶限制。请求体 16 KiB、读取超时 10 秒，拒绝的超频请求返回 429；应用用户桶仍独立生效。
+
 ```nginx
 server {
     listen 443 ssl;
@@ -165,6 +167,7 @@ server {
     }
     location ~ \.php$ {
         try_files $uri =404;
+        include /srv/abb2026/app/nginx-security-php.conf;
         include snippets/fastcgi-php.conf;
         fastcgi_pass unix:/run/php/php8.5-fpm-abb2026.sock;
     }
@@ -181,6 +184,10 @@ server {
 ```
 
 保留 PHP 发出的 `Cache-Control: no-store`，不对活动/后台响应做反向代理缓存。源码保护规则必须放在 PHP 正则前；不能仅隐藏配置却允许请求框架入口。项目 `nginx-cache.conf` 只是片段，不是完整 server 配置。
+
+如果有 CDN/反向代理，只有确认实际代理出口 CIDR、安装了 `http_realip_module`，且防火墙限制源站入口后，才配置 `set_real_ip_from 实际受信CIDR; real_ip_header X-Forwarded-For; real_ip_recursive on;`。不得使用 `0.0.0.0/0` 或 `::/0`，也不能把示例 CIDR 当成真实代理。直连源站不启用该配置。PHP 的限频只读取 `REMOTE_ADDR`，不自行相信 X-Forwarded-For/X-Real-IP。HTTPS Cookie 依据实际 HTTPS 或正式 app_url，不信任客户端伪造 X-Forwarded-Proto。以伪造头实测确认计数不变化。
+
+Nginx 指令作用域与代理信任依据官方文档：[limit_req](https://nginx.org/en/docs/http/ngx_http_limit_req_module.html)、[realip](https://nginx.org/en/docs/http/ngx_http_realip_module.html)。请求大小上限也需要 Web 服务器执行，不能仅靠 PHP 代码在自动解析 POST 后判断；参考 [OWASP DoS 防护](https://cheatsheetseries.owasp.org/cheatsheets/Denial_of_Service_Cheat_Sheet.html)。此配置需在真实服务器执行 nginx -t 和受控压测，Pages 不执行它。
 
 ```bash
 sudo nginx -t
@@ -214,7 +221,9 @@ sudo -u www-data env ABB_CONFIG_FILE=/etc/abb2026/settings.php \
   php api/bin/preflight.php
 ```
 
-密码至少 12 位，存入企业密码管理器。后台地址 `https://实际域名/index.php?m=Admin&c=Index&a=index`。录入已确认权重后再次完整预检，所有项应 OK；不能用 `--local` 的跳过项代替上线通过。运维健康地址仍为 `/api/index.php?action=health`，前端业务采用 PHP 模板和表单而不是 JSON API。
+密码至少 12 位，存入企业密码管理器。后台地址 `https://实际域名/index.php?m=Admin&c=Index&a=index`。录入已确认权重后再次完整预检，所有项应 OK；不能用 `--local` 的跳过项代替上线通过。公开 `/api/index.php?action=health` 只报告 PHP 存活，不读取数据库、私密配置、Session，也不代表业务就绪。详细健康检查仅通过有服务器权限的 CLI `sudo -u www-data env ABB_CONFIG_FILE=/etc/abb2026/settings.php php api/bin/preflight.php` 执行；禁止将详细报告重新暴露到公网。前端业务采用 PHP 模板和表单而不是 JSON API。
+
+V5.9.1 默认每用户答题 12 次/分钟、抽奖尝试 3 次/分钟（资格不足、配置未就绪也计数），后台敏感动作每管理员 30 次/分钟、答案导出 2 次/分钟，OAuth 启动/回调各 IP 300 次/分钟。限频发生在业务事务之前，拒绝不写答案或扣库存；数据库安全桶计数仍会增加。有效用户换 Session 不会重置额度；普通结果 GET 查询免费。已通过站点的重复有效答案保留原答案/时间/次数。私密配置 `security` 可覆盖默认值，所有计数共用第一阶段的增量安全表，无第二次业务表重建。
 
 ## 7. 真实上线验收
 

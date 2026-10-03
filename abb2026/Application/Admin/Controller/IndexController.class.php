@@ -43,6 +43,19 @@ final class IndexController extends Controller
         }
 
         if ($admin !== null && $method === 'POST' && $error === '') {
+            $security = \abbConfig()['security'];
+            try {
+                \RateLimiter::consume('admin-action', (string) $admin['id'], (int) $security['admin_action_limit'], (int) $security['admin_action_window_seconds']);
+                if ($action === 'export_open_answers') {
+                    \RateLimiter::consume('admin-export', (string) $admin['id'], (int) $security['admin_export_limit'], (int) $security['admin_action_window_seconds']);
+                }
+            } catch (BusinessError $exception) {
+                http_response_code($exception->httpStatus);
+                $error = $exception->getMessage();
+            }
+        }
+
+        if ($admin !== null && $method === 'POST' && $error === '') {
             $pdo = Database::connection();
 
             if ($action === 'update_prizes') {
@@ -96,7 +109,7 @@ final class IndexController extends Controller
             }
 
             if ($action === 'redeem') {
-                $claimCode = strtoupper(trim((string) ($_POST['claim_code'] ?? '')));
+                $claimCode = is_string($_POST['claim_code'] ?? null) ? strtoupper(trim($_POST['claim_code'])) : '';
                 if (!preg_match('/^[A-F0-9]{12}$/', $claimCode)) {
                     $error = '请输入 12 位有效兑奖码。';
                 } else {

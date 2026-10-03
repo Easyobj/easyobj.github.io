@@ -5,7 +5,7 @@ if (!defined('ABB_TEMPLATE_RENDER')) {
     exit;
 }
 $serverState = isset($serverState) && is_array($serverState) ? $serverState : null;
-$release = '5.9.0-security-baseline';
+$release = '5.9.1-business-limits';
 ?>
 <!doctype html>
 <html lang="zh-CN">
@@ -22,7 +22,7 @@ $release = '5.9.0-security-baseline';
   <title>ABB Robotics H5</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/ABBvoice_CNSG_Rg.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=5.9.0">
+  <link rel="stylesheet" href="styles.css?v=5.9.1">
 </head>
 <body>
   <!-- 仅首次加载显示；SPA 内部切页不会再次出现 -->
@@ -141,7 +141,7 @@ $release = '5.9.0-security-baseline';
 
   <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
   <script>window.ABB_SERVER_STATE=<?= json_encode($serverState, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
-  <script src="runtime-config.js?v=5.9.0"></script>
-  <script src="app.js?v=5.9.0"></script>
+  <script src="runtime-config.js?v=5.9.1"></script>
+  <script src="app.js?v=5.9.1"></script>
 </body>
 </html>
