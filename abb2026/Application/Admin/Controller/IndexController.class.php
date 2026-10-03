@@ -17,17 +17,20 @@ final class IndexController extends Controller
         $error = '';
         $admin = AdminAuth::user();
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-        $action = trim((string) ($_POST['action'] ?? ''));
+        $action = is_string($_POST['action'] ?? null) ? trim($_POST['action']) : '';
 
-        if ($method === 'POST' && !AdminAuth::validCsrf((string) ($_POST['csrf_token'] ?? ''))) {
+        if ($method === 'POST' && !AdminAuth::validCsrf(is_string($_POST['csrf_token'] ?? null) ? $_POST['csrf_token'] : '')) {
             $error = '页面会话已失效，请刷新后重试。';
         } elseif ($method === 'POST' && $action === 'login' && $admin === null) {
             try {
-                if (AdminAuth::login((string) ($_POST['username'] ?? ''), (string) ($_POST['password'] ?? ''))) {
+                $username = is_string($_POST['username'] ?? null) ? $_POST['username'] : '';
+                $password = is_string($_POST['password'] ?? null) ? $_POST['password'] : '';
+                if (AdminAuth::login($username, $password)) {
                     abbAdminRedirect('success', '登录成功。');
                 }
                 $error = '用户名或密码错误。';
             } catch (BusinessError $exception) {
+                http_response_code($exception->httpStatus);
                 $error = $exception->getMessage();
             } catch (Throwable $exception) {
                 error_log('[ABB2026 Admin] Login failed.');

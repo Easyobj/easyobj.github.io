@@ -38,6 +38,10 @@ cd /Users/asimov/Downloads/abb/html
 
 ## 检查
 
+V5.9.0 本机已执行增量安全表迁移，未清空 `abb2026_local`。后台默认 15 分钟空闲、8 小时绝对过期；五次账号登录尝试或 50 次同 IP 登录尝试/15 分钟会暂时限速。成功登录重置账号桶，不清除 IP 桶。旧后台 Session 需重新登录。
+
+其他已有测试库升级时先执行 `api/database/migrations/2026_10_03_security_baseline.sql`；不要重新导入完整初始化 SQL。正式配置可通过 `security` 数组调整限速和过期参数，默认值见 `Application/Common/Conf/settings.php`。
+
 ```bash
 php api/bin/preflight.php --local
 node --check app.js

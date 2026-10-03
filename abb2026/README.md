@@ -1,6 +1,8 @@
 # ABB Robotics H5（ThinkPHP 3.2.3 / PHP 模板）
 
-当前 V5.8.0 复用去年的 ThinkPHP 3.2.3 内核，采用 `Other` / `Admin` 模块及 PHP 视图渲染。生产沿用去年服务器、数据库账号和公众号，但今年使用独立数据库 `abb2026`。迁移说明见 [`FRAMEWORK_MIGRATION.md`](FRAMEWORK_MIGRATION.md)。
+当前 V5.9.0 使用去年的 ThinkPHP 3.2.3 内核，采用 `Other` / `Admin` 模块及 PHP 视图渲染。生产沿用去年服务器、数据库账号和公众号，今年使用独立数据库 `abb2026`。迁移说明见 [`FRAMEWORK_MIGRATION.md`](FRAMEWORK_MIGRATION.md)，逐阶段安全计划见 [`SECURITY_REMEDIATION_PLAN.md`](SECURITY_REMEDIATION_PLAN.md)。
+
+V5.9.0 已实现后台用户名规则统一、账号/IP 独立原子限速、会话空闲/绝对过期、密码变更撤销旧会话与 CSRF 旋转。已有数据库需先执行 `api/database/migrations/2026_10_03_security_baseline.sql`；这只是安全计划第一阶段，不代表多账号刷奖问题已解决。
 
 本版本针对反馈做了三项重点调整：
 

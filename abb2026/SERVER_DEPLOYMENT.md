@@ -1,6 +1,6 @@
 # ABB 2026 正式服务器部署指南
 
-版本：2026-10-02，ThinkPHP 3.2.3 / V5.8.0。
+版本：2026-10-03，ThinkPHP 3.2.3 / V5.9.0。安全分阶段计划见 `SECURITY_REMEDIATION_PLAN.md`。
 
 已确定：沿用去年的服务器、数据库账号和公众号，为今年新建独立 `abb2026` 数据库。不要替换旧站点、升级旧服务器整个系统、导入去年用户数据或清空已有库。Pages 是静态验收页，不能运行 PHP 或微信授权。
 
@@ -36,7 +36,7 @@ sudo find /srv/abb2026/app -type d -exec chmod 750 {} +
 sudo find /srv/abb2026/app -type f -exec chmod 640 {} +
 sudo install -d -o www-data -g www-data -m 750 \
   /srv/abb2026/app/Application/Runtime \
-  /srv/abb2026/app/Application/Runtime/5.8.0
+  /srv/abb2026/app/Application/Runtime/5.9.0
 sudo install -d -o www-data -g www-data -m 700 /var/lib/php/abb2026-sessions
 ```
 
@@ -69,6 +69,24 @@ sudo php api/bin/provision-database.php --config=/etc/abb2026/settings.php --exe
 脚本仅允许库名 `abb2026`，新建库并导入 `api/database/schema.sql`；若库已有任何表则拒绝初始化。不会修改去年的数据库。DDL 不是完整可回滚事务；执行失败时检查新库中的部分建表状态，不要直接删库重来。若原账号无建库权限，由服务器数据库管理员创建并授权今年库；不要为此擅自修改去年账号权限。
 
 新库奖品来自今年资料，抽奖权重有意保持 NULL，须由活动方确认。已有今年数据库升级只执行经过审查的迁移，不重新导入初始化 SQL。
+
+V5.8.0 已有库升级 V5.9.0 时，由数据库管理员执行以下增量迁移（仅在确认是今年库后执行）：
+
+```bash
+sudo mariadb abb2026 < api/database/migrations/2026_10_03_security_baseline.sql
+```
+
+该迁移仅创建安全计数表，不修改用户/答案/库存。先迁移，再切换代码并预检。旧后台会话在升级后重新登录。
+
+后台默认按管理员 ID 每 15 分钟最多 5 次登录尝试、按直接来源 IP 每 15 分钟最多 50 次；账号成功登录仅重置账号桶。若经受信反向代理转发，在 Nginx 配置受信代理真实 IP，不能把浏览器提供的 X-Forwarded-For 直接当可信地址。代理配置和更完整业务限流见后续阶段。
+
+在服务器现有定时任务系统中每日运行清理脚本；不建立冲突的第二套调度：
+
+```bash
+sudo -u www-data env ABB_CONFIG_FILE=/etc/abb2026/settings.php php api/bin/cleanup-security.php
+```
+
+每次最多删除 10000 个已过期桶；规模较大时由运维调整频率。该脚本不会清理抽奖、核销或用户记录。
 
 ## 4. 补充正式配置与独立 FPM 池
 

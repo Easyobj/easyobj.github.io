@@ -41,6 +41,13 @@ $config = [
     ],
     'cors_origins' => $csv(getenv('ABB_CORS_ORIGINS') ?: ''),
     'dev_openid' => getenv('ABB_DEV_OPENID') ?: '',
+    'security' => [
+        'admin_idle_seconds' => 900,
+        'admin_absolute_seconds' => 28800,
+        'admin_login_account_limit' => 5,
+        'admin_login_ip_limit' => 50,
+        'admin_login_window_seconds' => 900,
+    ],
 ];
 
 $privateFile = getenv('ABB_CONFIG_FILE');

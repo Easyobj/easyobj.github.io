@@ -67,7 +67,7 @@ final class Health
             $pdo = Database::connection();
             $pdo->query('SELECT 1')->fetchColumn();
             $tables = $pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
-            $requiredTables = ['users', 'answers', 'prizes', 'prize_daily_stock', 'draws', 'admins', 'admin_login_attempts', 'admin_audit_logs'];
+            $requiredTables = ['users', 'answers', 'prizes', 'prize_daily_stock', 'draws', 'admins', 'admin_login_attempts', 'admin_audit_logs', 'security_rate_limits'];
             $missingTables = array_values(array_diff($requiredTables, $tables));
             $checks['database'] = [
                 'ok' => !$missingTables,

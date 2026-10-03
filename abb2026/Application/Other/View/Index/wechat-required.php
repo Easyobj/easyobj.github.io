@@ -4,7 +4,7 @@ if (!defined('ABB_TEMPLATE_RENDER')) {
     http_response_code(404);
     exit;
 }
-$release = '5.8.0-thinkphp-3.2.3';
+$release = '5.9.0-security-baseline';
 ?>
 <!doctype html>
 <html lang="zh-CN">
@@ -18,7 +18,7 @@ $release = '5.8.0-thinkphp-3.2.3';
   <title>请在微信中打开 - ABB Robotics</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/ABBvoice_CNSG_Rg.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=5.8.0">
+  <link rel="stylesheet" href="styles.css?v=5.9.0">
 </head>
 <body class="wechat-gate-page">
   <main class="wechat-gate" aria-labelledby="wechatGateTitle">

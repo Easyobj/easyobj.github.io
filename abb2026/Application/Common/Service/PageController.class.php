@@ -74,7 +74,7 @@ final class PageController
             $target = in_array($error->errorCode, ['activity_ended', 'sold_out_today'], true) ? 'activity-ended' : ($action === 'draw' ? 'lottery' : 'scene-' . $station);
             self::redirect($target, $station);
         } catch (Throwable $error) {
-            error_log(sprintf('[ABB2026 Page] %s in %s:%d', $error->getMessage(), $error->getFile(), $error->getLine()));
+            error_log(sprintf('[ABB2026 Page] %s in %s:%d', get_class($error), $error->getFile(), $error->getLine()));
             $_SESSION['activity_flash'] = ['type' => 'error', 'message' => '服务暂时不可用，请稍后重试。'];
             self::redirect($action === 'draw' ? 'lottery' : 'scene-' . $station, $station);
         }

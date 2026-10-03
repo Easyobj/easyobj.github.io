@@ -46,6 +46,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
 require_once __DIR__ . '/Service/Api.class.php';
 require_once __DIR__ . '/Service/Database.class.php';
 require_once __DIR__ . '/Service/BusinessError.class.php';
+require_once __DIR__ . '/Service/RateLimiter.class.php';
 require_once __DIR__ . '/Service/Activity.class.php';
 require_once __DIR__ . '/Service/Auth.class.php';
 require_once __DIR__ . '/Service/AdminAuth.class.php';
