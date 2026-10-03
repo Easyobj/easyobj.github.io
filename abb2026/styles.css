@@ -185,6 +185,9 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .status-stage[data-status="all-complete"] .status-action{top:10.07rem}
 .status-stage[data-status="lottery"] .status-action{left:2.494rem;top:8.976rem;width:2.498rem;height:.738rem}
 .status-stage[data-status="lottery-win"] .status-action{left:2.72rem;top:6.756rem;width:2.044rem;height:.604rem}
+.claim-code{display:block;overflow-wrap:anywhere;letter-spacing:.02em;font-family:monospace;font-size:.30rem;user-select:text}
+.claim-button{max-width:100%;border:0;border-radius:.12rem;background:#e62820;color:#fff;padding:.18rem .24rem;font:inherit;cursor:pointer}
+.claim-button:disabled{opacity:.55}
 .status-stage[data-status="lottery-lose"] .status-action,.status-stage[data-status="activity-ended"] .status-action{display:none}
 .status-stage[data-status="result-correct"] .status-back,.status-stage[data-status="result-fail"] .status-back,.status-stage[data-status="all-complete"] .status-back{display:none}
 .status-stage[data-status="activity-ended"] .status-back{left:5.84rem;top:4.03rem;width:.60rem;height:.60rem;background:transparent;box-shadow:none;color:transparent}
