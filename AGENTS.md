@@ -2,6 +2,8 @@
 
 本地项目与今年数据库已更名为 `abb20260919game`；GitHub 仓库及本仓库 `abb2026/` 发布目录、Pages URL 均保持不变。
 
+根目录 abb20260919game/ 现为纯 FTP 上传目录；Git 源码仓库在 source-repository/abb20260919game/。部署整理脚本、PHP、SQL、私密配置及 Runtime 不进入 Pages。
+
 ## 阶段完成与发布门禁
 
 ABB2026 项目的每一个开发或修复阶段，只有在以下事项全部完成后，才可以声明“阶段完成”：

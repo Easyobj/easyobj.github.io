@@ -1,6 +1,8 @@
 # ABB 2026 正式服务器部署指南
 
-版本：2026-10-03，ThinkPHP 3.2.3 / V5.9.4。安全分阶段计划见 `SECURITY_REMEDIATION_PLAN.md`。用户当前要求暂不考虑部署；本指南保留供日后获准上线使用，本轮未执行任何正式服务器操作。
+V5.9.6 FTP 上传补充：只上传工作区根目录 `abb20260919game/` 的部署白名单内容；源码仓库现位于 `source-repository/abb20260919game/`。保留服务器现有配置与 Runtime，详见 `FTP_UPLOAD.md`。本文的 Git clone 仍是另一种部署方式，不应将含 Git/文档的克隆目录当作 FTP 上传包。
+
+版本：2026-10-04，ThinkPHP 3.2.3 / V5.9.6。安全分阶段计划见 `SECURITY_REMEDIATION_PLAN.md`。本轮只整理本地 FTP 上传目录，未执行任何正式服务器操作。
 
 已确定：沿用去年的服务器、数据库账号和公众号，为今年新建独立 `abb20260919game` 数据库。不要替换旧站点、升级旧服务器整个系统、导入去年用户数据或清空已有库。Pages 是静态验收页，不能运行 PHP 或微信授权。
 
@@ -36,7 +38,7 @@ sudo find /srv/abb20260919game/app -type d -exec chmod 750 {} +
 sudo find /srv/abb20260919game/app -type f -exec chmod 640 {} +
 sudo install -d -o www-data -g www-data -m 750 \
   /srv/abb20260919game/app/Application/Runtime \
-  /srv/abb20260919game/app/Application/Runtime/5.9.5
+  /srv/abb20260919game/app/Application/Runtime/5.9.6
 sudo install -d -o www-data -g www-data -m 700 /var/lib/php/abb20260919game-sessions
 ```
 
