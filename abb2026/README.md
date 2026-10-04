@@ -1,6 +1,6 @@
 # ABB Robotics H5（ThinkPHP 3.2.3 / PHP 模板）
 
-当前 V5.9.4 使用去年的 ThinkPHP 3.2.3 内核，采用 `Other` / `Admin` 模块及 PHP 视图渲染。生产沿用去年服务器、数据库账号和公众号，今年使用独立数据库 `abb2026`。迁移说明见 [`FRAMEWORK_MIGRATION.md`](FRAMEWORK_MIGRATION.md)，逐阶段安全计划见 [`SECURITY_REMEDIATION_PLAN.md`](SECURITY_REMEDIATION_PLAN.md)。
+当前 V5.9.5 使用去年的 ThinkPHP 3.2.3 内核，采用 `Other` / `Admin` 模块及 PHP 视图渲染。生产沿用去年服务器、数据库账号和公众号，今年使用独立数据库 `abb20260919game`。迁移说明见 [`FRAMEWORK_MIGRATION.md`](FRAMEWORK_MIGRATION.md)，逐阶段安全计划见 [`SECURITY_REMEDIATION_PLAN.md`](SECURITY_REMEDIATION_PLAN.md)，最终 UI 与题目核对见 [`UI_CONTENT_REVIEW.md`](UI_CONTENT_REVIEW.md)。
 
 V5.9.0 已实现后台用户名规则统一、账号/IP 独立原子限速、会话空闲/绝对过期、密码变更撤销旧会话与 CSRF 旋转。已有数据库需先执行 `api/database/migrations/2026_10_03_security_baseline.sql`；这只是安全计划第一阶段，不代表多账号刷奖问题已解决。
 
@@ -32,13 +32,14 @@ V5.9.4 按用户确认规则：领奖前由现场工作人员判断资格，必�
 - `DEPLOYMENT.md`：正式服务器、微信授权、数据库和上线验收清单
 - `SERVER_DEPLOYMENT.md`：在去年服务器新增今年站点、私密配置、新数据库、PHP-FPM、HTTPS 和公众号授权指南
 - `assets/home/`：首页 PSD 图层
-- `assets/scene6/`：从 06 PSD 提取的四张答题图片
+- `assets/scene6/`：今年 Word 提供的四张未标记答题原图，旧 PSD 裁图不再使用
+- `assets/ui/`：PSD 原图层导出的互动背景和提示图标
 - `assets/social/`：从 07 PSD 提取的社交平台视觉素材
 
 ## V5.8.0 复用去年框架与独立数据库
 
 - 真正使用 ThinkPHP 3.2.3 控制器和 PHP 视图，保留今年答题与事务抽奖服务，不搬运旧用户数据。
-- 沿用服务器、数据库账号和公众号，初始化库名固定为 `abb2026`，已有非空库不覆盖。
+- 沿用服务器、数据库账号和公众号，初始化库名固定为 `abb20260919game`，已有非空库不覆盖。
 - 真实凭据导入独立私密配置，生产通过 `ABB_CONFIG_FILE` 加载，不进入源码或 Pages。
 - 路由白名单、PHP 8 兼容修改、后台 CSV 防公式注入和安全错误响应。
 - 以下旧版本章节是历史记录；当前目录与部署方式以上述 V5.8.0 和迁移指南为准。

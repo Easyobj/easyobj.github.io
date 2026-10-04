@@ -44,7 +44,7 @@
       hero:'assets/home/layer_2.webp',
       intro:[
         '自去年ABB机器人在中国市场率先发布高速PoWa协作机器人系列以来，该系列凭借卓越的工业级性能收获广泛市场认可。今年工博会，ABB机器人持续拓展PoWa产品矩阵，涵盖各负载型号。',
-        '在ABB机器人协作机器人专区，您可以看到 PoWa 机器人实现以下哪三种应用？'
+        '在ABB 机器人协作机器人专区，您可以看到 PoWa 机器人实现以下哪三种应用？'
       ],
       note:'（多选）',
       options:[['A','上下料'],['B','喷涂'],['C','焊接'],['D','码垛'],['E','组装']]
@@ -52,6 +52,7 @@
     2:{
       type:'single',
       title:'搭载OmniCore™ EyeMotion的一体化压铸件检测方案',
+      titleLines:['搭载OmniCore™','EyeMotion的一体化','压铸件检测方案'],
       hero:'assets/home/layer_4.webp',
       intro:[
         '依托 ABB机器人日益丰富的物理AI工具链，AI 视觉模型经过训练、部署并持续迭代优化，机器人能够对大型汽车一体化压铸件展开高速、高精度的表面缺陷检测。',
@@ -72,14 +73,14 @@
         'ABB备件带有激光刻字和OIOC技术，便于验证真伪。',
         'ABB原装备件旨在最大程度提高机器人的可靠性和正常运行时间。'
       ],
-      tip:'可进入 ABB机器人 Connected Care 展区寻找答案哦！'
+      tip:'可进入 ABB机器人 Connected Care 展区寻找答案噢！'
     },
     4:{
       type:'textarea',
       title:'机器人视觉AI绘画师',
       hero:'assets/home/layer_8.webp',
       intro:[
-        '在今年的展台，我们能看到一台可自主移动、能现场拍照、实时手绘人像的智能艺术机器人。它由 ABB 机器人渠道合作伙伴领志科技打造，集成了 AGV 自主移动、机器视觉感知、AI 图像结构化算法与 ABB YuMi 机器人协灵活控制，实现了“人像采集—图像重构—机械手绘”的全流程自动化闭环，打破了传统设备固定作业的局限，让艺术创作不再受场地束缚。',
+        '在今年的展台，我们能看到一台可自主移动、能现场拍照、实时手绘人像的智能艺术机器人。它由ABB机器人渠道合作伙伴领志科技打造，集成了AGV自主移动、机器视觉感知、AI图像结构化算法与ABB YuMi机器人的灵活控制，实现了“人像采集—图像重构—机械手绘”的全流程自动化闭环，打破了传统设备固定作业的局限，让艺术创作不再受场地束缚。',
         '这样“AGV + 视觉 + 机械臂”的结合，您还希望能够应用到什么行业或应用中？'
       ],
       maxLength:200
@@ -87,24 +88,25 @@
     5:{
       type:'single',
       title:'制药机说明书与包装盒上料站',
+      titleLines:['制药机说明书与包装盒','上料站'],
       hero:'assets/home/layer_10.webp',
       intro:['如果您在制药厂工作，希望实现制药机说明书和包装盒的自动上料，以下哪种方案是最优的解决方案？'],
       options:[['A','使用单一吸盘抓取所有物料'],['B','使用CRB 1810机器人 + 真空/气动复合抓手 + 多功能物料小车'],['C','人工上料'],['D','使用AGV小车替代机器人']],
-      tip:'您可前往 ABB机器人渠道合作伙伴华太机器人的料箱识别机器人解决方案展区，寻找答案哦！'
+      tip:'您可前往 ABB机器人渠道合作伙伴华太机器人的料箱识别机器人解决方案展区，寻找答案噢！'
     },
     6:{
       type:'single',
       title:'机器人激光焊接演示站',
       hero:'assets/home/layer_12.webp',
       intro:[
-        '该工作站由 ABB 机器人渠道合作伙伴——厦门航天思尔特打造，搭载 ABB IRB 1300 工业机器人，展示了面向金属工件的自动化连接需求，结合焊缝位置规划焊接路径，并集成机器人、激光焊接头与工装夹具的一体化工艺。',
+        '该工作站由ABB机器人渠道合作伙伴——厦门航天思尔特打造，搭载ABB IRB 1300工业机器人，展示了面向金属工件的自动化连接需求，结合焊缝位置规划焊接路径，并集成机器人、激光焊接头与工装夹具的一体化工艺。',
         '请问下图中哪一款机器人是 IRB 1300？'
       ],
       options:[
-        ['A','选项 A','assets/scene6/option-a.png'],
-        ['B','选项 B','assets/scene6/option-b.png'],
-        ['C','选项 C','assets/scene6/option-c.png'],
-        ['D','选项 D','assets/scene6/option-d.png']
+        ['A','选项 A','assets/scene6/option-a-v595.jpg'],
+        ['B','选项 B','assets/scene6/option-b-v595.jpg'],
+        ['C','选项 C','assets/scene6/option-c-v595.jpg'],
+        ['D','选项 D','assets/scene6/option-d-v595.jpg']
       ]
     },
     7:{
@@ -129,6 +131,8 @@
   const statusAction = $('#statusAction');
   const statusBack = $('#statusBack');
   const statusSafety = $('#statusSafety');
+  const statusPrize = $('#statusPrize');
+  const lotteryNotice = $('#lotteryNotice');
   const toast = $('#toast');
   const appRoot = $('#app');
   const STORAGE_KEY = 'abb-robotics-h5-progress-v1';
@@ -327,6 +331,11 @@
     statusArtwork.alt=config.alt;
     statusAction.hidden=!config.action;
     statusAction.setAttribute('aria-label',config.action||'');
+    const realPrize=kind==='lottery-win'&&pageState.serverRendered&&pageState.draw;
+    statusPrize.hidden=!realPrize;
+    statusPrize.textContent=realPrize?`中奖礼品：${pageState.draw.prize.name}`:'';
+    lotteryNotice.hidden=!(kind==='lottery'&&pageState.serverRendered);
+    statusArtwork.alt=realPrize?'中奖结果，礼品以您的实际中奖记录为准':config.alt;
     let safety=config.safety||'';
     if(!pageState.serverRendered && ['result-correct','result-fail','all-complete'].includes(kind))safety='设计预览 · 不执行判题、不记录活动资格';
     if(pageState.serverRendered&&kind==='lottery')safety='抽奖结果由 PHP 控制器生成，并在事务中同步扣减库存';
@@ -417,7 +426,15 @@
 
     const head=document.createElement('header');
     head.className='interaction-head';
-    head.innerHTML=`<h1 class="interaction-title">${data.title}</h1><img class="interaction-hero" src="${data.hero}" alt="">`;
+    const title=document.createElement('h1');
+    title.className='interaction-title';
+    (data.titleLines||[data.title]).forEach((line,index)=>{
+      if(index)title.append(document.createElement('br'));
+      title.append(document.createTextNode(line));
+    });
+    const hero=document.createElement('img');
+    hero.className='interaction-hero';hero.src=data.hero;hero.alt='';
+    head.append(title,hero);
 
     const card=document.createElement('section');
     card.className='interaction-card';

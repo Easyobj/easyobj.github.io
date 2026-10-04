@@ -2,7 +2,7 @@
 
 版本：2026-10-03，ThinkPHP 3.2.3 / V5.9.4。安全分阶段计划见 `SECURITY_REMEDIATION_PLAN.md`。用户当前要求暂不考虑部署；本指南保留供日后获准上线使用，本轮未执行任何正式服务器操作。
 
-已确定：沿用去年的服务器、数据库账号和公众号，为今年新建独立 `abb2026` 数据库。不要替换旧站点、升级旧服务器整个系统、导入去年用户数据或清空已有库。Pages 是静态验收页，不能运行 PHP 或微信授权。
+已确定：沿用去年的服务器、数据库账号和公众号，为今年新建独立 `abb20260919game` 数据库。不要替换旧站点、升级旧服务器整个系统、导入去年用户数据或清空已有库。Pages 是静态验收页，不能运行 PHP 或微信授权。
 
 以下使用 Linux / Nginx / PHP-FPM 示例。服务器操作需实际 SSH 连接信息；所有域名、PHP 版本及路径示例必须按现有服务器核实后替换。不要直接照抄套接字版本号。
 
@@ -25,19 +25,19 @@ systemctl list-units --type=service --all | grep -E 'php.*fpm|mysql|mariadb|ngin
 
 ## 2. 独立部署代码
 
-示例新目录：`/srv/abb2026/app`。若沿用现有部署账号，将 `abbdeploy` 替换为实际账号；只在账号不存在时创建。GitHub 只读部署密钥可以复用已有授权方式，但不能提交私钥。
+示例新目录：`/srv/abb20260919game/app`。若沿用现有部署账号，将 `abbdeploy` 替换为实际账号；只在账号不存在时创建。GitHub 只读部署密钥可以复用已有授权方式，但不能提交私钥。
 
 ```bash
-sudo install -d -o abbdeploy -g www-data -m 2750 /srv/abb2026
+sudo install -d -o abbdeploy -g www-data -m 2750 /srv/abb20260919game
 sudo -u abbdeploy git clone --branch main --single-branch \
-  git@github.com:Easyobj/abb2026.git /srv/abb2026/app
-sudo chgrp -R www-data /srv/abb2026/app
-sudo find /srv/abb2026/app -type d -exec chmod 750 {} +
-sudo find /srv/abb2026/app -type f -exec chmod 640 {} +
+  git@github.com:Easyobj/abb2026.git /srv/abb20260919game/app
+sudo chgrp -R www-data /srv/abb20260919game/app
+sudo find /srv/abb20260919game/app -type d -exec chmod 750 {} +
+sudo find /srv/abb20260919game/app -type f -exec chmod 640 {} +
 sudo install -d -o www-data -g www-data -m 750 \
-  /srv/abb2026/app/Application/Runtime \
-  /srv/abb2026/app/Application/Runtime/5.9.4
-sudo install -d -o www-data -g www-data -m 700 /var/lib/php/abb2026-sessions
+  /srv/abb20260919game/app/Application/Runtime \
+  /srv/abb20260919game/app/Application/Runtime/5.9.5
+sudo install -d -o www-data -g www-data -m 700 /var/lib/php/abb20260919game-sessions
 ```
 
 源码归部署账号所有，仅 Runtime 和独立 Session 目录让 PHP 用户写入。不要拷贝去年的 Runtime、用户缓存或日志。
@@ -47,36 +47,36 @@ sudo install -d -o www-data -g www-data -m 700 /var/lib/php/abb2026-sessions
 配置保存在 Web 根之外。下面旧配置路径是示例，先核实；不要打印内容：
 
 ```bash
-sudo install -d -o root -g www-data -m 750 /etc/abb2026
-cd /srv/abb2026/app
+sudo install -d -o root -g www-data -m 750 /etc/abb20260919game
+cd /srv/abb20260919game/app
 sudo php api/bin/import-legacy-config.php \
   --source=/实际旧项目/Application/Common/Conf/config.php \
-  --output=/etc/abb2026/settings.php \
+  --output=/etc/abb20260919game/settings.php \
   --app-url=https://h5.company.example
-sudo chown root:www-data /etc/abb2026/settings.php
-sudo chmod 640 /etc/abb2026/settings.php
+sudo chown root:www-data /etc/abb20260919game/settings.php
+sudo chmod 640 /etc/abb20260919game/settings.php
 ```
 
-导入保持旧 DB_HOST、端口、账号、密码与公众号凭据，只把库名改成 `abb2026`；不会覆盖已有配置。未提供真实域名时不要填示例域名作为正式配置。原配置的 `localhost` 是原服务器本机，不是开发者电脑。
+导入保持旧 DB_HOST、端口、账号、密码与公众号凭据，只把库名改成 `abb20260919game`；不会覆盖已有配置。未提供真实域名时不要填示例域名作为正式配置。原配置的 `localhost` 是原服务器本机，不是开发者电脑。
 
 先预演（不连接数据库），再在确认的原服务器执行：
 
 ```bash
-sudo php api/bin/provision-database.php --config=/etc/abb2026/settings.php
-sudo php api/bin/provision-database.php --config=/etc/abb2026/settings.php --execute
+sudo php api/bin/provision-database.php --config=/etc/abb20260919game/settings.php
+sudo php api/bin/provision-database.php --config=/etc/abb20260919game/settings.php --execute
 ```
 
-脚本仅允许库名 `abb2026`，新建库并导入 `api/database/schema.sql`；若库已有任何表则拒绝初始化。不会修改去年的数据库。DDL 不是完整可回滚事务；执行失败时检查新库中的部分建表状态，不要直接删库重来。若原账号无建库权限，由服务器数据库管理员创建并授权今年库；不要为此擅自修改去年账号权限。
+脚本仅允许库名 `abb20260919game`，新建库并导入 `api/database/schema.sql`；若库已有任何表则拒绝初始化。不会修改去年的数据库。DDL 不是完整可回滚事务；执行失败时检查新库中的部分建表状态，不要直接删库重来。若原账号无建库权限，由服务器数据库管理员创建并授权今年库；不要为此擅自修改去年账号权限。
 
 新库奖品来自今年资料，抽奖权重有意保持 NULL，须由活动方确认。已有今年数据库升级只执行经过审查的迁移，不重新导入初始化 SQL。
 
 V5.8.0 已有库升级 V5.9.0 时，由数据库管理员执行以下增量迁移（仅在确认是今年库后执行）：
 
 ```bash
-sudo mariadb abb2026 < api/database/migrations/2026_10_03_security_baseline.sql
-sudo mariadb abb2026 < api/database/migrations/2026_10_03_form_challenges.sql
-sudo mariadb abb2026 < api/database/migrations/2026_10_03_operations.sql
-sudo mariadb abb2026 < api/database/migrations/2026_10_03_claim_confirmation.sql
+sudo mariadb abb20260919game < api/database/migrations/2026_10_03_security_baseline.sql
+sudo mariadb abb20260919game < api/database/migrations/2026_10_03_form_challenges.sql
+sudo mariadb abb20260919game < api/database/migrations/2026_10_03_operations.sql
+sudo mariadb abb20260919game < api/database/migrations/2026_10_03_claim_confirmation.sql
 ```
 
 以上为增量安全/运营/本人确认迁移，不修改用户/答案/库存；运营迁移为原管理员补 operator 角色但不改密码。先迁移，再切换代码并预检。旧后台会话在升级后重新登录。
@@ -86,7 +86,7 @@ sudo mariadb abb2026 < api/database/migrations/2026_10_03_claim_confirmation.sql
 在服务器现有定时任务系统中每日运行清理脚本；不建立冲突的第二套调度：
 
 ```bash
-sudo -u www-data env ABB_CONFIG_FILE=/etc/abb2026/settings.php php api/bin/cleanup-security.php
+sudo -u www-data env ABB_CONFIG_FILE=/etc/abb20260919game/settings.php php api/bin/cleanup-security.php
 ```
 
 每次最多删除 10000 个已过期桶；规模较大时由运维调整频率。该脚本不会清理抽奖、核销或用户记录。
@@ -94,7 +94,7 @@ sudo -u www-data env ABB_CONFIG_FILE=/etc/abb2026/settings.php php api/bin/clean
 ## 4. 补充正式配置与独立 FPM 池
 
 ```bash
-sudoedit /etc/abb2026/settings.php
+sudoedit /etc/abb20260919game/settings.php
 ```
 
 填今年实际 `app_url`、`activity.starts_at`、`activity.ends_at`（格式 YYYY-MM-DD HH:MM:SS，Asia/Shanghai）；保留：
@@ -105,18 +105,18 @@ sudoedit /etc/abb2026/settings.php
 // wechat 中：
 'browser_required' => true,
 // db 中：
-'name' => 'abb2026',
+'name' => 'abb20260919game',
 ```
 
 不要重新在聊天或命令行参数中输入密码/密钥。导入时已读取原值。复用原账号保留其权限风险；独立数据库不等于最小权限账号，旧凭据的历史暴露风险也仍存在。
 
-为实际 PHP 版本新建 FPM 池，例如 `/etc/php/8.5/fpm/pool.d/abb2026.conf`：
+为实际 PHP 版本新建 FPM 池，例如 `/etc/php/8.5/fpm/pool.d/abb20260919game.conf`：
 
 ```ini
-[abb2026]
+[abb20260919game]
 user = www-data
 group = www-data
-listen = /run/php/php8.5-fpm-abb2026.sock
+listen = /run/php/php8.5-fpm-abb20260919game.sock
 listen.owner = www-data
 listen.group = www-data
 listen.mode = 0660
@@ -124,11 +124,11 @@ pm = ondemand
 pm.max_children = 10
 pm.process_idle_timeout = 10s
 pm.max_requests = 500
-env[ABB_CONFIG_FILE] = /etc/abb2026/settings.php
+env[ABB_CONFIG_FILE] = /etc/abb20260919game/settings.php
 php_admin_flag[display_errors] = off
 php_admin_flag[log_errors] = on
 php_admin_flag[expose_php] = off
-php_admin_value[session.save_path] = /var/lib/php/abb2026-sessions
+php_admin_value[session.save_path] = /var/lib/php/abb20260919game-sessions
 ```
 
 进程数按服务器容量核定。先用实际 FPM 二进制执行配置测试（如 `sudo php-fpm8.5 -t`），再 reload 对应服务；不要中断旧活动。私密配置在框架启动之前读取，不写入 ThinkPHP 编译缓存。
@@ -137,7 +137,7 @@ php_admin_value[session.save_path] = /var/lib/php/abb2026-sessions
 
 为今年域名单独创建站点。下面是最终 HTTPS server 示例；证书路径、域名和 FPM socket 必须实际存在。签发证书前，按现有服务器的证书管理方式设置 80 验证站点，不删除旧配置。
 
-在已有 Nginx `http {}` 中仅包含一次 `include /srv/abb2026/app/nginx-security-http.conf;`。在下面 PHP location 中包含 `nginx-security-php.conf`。默认 PHP 30 请求/秒、POST 10 请求/秒，分别允许 100/30 突发，同 IP PHP 并发上限 50；这里只是共享网络的资源保护，不能当作一人一次资格校验。根据展会出口 NAT 和服务器容量压测后调整。静态图片不受 PHP 桶限制。请求体 16 KiB、读取超时 10 秒，拒绝的超频请求返回 429；应用用户桶仍独立生效。
+在已有 Nginx `http {}` 中仅包含一次 `include /srv/abb20260919game/app/nginx-security-http.conf;`。在下面 PHP location 中包含 `nginx-security-php.conf`。默认 PHP 30 请求/秒、POST 10 请求/秒，分别允许 100/30 突发，同 IP PHP 并发上限 50；这里只是共享网络的资源保护，不能当作一人一次资格校验。根据展会出口 NAT 和服务器容量压测后调整。静态图片不受 PHP 桶限制。请求体 16 KiB、读取超时 10 秒，拒绝的超频请求返回 429；应用用户桶仍独立生效。
 
 ```nginx
 server {
@@ -145,10 +145,10 @@ server {
     server_name h5.company.example;
     ssl_certificate /实际证书/fullchain.pem;
     ssl_certificate_key /实际证书/privkey.pem;
-    root /srv/abb2026/app;
+    root /srv/abb20260919game/app;
     index index.php index.html;
-    access_log /var/log/nginx/abb2026.access.log;
-    error_log /var/log/nginx/abb2026.error.log warn;
+    access_log /var/log/nginx/abb20260919game.access.log;
+    error_log /var/log/nginx/abb20260919game.error.log warn;
 
     location / {
         try_files $uri $uri/ /index.php?$query_string;
@@ -170,9 +170,9 @@ server {
     }
     location ~ \.php$ {
         try_files $uri =404;
-        include /srv/abb2026/app/nginx-security-php.conf;
+        include /srv/abb20260919game/app/nginx-security-php.conf;
         include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/run/php/php8.5-fpm-abb2026.sock;
+        fastcgi_pass unix:/run/php/php8.5-fpm-abb20260919game.sock;
     }
     location ~* \.(?:woff2|webp)$ {
         expires 1y;
@@ -212,19 +212,19 @@ https://实际域名/index.php?m=Other&c=Auth&a=callback
 在 SSH 终端创建后台账号，密码隐藏输入：
 
 ```bash
-cd /srv/abb2026/app
+cd /srv/abb20260919game/app
 read -r -s -p 'New admin password: ' ABB_ADMIN_PASSWORD
 printf '\n'
 export ABB_ADMIN_PASSWORD
 sudo --preserve-env=ABB_ADMIN_PASSWORD -u www-data \
-  env ABB_CONFIG_FILE=/etc/abb2026/settings.php \
+  env ABB_CONFIG_FILE=/etc/abb20260919game/settings.php \
   php api/bin/create-admin.php eventadmin --role=operator
 unset ABB_ADMIN_PASSWORD
-sudo -u www-data env ABB_CONFIG_FILE=/etc/abb2026/settings.php \
+sudo -u www-data env ABB_CONFIG_FILE=/etc/abb20260919game/settings.php \
   php api/bin/preflight.php
 ```
 
-密码至少 12 位，存入企业密码管理器。后台地址 `https://实际域名/index.php?m=Admin&c=Index&a=index`。录入已确认权重后再次完整预检，所有项应 OK；不能用 `--local` 的跳过项代替上线通过。公开 `/api/index.php?action=health` 只报告 PHP 存活，不读取数据库、私密配置、Session，也不代表业务就绪。详细健康检查仅通过有服务器权限的 CLI `sudo -u www-data env ABB_CONFIG_FILE=/etc/abb2026/settings.php php api/bin/preflight.php` 执行；禁止将详细报告重新暴露到公网。前端业务采用 PHP 模板和表单而不是 JSON API。
+密码至少 12 位，存入企业密码管理器。后台地址 `https://实际域名/index.php?m=Admin&c=Index&a=index`。录入已确认权重后再次完整预检，所有项应 OK；不能用 `--local` 的跳过项代替上线通过。公开 `/api/index.php?action=health` 只报告 PHP 存活，不读取数据库、私密配置、Session，也不代表业务就绪。详细健康检查仅通过有服务器权限的 CLI `sudo -u www-data env ABB_CONFIG_FILE=/etc/abb20260919game/settings.php php api/bin/preflight.php` 执行；禁止将详细报告重新暴露到公网。前端业务采用 PHP 模板和表单而不是 JSON API。
 
 V5.9.1 默认每用户答题 12 次/分钟、抽奖尝试 3 次/分钟（资格不足、配置未就绪也计数），后台敏感动作每管理员 30 次/分钟、答案导出 2 次/分钟，OAuth 启动/回调各 IP 300 次/分钟。限频发生在业务事务之前，拒绝不写答案或扣库存；数据库安全桶计数仍会增加。有效用户换 Session 不会重置额度；普通结果 GET 查询免费。已通过站点的重复有效答案保留原答案/时间/次数。私密配置 `security` 可覆盖默认值，所有计数共用第一阶段的增量安全表，无第二次业务表重建。
 
@@ -259,8 +259,8 @@ Pages 发布使用静态白名单，不同步任何 PHP、Application、ThinkPHP
 由有备份权限的数据库管理员运行（socket 登录示例，按原服务器认证方式调整）：
 
 ```bash
-sudo install -d -o root -g root -m 700 /var/backups/abb2026
-sudo sh -c 'umask 077; mariadb-dump --single-transaction abb2026 > /var/backups/abb2026/pre-release.sql'
+sudo install -d -o root -g root -m 700 /var/backups/abb20260919game
+sudo sh -c 'umask 077; mariadb-dump --single-transaction abb20260919game > /var/backups/abb20260919game/pre-release.sql'
 ```
 
 示例固定文件名会覆盖旧备份；仅用于首次备份，后续按现有备份系统生成唯一文件名并验证恢复，不重复覆盖。
@@ -268,11 +268,11 @@ sudo sh -c 'umask 077; mariadb-dump --single-transaction abb2026 > /var/backups/
 更新代码：
 
 ```bash
-cd /srv/abb2026/app
+cd /srv/abb20260919game/app
 sudo -u abbdeploy git fetch origin main
 sudo -u abbdeploy git pull --ff-only origin main
 php -l index.php
-sudo -u www-data env ABB_CONFIG_FILE=/etc/abb2026/settings.php php api/bin/preflight.php
+sudo -u www-data env ABB_CONFIG_FILE=/etc/abb20260919game/settings.php php api/bin/preflight.php
 sudo nginx -t
 ```
 

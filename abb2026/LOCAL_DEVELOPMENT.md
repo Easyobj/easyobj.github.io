@@ -1,8 +1,10 @@
 # ABB 2026 本地开发环境
 
-当前 Mac 已安装 PHP 8.5 和 MariaDB 13，并建立了 `abb2026_local` 开发数据库。V5.8.0 已接入去年 ThinkPHP 3.2.3 内核并验证本项目使用的路径；生产同样需要 PHP 7.4+，以受安全支持且实测兼容的版本为准。
+当前 Mac 已安装 PHP 8.5 和 MariaDB 13，并建立了 `abb20260919game_local` 开发数据库。V5.8.0 已接入去年 ThinkPHP 3.2.3 内核并验证本项目使用的路径；生产同样需要 PHP 7.4+，以受安全支持且实测兼容的版本为准。
 
 ## 当前本机地址
+
+2026-10-03 按用户要求，更名为 `abb20260919game`。本地 Git 源码目录为 `/Users/asimov/Downloads/abb/abb20260919game`；工作入口仍在 `html/`。开发数据库已从 `abb2026_local` 完整复制到 `abb20260919game_local` 并切换配置，14 张表的行数与校验值一致。旧库保留不再写入；备份为 Web 根目录之外的 `private/backups/abb2026-local-before-rename-20261003.sql`，权限 0600。开发数据库账号不更名，密码与后台账号不变；Session 名称变更后后台需重新登录。正式私密配置已改库名与文件名，但没有执行远端建库或部署。GitHub `Easyobj/abb2026` 与 Pages `https://easyobj.github.io/abb2026/` 均保留。
 
 - PHP 模板活动页：`http://127.0.0.1:8080/index.php#home`
 - 运营后台：`http://127.0.0.1:8080/index.php?m=Admin&c=Index&a=index`（旧 `/api/admin/` 会跳转）
@@ -32,13 +34,13 @@ cd /Users/asimov/Downloads/abb/html
 
 本地模式通过固定的开发 OpenID 自动登录，不调用真实微信授权。`index.php` 使用 ThinkPHP 控制器及 `Application/Other/View/Index/` 下的 PHP 模板；`index.html` 仅用于 GitHub Pages 静态预览。启动脚本的 router 会禁止下载内核、Application、配置及运行缓存；本机访问 `/index.html` 会转到 PHP 入口。
 
-正式凭据另存到 Web 根目录之外的 `private/abb2026.production.php`。本地开发仍读 `api/config.local.php`；生产使用 `ABB_CONFIG_FILE` 指向服务器私有文件，目标数据库固定为 `abb2026`。设置实际域名和活动时间后才能执行生产预检。
+正式凭据另存到 Web 根目录之外的 `private/abb20260919game.production.php`。本地开发仍读 `api/config.local.php`；生产使用 `ABB_CONFIG_FILE` 指向服务器私有文件，目标数据库固定为 `abb20260919game`。设置实际域名和活动时间后才能执行生产预检。
 
 本机 `api/config.local.php` 将 `wechat.browser_required` 设为 `false`，仅为桌面浏览器调试绕过微信环境检查。该文件不会提交；生产默认强制微信内置浏览器和公众号 OAuth。
 
 ## 检查
 
-V5.9.0 本机已执行增量安全表迁移，未清空 `abb2026_local`。后台默认 15 分钟空闲、8 小时绝对过期；五次账号登录尝试或 50 次同 IP 登录尝试/15 分钟会暂时限速。成功登录重置账号桶，不清除 IP 桶。旧后台 Session 需重新登录。
+V5.9.0 本机已执行增量安全表迁移，未清空 `abb20260919game_local`。后台默认 15 分钟空闲、8 小时绝对过期；五次账号登录尝试或 50 次同 IP 登录尝试/15 分钟会暂时限速。成功登录重置账号桶，不清除 IP 桶。旧后台 Session 需重新登录。
 
 其他已有测试库升级时先执行 `api/database/migrations/2026_10_03_security_baseline.sql`；不要重新导入完整初始化 SQL。正式配置可通过 `security` 数组调整限速和过期参数，默认值见 `Application/Common/Conf/settings.php`。
 
@@ -62,10 +64,10 @@ node --check runtime-config.js
 
 ## 重新建库
 
-如需清空本地业务数据，可先备份，再明确删除并重建 `abb2026_local`，随后执行：
+如需清空本地业务数据，可先备份，再明确删除并重建 `abb20260919game_local`，随后执行：
 
 ```bash
-mariadb abb2026_local < api/database/schema.sql
+mariadb abb20260919game_local < api/database/schema.sql
 ```
 
 数据库脚本默认不设置抽奖权重；本地测试需在后台填写，正式环境必须使用活动方确认值。

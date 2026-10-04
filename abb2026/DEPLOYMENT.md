@@ -1,6 +1,6 @@
 # ABB 2026 正式服务器部署清单
 
-V5.9.4：沿用去年 ThinkPHP 3.2.3、同一服务器、同一数据库账号及微信公众号；新建独立 `abb2026` 数据库，不复用或修改去年数据库中的表和用户数据。Pages 只发布静态白名单预览，不包含 PHP/框架/配置/SQL。已有今年库须依次执行 `2026_10_03_security_baseline.sql`、`2026_10_03_form_challenges.sql`、`2026_10_03_operations.sql`、`2026_10_03_claim_confirmation.sql` 增量迁移后更新代码。Nginx 两级保护、受信代理、后台角色与核销流程见 SERVER_DEPLOYMENT.md。公开 health 仅报告存活，不代表业务就绪；判题、限频和现场本人确认只在 PHP 环境生效。用户当前要求暂不考虑正式部署，本清单保留供日后获准上线使用。
+V5.9.4：沿用去年 ThinkPHP 3.2.3、同一服务器、同一数据库账号及微信公众号；新建独立 `abb20260919game` 数据库，不复用或修改去年数据库中的表和用户数据。Pages 只发布静态白名单预览，不包含 PHP/框架/配置/SQL。已有今年库须依次执行 `2026_10_03_security_baseline.sql`、`2026_10_03_form_challenges.sql`、`2026_10_03_operations.sql`、`2026_10_03_claim_confirmation.sql` 增量迁移后更新代码。Nginx 两级保护、受信代理、后台角色与核销流程见 SERVER_DEPLOYMENT.md。公开 health 仅报告存活，不代表业务就绪；判题、限频和现场本人确认只在 PHP 环境生效。用户当前要求暂不考虑正式部署，本清单保留供日后获准上线使用。
 
 操作命令见 [SERVER_DEPLOYMENT.md](SERVER_DEPLOYMENT.md)，迁移说明见 [FRAMEWORK_MIGRATION.md](FRAMEWORK_MIGRATION.md)。
 
@@ -15,8 +15,8 @@ V5.9.4：沿用去年 ThinkPHP 3.2.3、同一服务器、同一数据库账号�
 
 1. 检查旧服务器的 PHP 及扩展；不直接升级系统或替换旧站点。
 2. 部署到独立目录，创建独立 FPM 池、日志、Session 和 Runtime。
-3. 用 `import-legacy-config.php` 读取原私密配置，生成 Web 根之外的配置；数据库名自动改为 `abb2026`，账号与公众号凭据保持原值。
-4. 用 `provision-database.php --config=/etc/abb2026/settings.php` 无连接预演；确认在原服务器后加 `--execute`。已有非空库拒绝初始化。
+3. 用 `import-legacy-config.php` 读取原私密配置，生成 Web 根之外的配置；数据库名自动改为 `abb20260919game`，账号与公众号凭据保持原值。
+4. 用 `provision-database.php --config=/etc/abb20260919game/settings.php` 无连接预演；确认在原服务器后加 `--execute`。已有非空库拒绝初始化。
 5. 填写真实域名和活动时间，FPM 通过 `ABB_CONFIG_FILE` 加载配置；保持 `app_env=production`、`dev_openid=''`、`browser_required=true`。
 6. 配置 HTTPS 和源码访问限制，创建后台账号，录入已确认权重。
 7. 完整预检后，用真实微信验收授权、六站答题、结果恢复与核销。并发测试只用独立测试库或获批准的测试奖品。
