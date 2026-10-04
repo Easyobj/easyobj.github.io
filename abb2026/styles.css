@@ -194,6 +194,21 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .claim-code{display:block;overflow-wrap:anywhere;letter-spacing:.02em;font-family:monospace;font-size:.30rem;user-select:text}
 .claim-button{max-width:100%;border:0;border-radius:.12rem;background:#e62820;color:#fff;padding:.18rem .24rem;font:inherit;cursor:pointer}
 .claim-button:disabled{opacity:.55}
+.claim-voucher{font-size:.25rem;text-align:center}
+.claim-voucher b{font-size:.30rem}
+.claim-voucher .claim-button{width:100%;margin:.20rem 0 .14rem}
+.claim-voucher .claim-hint{font-size:.22rem;line-height:1.5}
+.claim-qr{position:relative;width:4.4rem;max-width:100%;aspect-ratio:1;margin:.20rem auto .12rem;background:#fff;border:1px solid #dde3ed;border-radius:.12rem;overflow:hidden}
+.claim-qr svg{display:block;width:100%;height:auto}
+.claim-qr__message{position:absolute;inset:0;display:grid;place-items:center;padding:.24rem;color:#51627a;background:#eef2f7;font-size:.28rem;font-weight:700}
+.claim-qr__message[hidden]{display:none}
+.claim-voucher .claim-countdown{color:#198535;font-size:.30rem;font-weight:700;font-variant-numeric:tabular-nums}
+.claim-voucher .claim-countdown.is-urgent{color:#bc2525}
+.claim-validity{height:.08rem;width:4.4rem;max-width:100%;margin:.10rem auto .16rem;border-radius:999px;overflow:hidden;background:#dde3ed}
+.claim-validity span{display:block;height:100%;background:#198535}
+.claim-fallback{font-size:.22rem;color:#51627a}
+.claim-fallback summary{cursor:pointer}
+.claim-fallback .claim-code{margin:.08rem 0}
 .status-stage[data-status="lottery-lose"] .status-action,.status-stage[data-status="activity-ended"] .status-action{display:none}
 .status-stage[data-status="result-correct"] .status-back,.status-stage[data-status="result-fail"] .status-back,.status-stage[data-status="all-complete"] .status-back{display:none}
 .status-stage[data-status="activity-ended"] .status-back{left:5.84rem;top:4.03rem;width:.60rem;height:.60rem;background:transparent;box-shadow:none;color:transparent}

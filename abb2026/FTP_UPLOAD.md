@@ -1,4 +1,6 @@
-# FTP 部署目录（V5.9.6）
+# FTP 部署目录（V5.9.7）
+
+V5.9.7 新增用户端二维码与倒计时，`assets/js/` 的三个文件必须一起上传。无需新增 SQL；后台微信扫一扫尚待接入，详见 `CLAIM_QR.md`。下方“本轮验证”保留 V5.9.6 整理目录时的历史记录。
 
 按用户要求，工作区根目录的 `abb20260919game/` 现在仅用于服务器上传，不再是 Git 源码仓库。Git 源码仓库移到 `source-repository/abb20260919game/`，远端仍为 `Easyobj/abb2026`，Pages 路径仍为 `/abb2026/`。`html/` 保留开发代码、文档、静态预览和构建工具；这些不需要整体上传。
 
@@ -32,7 +34,7 @@ SQL 和 CLI 工具仍需要数据库管理员/服务器管理员执行；通过 
 - 生产数据库名仍为 `abb20260919game`。不改数据库账号或密码，不连接/修改正式数据库。
 - 本地开发配置不进入上传目录。服务器已经设置好的 `api/config.local.php` 请保留，不要用本地测试配置覆盖。`ABB_CONFIG_FILE` 存在时优先使用其指定的外部私密配置。
 - 私密生产配置仍在工作区 `private/abb20260919game.production.php`，不进入 Git、Pages 或本次公共代码部署包。FTP-only 配置方式需要事先确认对 api/config* 的网页访问保护，不能把私密目录整体上传。
-- 新服务器需要创建 `Application/Runtime/5.9.6/`，仅让 PHP 用户对 Runtime 有写权限。已有服务器的 Runtime、日志和配置不是待清除的杂项，不应在上传时删除。当前日志行为未修改，服务器错误诊断仍按 `SERVER_DEPLOYMENT.md`。
+- 新服务器需要创建 `Application/Runtime/5.9.7/`，仅让 PHP 用户对 Runtime 有写权限。已有服务器的 Runtime、日志和配置不是待清除的杂项，不应在上传时删除。当前日志行为未修改，服务器错误诊断仍按 `SERVER_DEPLOYMENT.md`。
 - 不上传去年数据或本地测试数据库；已有非空今年库不重复导入 schema.sql。
 
 ## 重建上传目录
