@@ -1,8 +1,20 @@
 # ABB 2026 正式服务器部署指南
 
+## 二级目录 FTP 恢复说明（ops-directory-recovery-20261004）
+
+本次用户仅允许服务器 `/data/www/abb20260919game/` 内的 Runtime 与私密配置修复。目录内缓存与配置恢复已进行，页面加载验证不能代替数据库升级、真实微信授权、HTTPS 和 Nginx 敏感路径保护验收。没有执行本指南下方的系统级安装、Nginx/FPM 配置修改或数据库初始化示例。
+
+- 首次 FTP 上传后要创建 `Application/Runtime/5.9.9/`，不能让 PHP 尝试在 root 所有且不可写的 `Application/` 下自动创建。只给实际 PHP 用户版本缓存目录的写权限，不给整个项目设置 777。
+- 服务器私密配置为 `api/config.local.php`，不在公共上传包中。更新代码时保留；复用已授权的正式账号、公众号凭据，但数据库名称必须为今年独立库。
+- 生产配置使用完整的 HTTPS origin/path（包含 `/abb20260919game`），保持 `production`、空 `dev_openid` 和微信环境限制。HTTPS 未可用时，不降低 Cookie 安全设置来让 HTTP 登录通过。
+- 本次限定范围使用 `Application/Runtime/sessions/` 保存 Session，`Application/Runtime/Logs/php-errors.php` 保存应用 PHP 错误日志；由服务器私密配置设置当前应用的 `session.save_path` 与 `error_log`，不修改全局 PHP 设置。日志文件首行是 PHP 404/exit guard，禁止删除或改成可公开下载的纯文本备份。
+- Runtime 根目录 `root:www 0750`，版本缓存 `www:www 0750`，Session/Logs `www:www 0700`，私密配置 `root:www 0640`，应用日志 `www:www 0600`。这些用户名仅针对本次核实的 PHP 用户，其他服务器应按实际用户替换。
+- 配置本身必须拒绝直接 HTTP 执行，仍需 Nginx 对整个子目录的框架、配置、SQL、CLI 和日志路径实施拒绝访问。下方第 5 节是域名根目录示例，不能原样当作二级目录规则。Nginx/HTTPS 配置若在用户允许目录之外，须另行授权，由服务器管理员调整。
+- 数据库升级先备份，再导入增量迁移、同步今年七奖品、设置活动日期并初始化实际后台角色账号；页面返回 200 不代表这些事项已完成。本次数据库检查使用只读事务，不导入 SQL、不清理中奖记录、不创建账号。
+
 V5.9.6 FTP 上传补充：只上传工作区根目录 `abb20260919game/` 的部署白名单内容；源码仓库现位于 `source-repository/abb20260919game/`。保留服务器现有配置与 Runtime，详见 `FTP_UPLOAD.md`。本文的 Git clone 仍是另一种部署方式，不应将含 Git/文档的克隆目录当作 FTP 上传包。
 
-版本：ThinkPHP 3.2.3 / V5.9.9。已有库先备份，再导入 api/database/migrations/2026_10_05_activity_rules.sql，在运营后台设置日期。中奖当天/两小时内核销、按日余量加权、超时库存锁定的规则见 `PRIZE_RULES_2026.md`，不重导初始化 SQL。二维码见 `CLAIM_QR.md`，安全计划见 `SECURITY_REMEDIATION_PLAN.md`。未执行正式服务器操作。
+版本：ThinkPHP 3.2.3 / V5.9.9。已有库先备份，再导入 api/database/migrations/2026_10_05_activity_rules.sql，在运营后台设置日期。中奖当天/两小时内核销、按日余量加权、超时库存锁定的规则见 `PRIZE_RULES_2026.md`，不重导初始化 SQL。二维码见 `CLAIM_QR.md`，安全计划见 `SECURITY_REMEDIATION_PLAN.md`。本次服务器操作边界见上方二级目录恢复说明；下方通用部署示例并未执行。
 
 已确定：沿用去年的服务器、数据库账号和公众号，为今年新建独立 `abb20260919game` 数据库。不要替换旧站点、升级旧服务器整个系统、导入去年用户数据或清空已有库。Pages 是静态验收页，不能运行 PHP 或微信授权。
 
