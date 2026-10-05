@@ -1,5 +1,7 @@
 # ABB Robotics H5（ThinkPHP 3.2.3 / PHP 模板）
 
+V5.9.10 复用去年微信基本信息授权思路，并接入工作人员后台微信扫一扫：自动读取领取二维码，经既有PHP表单查询，仍由工作人员核验资格/本人并确认核销。手输折叠备用，不新增JSON业务API；服务器签名/令牌仅缓存于今年Runtime。授权失败提供PHP重试页，旧会话补一次userinfo授权。去年后台功能及未迁移项见 [`LAST_YEAR_BACKEND_REVIEW.md`](LAST_YEAR_BACKEND_REVIEW.md)，现场流程见 [`ONSITE_REDEMPTION.md`](ONSITE_REDEMPTION.md)。真机微信验收不以模拟测试或Pages代替。
+
 V5.9.9 落实用户确认的规则：有当日库存时 100% 中奖、按实际可抽件数加权、账号活动期间只抽一次；礼品限中奖当天且两小时内现场本人领取，过期库存保持锁定。开始日期由后台 operator 设置；旧奖品及关联测试中奖可备份后专门清理。已有库先导入 `api/database/migrations/2026_10_05_activity_rules.sql`，不重导 schema.sql，详见 [`PRIZE_RULES_2026.md`](PRIZE_RULES_2026.md)。
 
 V5.9.8 题目严格以 PSD 为准（含第六题原生图层图片），奖品与发奖规则以新附件为准：七种、合计 1496 份、每日 374 份、只发前四天。支持后台保留历史中奖/消耗的奖品同步，日期与权重未确认时拒绝新增抽奖。详见 [`PRIZE_RULES_2026.md`](PRIZE_RULES_2026.md)。不重复导入 schema.sql 升级旧库，正式服务器未操作。
@@ -8,7 +10,7 @@ V5.9.7 用户端加入本地领取二维码、两分钟倒计时、到期移除�
 
 V5.9.6 整理 FTP 部署目录：根目录 `abb20260919game/` 仅包含服务器代码与必要部署工具；Git 源码仓库移至 `source-repository/abb20260919game/`，GitHub 与 Pages 名称不变。上传清单及配置保留规则见 [`FTP_UPLOAD.md`](FTP_UPLOAD.md)。本轮未修改业务、数据库或日志行为。
 
-当前 V5.9.9 使用去年的 ThinkPHP 3.2.3 内核，采用 `Other` / `Admin` 模块及 PHP 视图渲染。生产沿用去年服务器、数据库账号和公众号，今年使用独立数据库 `abb20260919game`。迁移说明见 [`FRAMEWORK_MIGRATION.md`](FRAMEWORK_MIGRATION.md)，逐阶段安全计划见 [`SECURITY_REMEDIATION_PLAN.md`](SECURITY_REMEDIATION_PLAN.md)，最终 UI 与题目核对见 [`UI_CONTENT_REVIEW.md`](UI_CONTENT_REVIEW.md)。
+当前 V5.9.10 使用去年的 ThinkPHP 3.2.3 内核，采用 `Other` / `Admin` 模块及 PHP 视图渲染。生产沿用去年服务器、数据库账号和公众号，今年使用独立数据库 `abb20260919game`。迁移说明见 [`FRAMEWORK_MIGRATION.md`](FRAMEWORK_MIGRATION.md)，逐阶段安全计划见 [`SECURITY_REMEDIATION_PLAN.md`](SECURITY_REMEDIATION_PLAN.md)，最终 UI 与题目核对见 [`UI_CONTENT_REVIEW.md`](UI_CONTENT_REVIEW.md)。
 
 V5.9.0 已实现后台用户名规则统一、账号/IP 独立原子限速、会话空闲/绝对过期、密码变更撤销旧会话与 CSRF 旋转。已有数据库需先执行 `api/database/migrations/2026_10_03_security_baseline.sql`；这只是安全计划第一阶段，不代表多账号刷奖问题已解决。
 
