@@ -51,11 +51,11 @@
     },
     2:{
       type:'single',
-      title:'搭载OmniCore™ EyeMotion的一体化压铸件检测方案',
-      titleLines:['搭载OmniCore™','EyeMotion的一体化','压铸件检测方案'],
+      title:'搭载OmniCore™ Eyemotion的一体化压铸件检测方案',
+      titleLines:['搭载OmniCore™','Eyemotion的一体化','压铸件检测方案'],
       hero:'assets/home/layer_4.webp',
       intro:[
-        '依托 ABB机器人日益丰富的物理AI工具链，AI 视觉模型经过训练、部署并持续迭代优化，机器人能够对大型汽车一体化压铸件展开高速、高精度的表面缺陷检测。',
+        '依托 ABB机器人日益丰富的物理AI工具链，AI 视觉模型经过训练、部署并持续迭代优化，机器人能够对大型汽车一体化压铸铸件展开高速、高精度的表面缺陷检测。',
         '在物理 AI 赋能的一体化压铸件检测方案中，ABB 机器人使用到的软件方案是？'
       ],
       note:'（单选）',
@@ -100,13 +100,13 @@
       hero:'assets/home/layer_12.webp',
       intro:[
         '该工作站由ABB机器人渠道合作伙伴——厦门航天思尔特打造，搭载ABB IRB 1300工业机器人，展示了面向金属工件的自动化连接需求，结合焊缝位置规划焊接路径，并集成机器人、激光焊接头与工装夹具的一体化工艺。',
-        '请问下图中哪一款机器人是 IRB 1300？'
+        '请问下图中哪一款机器人是IRB 1300？'
       ],
       options:[
-        ['A','选项 A','assets/scene6/option-a-v595.jpg'],
-        ['B','选项 B','assets/scene6/option-b-v595.jpg'],
-        ['C','选项 C','assets/scene6/option-c-v595.jpg'],
-        ['D','选项 D','assets/scene6/option-d-v595.jpg']
+        ['A','选项 A','assets/scene6/option-a-psd-v598.webp'],
+        ['B','选项 B','assets/scene6/option-b-psd-v598.webp'],
+        ['C','选项 C','assets/scene6/option-c-psd-v598.webp'],
+        ['D','选项 D','assets/scene6/option-d-psd-v598.webp']
       ]
     },
     7:{
@@ -345,6 +345,7 @@
     if(!pageState.serverRendered && ['result-correct','result-fail','all-complete'].includes(kind))safety='设计预览 · 不执行判题、不记录活动资格';
     if(pageState.serverRendered&&kind==='lottery')safety='抽奖结果由 PHP 控制器生成，并在事务中同步扣减库存';
     if(pageState.serverRendered&&kind==='lottery'&&pageState.drawPaused)safety='运营已暂停新增抽奖，已有中奖记录和核销继续。';
+    if(pageState.serverRendered&&kind==='lottery'&&!pageState.draw&&pageState.drawWindow&&!pageState.drawWindow.open)safety='仅前四天开放新增抽奖；当前尚未开放或已结束，具体日期请咨询工作人员。';
     if(pageState.serverRendered&&kind==='lottery-win'&&pageState.draw)safety=`中奖礼品：${pageState.draw.prize.name}`;
     statusSafety.hidden=!safety;
     statusSafety.textContent=safety;
@@ -777,7 +778,9 @@
     const storageRule=pageState.serverRendered
       ? '答题结果由 PHP 表单提交并保存到活动服务器；浏览器只保留未提交草稿。'
       : '当前为 Pages 演示模式，进度只保存在本机浏览器。';
-    openModal('ACTIVITY','体验说明',`<ol class="rule-list"><li><i>1</i><span>浏览展区并完成 01～06 的互动题目。</span></li><li><i>2</i><span>07 为社交媒体关注指引，不计入答题进度。</span></li><li><i>3</i><span>${storageRule}</span></li><li><i>4</i><span>领奖前由现场工作人员核验资格，必须本人打开自己的微信中奖页面领取，不接受截图或代领。领取时生成两分钟有效的二维码；刷新后旧凭证失效。扫码不代表核验通过，Pages 预览不生成真实领取二维码。</span></li><li><i>5</i><span>正式活动时间、奖项与适用资格以现场通知为准。</span></li></ol>`);
+    const plan=window.ABB_PRIZE_PLAN;
+    const prizeTable=plan?`<section class="prize-plan-summary"><h3>今年奖品计划</h3><p>只发前四天，每日计划 ${escapeHtml(String(plan.daily))} 份，合计 ${escapeHtml(String(plan.total))} 份。下表是计划数量，不是实时剩余库存，也不代表中奖概率。</p><table class="prize-plan"><thead><tr><th>奖品</th><th>总量</th><th>每日</th></tr></thead><tbody>${plan.items.map(p=>`<tr><td>${escapeHtml(p.name)}</td><td>${escapeHtml(String(p.total))}</td><td>${escapeHtml(String(p.daily))}</td></tr>`).join('')}</tbody></table></section>`:'';
+    openModal('ACTIVITY','活动规则与奖品',`<ol class="rule-list"><li><i>1</i><span>浏览展区并完成 01～06 的互动题目。</span></li><li><i>2</i><span>07 为社交媒体关注指引，不计入答题进度。</span></li><li><i>3</i><span>${storageRule}</span></li><li><i>4</i><span>领奖前由现场工作人员核验资格，必须本人打开自己的微信中奖页面领取，不接受截图或代领。领取时生成两分钟有效的二维码；刷新后旧凭证失效。扫码不代表核验通过，Pages 预览不生成真实领取二维码。</span></li><li><i>5</i><span>仅活动前四天开放新增抽奖，具体日期与抽奖权重需活动方确认；已中奖记录保留。具体领取截止时间及适用资格以现场通知为准。</span></li></ol>${prizeTable}`);
   });
   $('[data-action="prize"]').addEventListener('click',()=>{
     if(pageState.serverRendered&&pageState.draw){showStatus('lottery-win');return;}

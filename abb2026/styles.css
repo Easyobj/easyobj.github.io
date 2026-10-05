@@ -135,7 +135,12 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .ui-scene-1 .quiz-submit{margin-top:.40rem}
 .ui-scene-2 .quiz-submit{margin-top:1.33rem}
 .ui-scene-5 .quiz-submit{margin-top:1.19rem}
-.ui-scene-6 .quiz-submit{margin-top:.39rem}
+.ui-scene-6 .interaction-copy .question{margin-bottom:.25rem}
+.ui-scene-6 .image-options{width:5.4rem;gap:.29rem .26rem}
+.ui-scene-6 .image-option{padding:0;gap:0}
+.ui-scene-6 .image-option__media{aspect-ratio:540/362}
+.ui-scene-6 .image-option__label{position:absolute;width:1px;height:1px;min-height:0;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%)}
+.ui-scene-6 .quiz-submit{margin-top:1.13rem}
 .ui-scene-4 .interaction-copy{font-size:.24rem;line-height:1.5}
 .ui-scene-4 .interaction-card{padding-left:.68rem}
 .ui-scene-4 .interaction-copy .question{margin-bottom:.25rem}
@@ -231,6 +236,12 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .rule-list{list-style:none;margin:.08rem 0 0;padding:0;display:grid;gap:.18rem}
 .rule-list li{display:grid;grid-template-columns:.58rem 1fr;gap:.16rem;align-items:start;font-size:.29rem;line-height:1.55}
 .rule-list i{display:grid;place-items:center;width:.52rem;height:.52rem;border-radius:50%;background:#ecebfd;color:#514bb8;font-style:normal;font-weight:700}
+.prize-plan{width:100%;border-collapse:collapse;font-size:.27rem;line-height:1.5;margin:.2rem 0}
+.prize-plan-summary{font-size:.27rem;line-height:1.55}
+.prize-plan-summary h3{font-size:.32rem;line-height:1.4;margin:.3rem 0 .12rem}
+.prize-plan-summary p{font-size:.27rem;line-height:1.55;margin:.12rem 0}
+.prize-plan th,.prize-plan td{padding:.12rem .06rem;border-bottom:1px solid #e5e4f0;text-align:left}
+.prize-plan th:not(:first-child),.prize-plan td:not(:first-child){text-align:right;white-space:nowrap}
 .availability{padding:.22rem;border:.018rem solid #d4dbea;border-radius:.16rem;background:#f7f9fc;color:#40516a;font-size:.28rem;line-height:1.6}
 .social-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.14rem;margin-top:.24rem}
 .social-btn{min-height:.82rem;border:.018rem solid #ccd4e2;border-radius:.12rem;background:#f2f4f8;color:#6b778b;font-size:.25rem}
