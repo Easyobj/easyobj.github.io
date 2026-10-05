@@ -224,7 +224,7 @@
 
   if(pageState.serverRendered)serverProgressToLocal(renderedState.progress||{});
 
-  function savedLabel(){return pageState.serverRendered?'已由 PHP 保存':'已保存至本机';}
+  function savedLabel(){return pageState.serverRendered?'已提交':'已保存至本机';}
 
   function submitServerForm(action,fields={}){
     const form=$('#serverActionForm');
