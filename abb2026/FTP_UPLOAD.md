@@ -1,4 +1,6 @@
-# FTP 部署目录（V5.9.8）
+# FTP 部署目录（V5.9.9）
+
+V5.9.9 更新整个部署包后，已有数据库先备份并在 phpMyAdmin 导入 `api/database/migrations/2026_10_05_activity_rules.sql`，再由 operator 后台设置开始日期。无需改服务器私密配置中的日期或权重，旧 activity 日期字段已不生效；有库存时按当日实际件数加权，中奖当天/两小时内核销、超时不回补。旧奖品及旧测试中奖通过后台专用确认按钮清理，不能删新七奖品记录。详见 `PRIZE_RULES_2026.md`。下方 V5.9.8/V5.9.7 说明是历史版本记录。
 
 V5.9.8：上传新的 Application 服务/模板、app.js、runtime-config.js、styles.css、index.php 和 assets/scene6/option-*-psd-v598.webp。已有库须备份后在 operator 后台点击“同步今年七奖品方案”，保留历史库存/中奖；不要重导 schema.sql。配置新增私密 activity.draw_starts_on，日期和权重须确认后才能新增抽奖，详见 `PRIZE_RULES_2026.md`。
 
@@ -36,7 +38,7 @@ SQL 和 CLI 工具仍需要数据库管理员/服务器管理员执行；通过 
 - 生产数据库名仍为 `abb20260919game`。不改数据库账号或密码，不连接/修改正式数据库。
 - 本地开发配置不进入上传目录。服务器已经设置好的 `api/config.local.php` 请保留，不要用本地测试配置覆盖。`ABB_CONFIG_FILE` 存在时优先使用其指定的外部私密配置。
 - 私密生产配置仍在工作区 `private/abb20260919game.production.php`，不进入 Git、Pages 或本次公共代码部署包。FTP-only 配置方式需要事先确认对 api/config* 的网页访问保护，不能把私密目录整体上传。
-- 新服务器需要创建 `Application/Runtime/5.9.8/`，仅让 PHP 用户对 Runtime 有写权限。已有服务器的 Runtime、日志和配置不是待清除的杂项，不应在上传时删除。日志诊断仍按 `SERVER_DEPLOYMENT.md`。
+- 新服务器需要创建 `Application/Runtime/5.9.9/`，仅让 PHP 用户对 Runtime 有写权限。已有服务器的 Runtime、日志和配置不是待清除的杂项，不应在上传时删除。日志诊断仍按 `SERVER_DEPLOYMENT.md`。
 - 不上传去年数据或本地测试数据库；已有非空今年库不重复导入 schema.sql。
 
 ## 重建上传目录

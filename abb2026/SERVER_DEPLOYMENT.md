@@ -2,7 +2,7 @@
 
 V5.9.6 FTP 上传补充：只上传工作区根目录 `abb20260919game/` 的部署白名单内容；源码仓库现位于 `source-repository/abb20260919game/`。保留服务器现有配置与 Runtime，详见 `FTP_UPLOAD.md`。本文的 Git clone 仍是另一种部署方式，不应将含 Git/文档的克隆目录当作 FTP 上传包。
 
-版本：2026-10-04，ThinkPHP 3.2.3 / V5.9.8。七奖品与四天规则升级见 `PRIZE_RULES_2026.md`，已有库不重导初始化 SQL。用户端二维码见 `CLAIM_QR.md`，安全计划见 `SECURITY_REMEDIATION_PLAN.md`。未执行正式服务器操作。
+版本：ThinkPHP 3.2.3 / V5.9.9。已有库先备份，再导入 api/database/migrations/2026_10_05_activity_rules.sql，在运营后台设置日期。中奖当天/两小时内核销、按日余量加权、超时库存锁定的规则见 `PRIZE_RULES_2026.md`，不重导初始化 SQL。二维码见 `CLAIM_QR.md`，安全计划见 `SECURITY_REMEDIATION_PLAN.md`。未执行正式服务器操作。
 
 已确定：沿用去年的服务器、数据库账号和公众号，为今年新建独立 `abb20260919game` 数据库。不要替换旧站点、升级旧服务器整个系统、导入去年用户数据或清空已有库。Pages 是静态验收页，不能运行 PHP 或微信授权。
 
@@ -38,7 +38,7 @@ sudo find /srv/abb20260919game/app -type d -exec chmod 750 {} +
 sudo find /srv/abb20260919game/app -type f -exec chmod 640 {} +
 sudo install -d -o www-data -g www-data -m 750 \
   /srv/abb20260919game/app/Application/Runtime \
-  /srv/abb20260919game/app/Application/Runtime/5.9.8
+  /srv/abb20260919game/app/Application/Runtime/5.9.9
 sudo install -d -o www-data -g www-data -m 700 /var/lib/php/abb20260919game-sessions
 ```
 

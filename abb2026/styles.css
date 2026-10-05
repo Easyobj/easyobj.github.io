@@ -189,6 +189,7 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .status-back{position:absolute;z-index:4;left:.18rem;top:calc(.16rem + var(--safe-top));width:.72rem;height:.72rem;border-radius:50%;display:grid;place-items:center;padding:0;background:rgba(255,255,255,.78);box-shadow:0 .03rem .10rem rgba(47,78,122,.16);color:#4f54ba;font-family:Arial,sans-serif;font-size:.46rem;font-weight:700;line-height:1;cursor:pointer}
 .status-action{position:absolute;z-index:3;left:2.524rem;top:8.625rem;width:2.438rem;height:.72rem;padding:0;border-radius:999px;background:transparent;color:transparent;cursor:pointer}
 .status-action:focus-visible{outline:.055rem solid #154fc1;outline-offset:.045rem}
+.status-action:disabled{background:#e5e5ef;color:#596077;font-size:.26rem;font-weight:700;cursor:not-allowed}
 .status-stage[data-status="all-complete"] .status-action{top:10.07rem}
 .status-stage[data-status="lottery"] .status-action{left:2.494rem;top:8.976rem;width:2.498rem;height:.738rem}
 .status-stage[data-status="lottery-win"] .status-action{left:2.72rem;top:6.756rem;width:2.044rem;height:.604rem}
@@ -220,6 +221,9 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .status-safety{position:absolute;z-index:4;left:.72rem;top:10.48rem;width:6.06rem;margin:0;padding:.13rem .20rem;border-radius:.12rem;background:rgba(255,255,255,.90);box-shadow:0 .03rem .10rem rgba(30,56,96,.16);color:#34445f;font-size:.21rem;line-height:1.35;text-align:center}
 .status-stage[data-status="lottery-win"] .status-safety,.status-stage[data-status="lottery-lose"] .status-safety{top:9.18rem}
 .status-stage[data-status="all-complete"] .status-safety{top:11.18rem}
+.award-deadline{position:absolute;z-index:4;left:.72rem;top:7.6rem;width:6.06rem;margin:0;padding:.18rem .2rem;background:rgba(255,255,255,.94);border-radius:.12rem;color:#a12823;font-size:.23rem;line-height:1.5;text-align:center}
+.award-deadline[hidden]{display:none}
+.status-stage[data-status="lottery-win"] .status-safety{top:10.4rem}
 .status-stage[data-status="lottery-win"],.status-stage[data-status="lottery-lose"],.status-stage[data-status="activity-ended"]{background:#22272d}
 
 /* Modal / Sheet */

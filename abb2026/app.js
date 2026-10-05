@@ -151,6 +151,8 @@
     claimConfirmation:renderedState?.claimConfirmation||null,
     drawPaused:Boolean(renderedState?.drawPaused),
     activity:renderedState?.activity||null,
+    drawWindow:renderedState?.drawWindow||null,
+    lotteryAvailability:renderedState?.lotteryAvailability||null,
     flash:renderedState?.flash||null
   };
   const voucherClockStart=performance.now();
@@ -336,10 +338,12 @@
     statusArtwork.alt=config.alt;
     statusAction.hidden=!config.action;
     statusAction.setAttribute('aria-label',config.action||'');
+    statusAction.textContent='';
     const realPrize=kind==='lottery-win'&&pageState.serverRendered&&pageState.draw;
     statusPrize.hidden=!realPrize;
     statusPrize.textContent=realPrize?`中奖礼品：${pageState.draw.prize.name}`:'';
     lotteryNotice.hidden=!(kind==='lottery'&&pageState.serverRendered);
+    lotteryNotice.textContent='有库存时 100% 中奖';
     statusArtwork.alt=realPrize?'中奖结果，礼品以您的实际中奖记录为准':config.alt;
     let safety=config.safety||'';
     if(!pageState.serverRendered && ['result-correct','result-fail','all-complete'].includes(kind))safety='设计预览 · 不执行判题、不记录活动资格';
@@ -347,11 +351,18 @@
     if(pageState.serverRendered&&kind==='lottery'&&pageState.drawPaused)safety='运营已暂停新增抽奖，已有中奖记录和核销继续。';
     if(pageState.serverRendered&&kind==='lottery'&&!pageState.draw&&pageState.drawWindow&&!pageState.drawWindow.open)safety='仅前四天开放新增抽奖；当前尚未开放或已结束，具体日期请咨询工作人员。';
     if(pageState.serverRendered&&kind==='lottery-win'&&pageState.draw)safety=`中奖礼品：${pageState.draw.prize.name}`;
+    if(pageState.serverRendered&&kind==='lottery'&&!pageState.draw&&pageState.lotteryAvailability){
+      safety=pageState.lotteryAvailability.message;
+      statusAction.disabled=!pageState.lotteryAvailability.available;
+      statusAction.textContent=pageState.lotteryAvailability.available?'':'暂不可抽';
+      lotteryNotice.textContent=pageState.lotteryAvailability.available?'有库存时 100% 中奖':'当前无法新增抽奖';
+    } else {statusAction.disabled=false;}
     statusSafety.hidden=!safety;
     statusSafety.textContent=safety;
     activateView('status');
     if(push)history.pushState({view:'status',kind,scene:currentScene,fromHome:true},'',`#${kind}`);
     window.scrollTo(0,0);
+    updateAwardNotice();
   }
 
   function allScenesPassed(){
@@ -412,6 +423,8 @@
         openModal('LOTTERY','Pages 演示模式','<div class="availability">GitHub Pages 仅用于视觉验收，不会生成抽奖结果。正式活动将在微信服务器上校验资格并扣减库存。</div>');
         return;
       }
+      if(pageState.draw){showStatus('lottery-win');return;}
+      if(!pageState.lotteryAvailability?.available){showToast(pageState.lotteryAvailability?.message||'很遗憾，当前奖品不足！');return;}
       statusAction.disabled=true;
       submitServerForm('draw');
       return;
@@ -680,22 +693,49 @@
   /* ---------- Modal ---------- */
   const modal=$('#modal'), sheet=$('.sheet',modal), kicker=$('#modalKicker'), modalTitle=$('#modalTitle'), modalBody=$('#modalBody');
   let lastModalTrigger=null;
+  let modalCloseTimer;
   let claimCountdown;
   let claimCleanup;
   function claimRemaining(confirmation){
     if(!confirmation||!window.ABBClaimVoucher)return 0;
     const elapsed=Math.max(performance.now()-voucherClockStart,Date.now()-voucherWallStart,0)+voucherLoadElapsed;
-    return window.ABBClaimVoucher.remaining(Number(confirmation.expiresAt),voucherServerTime,elapsed);
+    return Math.min(window.ABBClaimVoucher.remaining(Number(confirmation.expiresAt),voucherServerTime,elapsed),awardRemaining());
+  }
+  function awardRemaining(){
+    if(!pageState.draw||!window.ABBClaimVoucher)return 0;
+    const elapsed=Math.max(performance.now()-voucherClockStart,Date.now()-voucherWallStart,0)+voucherLoadElapsed;
+    const deadline=Number(pageState.draw.redeemBy);
+    if(!Number.isFinite(deadline)||!Number.isFinite(voucherServerTime))return 0;
+    return Math.max(0,Math.ceil(deadline-voucherServerTime-elapsed/1000));
+  }
+  function updateAwardNotice(){
+    const draw=pageState.draw,notice=$('#awardDeadline');
+    if(!notice)return;
+    notice.hidden=!(pageState.serverRendered&&currentStatus==='lottery-win'&&draw);
+    if(notice.hidden)return;
+    const remaining=awardRemaining();
+    notice.textContent=draw.redeemedAt?'该奖品已核销，不能重复领取。':remaining
+      ? `礼品仅限当天现场本人领取，抽奖后 2 小时内有效。截止：${draw.redeemByText}；剩余 ${Math.floor(remaining/3600)}:${String(Math.floor(remaining%3600/60)).padStart(2,'0')}:${String(remaining%60).padStart(2,'0')}。`
+      : '领取期限已过。库存保持锁定，不能领取或再次抽奖。';
+    statusAction.disabled=Boolean(draw.redeemedAt)||remaining===0;
+    statusAction.textContent=draw.redeemedAt?'已领取':remaining===0?'已过期':'';
+    if(remaining===0){
+      const claimButton=$('#claimConfirmButton');
+      if(claimButton){claimButton.disabled=true;claimButton.textContent='领取期限已过';}
+    }
   }
   function showClaimVoucher(){
     const draw=pageState.draw;
     if(!pageState.serverRendered||!draw)return;
     const confirmation=pageState.claimConfirmation;
-    const active=claimRemaining(confirmation)>0;
+    const expired=!draw.redeemedAt&&awardRemaining()===0;
+    const active=!expired&&claimRemaining(confirmation)>0;
+    const deadline=`<p class="claim-hint">仅限中奖当天现场本人领取，且须抽奖后 2 小时内领取。截止：${escapeHtml(draw.redeemByText)}。二维码两分钟是现场验证时限，不会延长领奖期限；未领库存不回补。</p>`;
     const content=draw.redeemedAt
       ? '<p>该奖品已完成核销，请勿重复领取。</p>'
+      : expired ? '<p>领取期限已过，不能生成二维码或再次抽奖，未领取库存保持锁定。</p>'
       : `<p>请本人现场打开自己的微信活动页面，工作人员核对资格后领取。不接受截图或代领。</p>${active?`<div class="claim-qr" id="claimQr"><div id="claimQrImage"></div><div class="claim-qr__message" id="claimQrMessage" hidden></div></div><p class="claim-countdown" id="claimCountdown" role="timer" aria-live="off"></p><div class="claim-validity" role="progressbar" aria-label="二维码剩余有效时间" aria-valuemin="0" aria-valuemax="120" id="claimValidity"><span id="claimValidityBar"></span></div><details class="claim-fallback"><summary>无法扫码？查看备用确认码</summary><code class="claim-code" id="liveClaimCode">${escapeHtml(confirmation.code)}</code></details>`:'<p class="claim-hint">到领取现场后生成二维码，两分钟内有效。</p>'}<button class="claim-button" id="claimConfirmButton" type="button">${active?'刷新领取二维码':'生成领取二维码'}</button><p class="claim-hint">刷新后旧二维码和旧确认码立即失效，请勿转发。扫码后仍须工作人员核验，不能自动领取。</p>`;
-    openModal('PRIZE','本人领取二维码',`<div class="empty claim-voucher"><b>${escapeHtml(draw.prize.name)}</b><p>兑奖码：${escapeHtml(draw.claimCode)}</p>${content}</div>`);
+    openModal('PRIZE','本人领取二维码',`<div class="empty claim-voucher"><b>${escapeHtml(draw.prize.name)}</b><p>兑奖码：${escapeHtml(draw.claimCode)}</p>${deadline}${content}</div>`);
     $('#claimConfirmButton')?.addEventListener('click',event=>{
       try{event.currentTarget.disabled=true;submitServerForm('claim');}
       catch(error){event.currentTarget.disabled=false;showToast(error.message);}
@@ -722,7 +762,9 @@
         if(!remaining){
           invalidateQr('二维码已过期');
           $('#liveClaimCode').textContent='已过期';
-          $('#claimConfirmButton').textContent='重新生成领取二维码';
+          const ended=awardRemaining()===0;
+          $('#claimConfirmButton').textContent=ended?'领取期限已过':'重新生成领取二维码';
+          $('#claimConfirmButton').disabled=ended;
           clearInterval(claimCountdown);
         }
       };
@@ -741,6 +783,7 @@
     return String(value).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
   }
   function openModal(k,t,html){
+    clearTimeout(modalCloseTimer);
     clearInterval(claimCountdown);
     claimCleanup?.();claimCleanup=null;
     lastModalTrigger=document.activeElement instanceof HTMLElement?document.activeElement:null;
@@ -761,7 +804,8 @@
     appRoot.inert=false;
     const returnTarget=lastModalTrigger;
     lastModalTrigger=null;
-    setTimeout(()=>{modalBody.innerHTML='';returnTarget?.focus();},220);
+    clearTimeout(modalCloseTimer);
+    modalCloseTimer=setTimeout(()=>{modalBody.innerHTML='';returnTarget?.focus();},220);
   }
   $$('[data-close]',modal).forEach(x=>x.addEventListener('click',closeModal));
   document.addEventListener('keydown',e=>{
@@ -780,7 +824,7 @@
       : '当前为 Pages 演示模式，进度只保存在本机浏览器。';
     const plan=window.ABB_PRIZE_PLAN;
     const prizeTable=plan?`<section class="prize-plan-summary"><h3>今年奖品计划</h3><p>只发前四天，每日计划 ${escapeHtml(String(plan.daily))} 份，合计 ${escapeHtml(String(plan.total))} 份。下表是计划数量，不是实时剩余库存，也不代表中奖概率。</p><table class="prize-plan"><thead><tr><th>奖品</th><th>总量</th><th>每日</th></tr></thead><tbody>${plan.items.map(p=>`<tr><td>${escapeHtml(p.name)}</td><td>${escapeHtml(String(p.total))}</td><td>${escapeHtml(String(p.daily))}</td></tr>`).join('')}</tbody></table></section>`:'';
-    openModal('ACTIVITY','活动规则与奖品',`<ol class="rule-list"><li><i>1</i><span>浏览展区并完成 01～06 的互动题目。</span></li><li><i>2</i><span>07 为社交媒体关注指引，不计入答题进度。</span></li><li><i>3</i><span>${storageRule}</span></li><li><i>4</i><span>领奖前由现场工作人员核验资格，必须本人打开自己的微信中奖页面领取，不接受截图或代领。领取时生成两分钟有效的二维码；刷新后旧凭证失效。扫码不代表核验通过，Pages 预览不生成真实领取二维码。</span></li><li><i>5</i><span>仅活动前四天开放新增抽奖，具体日期与抽奖权重需活动方确认；已中奖记录保留。具体领取截止时间及适用资格以现场通知为准。</span></li></ol>${prizeTable}`);
+    openModal('ACTIVITY','活动规则与奖品',`<ol class="rule-list"><li><i>1</i><span>浏览展区并完成 01～06 的互动题目，07 不计入答题进度。</span></li><li><i>2</i><span>有当日可抽库存时 100% 中奖。只抽有余量的奖品，概率按当天实际可抽剩余件数加权；库存不足时提示“很遗憾，当前奖品不足！”。</span></li><li><i>3</i><span>同一微信账号整个活动只能中奖一次，次日不能再次抽奖；过期未领也不恢复机会。${storageRule}</span></li><li><i>4</i><span>礼品仅限中奖当天现场本人领取，且须抽奖后 2 小时内领取，两者取更早截止时间。领奖前工作人员核验资格，不接受截图或代领。未兑换库存保持锁定，不能重新参与抽奖。</span></li><li><i>5</i><span>领取二维码两分钟有效，刷新后旧码失效，不能延长两小时/当天的领奖期限。扫码不代表核验通过，Pages 不生成真实中奖或领取二维码。</span></li><li><i>6</i><span>开始日期由后台运营管理员设置，仅连续前四天发奖。${pageState.drawWindow?.startsOn?`日期：${escapeHtml(pageState.drawWindow.startsOn)} 至 ${escapeHtml(pageState.drawWindow.lastDay)}。`:'具体活动日期请查看正式活动通知。'}</span></li></ol>${prizeTable}`);
   });
   $('[data-action="prize"]').addEventListener('click',()=>{
     if(pageState.serverRendered&&pageState.draw){showStatus('lottery-win');return;}
@@ -824,6 +868,11 @@
   // The opened voucher already acknowledges generation; avoid a toast covering its refresh button.
   if(pageState.serverRendered&&pageState.flash?.message&&pageState.flash.code!=='claim_created')setTimeout(()=>showToast(pageState.flash.message),300);
   if(pageState.serverRendered&&pageState.draw&&pageState.flash?.code==='claim_created')showClaimVoucher();
+  if(pageState.serverRendered&&pageState.draw){
+    setInterval(updateAwardNotice,1000);
+    document.addEventListener('visibilitychange',updateAwardNotice);
+    window.addEventListener('pageshow',updateAwardNotice);
+  }
 
   // 字体缓存：Service Worker 只做运行时缓存，不预下载 Bold。
   if('serviceWorker' in navigator && location.protocol !== 'file:'){
