@@ -1,5 +1,15 @@
 # ABB 2026 正式服务器部署指南
 
+## Runtime 误清空后的恢复（ops-runtime-repair-20261005）
+
+用户误清空正式站点 `Application/Runtime/` 内容后，后台实际返回 HTTP 500。`index.php` 仍使用 `Runtime/5.9.15/`，私密配置中的 Session 与 PHP 错误日志也位于 Runtime 内；这些子目录被删除，而 Runtime 根目录为 root:www 0750，PHP 用户 www 无法自动重建，导致服务不可用。站点代码及私密配置仍完整。
+
+仅在 `/data/www/abb20260919game/Application/Runtime/` 内重建当前版本目录及 Cache/Logs/Temp/Data（www:www 0750）、sessions/Logs 与备用 wechat-js-sdk 目录（www:www 0700）；恢复受 PHP 404/exit guard 保护的 `Logs/php-errors.php`（www:www 0600）。保留 Runtime 根目录权限，不设 777，不修改代码、配置、数据库、账号密码、Nginx/FPM 或去年活动。当前私密配置哈希与此前部署记录一致。
+
+恢复后正式后台与普通首页 HTTP 200，模拟微信入口 302 跳转授权；PHP 日志路径直接 HTTP 返回 404。运营员及核验员实际登录、下一页会话与退出在服务器 loopback 验证通过；核验员单框手输界面正常，七项运营操作仍返回 403。375/390px 手机门禁、登录及服务器渲染的核验界面通过检查，无横向溢出或脚本错误；公开资源仍与已提交 V5.9.15 代码一致。恢复前后 users、answers、draws、prizes、prize_daily_stock、activity_settings、admins、admin_audit_logs 八表只读指纹一致，未执行答题、抽奖、领取凭证生成或核销。
+
+旧 Session 文件、日志和位于 Runtime 内的历史部署备份已被清空，本次不伪造恢复。已有登录会话会失效，需要重新登录，微信端可能需要重新授权；数据库中的答题、中奖及领取记录保留。工作区私密部署记录仍在本地。后续清模板缓存时仅处理当前版本的模板缓存文件，保留目录与权限；不要清空整个 Runtime，尤其不能删除 sessions、Logs 和备份目录。
+
 ## 手输核销码与答题反馈正式部署（ops-manual-redemption-20261005）
 
 已于 2026-10-05 将此前已发布的 V5.9.11 / V5.9.13 / V5.9.14 / V5.9.15 客户端及核验流程同步到正式目录 `/data/www/abb20260919game/`，共十四个代码文件。领取页改为可复制的二码合一核销码，后台只有一个手输查询框，二维码和微信扫一扫暂时停用；答题后按钮显示“已提交”，答对/未通过结果页不再重复弹 toast，提交异常提示保留。页面高度、背景铺满及备品备件页紧凑布局一起同步。

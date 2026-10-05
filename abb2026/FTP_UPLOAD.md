@@ -1,5 +1,7 @@
 # FTP 部署目录（V5.9.9）
 
+2026-10-05 Runtime 恢复：正式站点误清空 Runtime 后，已重建 5.9.15 版本缓存、会话和受保护日志目录并恢复权限。FTP 更新仍须保留整个 Runtime 与服务器配置；旧会话文件已丢失，需重新登录。详情见 `SERVER_DEPLOYMENT.md` 的 `ops-runtime-repair-20261005` 记录。
+
 V5.9.15 手输核销码、答题“已提交”文案及结果页取消重复 toast 已同步到正式服务器。本次从 Git 已提交代码精确部署十四文件，不包含尚未发布的后台导航；入口使用新的 Runtime/5.9.15/ 缓存，配置、现有 Runtime 和业务数据保留。后续 FTP 上传仍需保留服务器 api/config.local.php，不上传私密记录。详见 `SERVER_DEPLOYMENT.md` 顶部部署记录。
 
 V5.9.9 更新整个部署包后，已有数据库先备份并在 phpMyAdmin 导入 `api/database/migrations/2026_10_05_activity_rules.sql`，再由 operator 后台设置开始日期。无需改服务器私密配置中的日期或权重，旧 activity 日期字段已不生效；有库存时按当日实际件数加权，中奖当天/两小时内核销、超时不回补。旧奖品及旧测试中奖通过后台专用确认按钮清理，不能删新七奖品记录。详见 `PRIZE_RULES_2026.md`。下方 V5.9.8/V5.9.7 说明是历史版本记录。
