@@ -217,6 +217,9 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .claim-voucher b{font-size:.30rem}
 .claim-voucher .claim-button{width:100%;margin:.20rem 0 .14rem}
 .claim-voucher .claim-hint{font-size:.22rem;line-height:1.5}
+.claim-code-display{margin:.20rem 0 .12rem;padding:.18rem;border:1px solid #dde3ed;border-radius:.12rem;background:#fff}
+.claim-code-display .claim-code{margin:.12rem 0;font-size:clamp(14px,.30rem,20px)}
+.claim-voucher #claimCopyButton{margin:.06rem 0;background:#53647a}
 .claim-qr{position:relative;width:4.4rem;max-width:100%;aspect-ratio:1;margin:.20rem auto .12rem;background:#fff;border:1px solid #dde3ed;border-radius:.12rem;overflow:hidden}
 .claim-qr svg{display:block;width:100%;height:auto}
 .claim-qr__message{position:absolute;inset:0;display:grid;place-items:center;padding:.24rem;color:#51627a;background:#eef2f7;font-size:.28rem;font-weight:700}

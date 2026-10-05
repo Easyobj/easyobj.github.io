@@ -698,12 +698,12 @@
   let claimCountdown;
   let claimCleanup;
   function claimRemaining(confirmation){
-    if(!confirmation||!window.ABBClaimVoucher)return 0;
+    if(!confirmation||!window.ABBClaimCode)return 0;
     const elapsed=Math.max(performance.now()-voucherClockStart,Date.now()-voucherWallStart,0)+voucherLoadElapsed;
-    return Math.min(window.ABBClaimVoucher.remaining(Number(confirmation.expiresAt),voucherServerTime,elapsed),awardRemaining());
+    return Math.min(window.ABBClaimCode.remaining(Number(confirmation.expiresAt),voucherServerTime,elapsed),awardRemaining());
   }
   function awardRemaining(){
-    if(!pageState.draw||!window.ABBClaimVoucher)return 0;
+    if(!pageState.draw||!window.ABBClaimCode)return 0;
     const elapsed=Math.max(performance.now()-voucherClockStart,Date.now()-voucherWallStart,0)+voucherLoadElapsed;
     const deadline=Number(pageState.draw.redeemBy);
     if(!Number.isFinite(deadline)||!Number.isFinite(voucherServerTime))return 0;
@@ -731,40 +731,44 @@
     const confirmation=pageState.claimConfirmation;
     const expired=!draw.redeemedAt&&awardRemaining()===0;
     const active=!expired&&claimRemaining(confirmation)>0;
-    const deadline=`<p class="claim-hint">仅限中奖当天现场本人领取，且须抽奖后 2 小时内领取。截止：${escapeHtml(draw.redeemByText)}。二维码两分钟是现场验证时限，不会延长领奖期限；未领库存不回补。</p>`;
+    const combined=active?window.ABBClaimCode.combine(draw.claimCode,confirmation.code):'';
+    const deadline=`<p class="claim-hint">仅限中奖当天现场本人领取，且须抽奖后 2 小时内领取。截止：${escapeHtml(draw.redeemByText)}。核销码两分钟是现场验证时限，不会延长领奖期限；未领库存不回补。</p>`;
     const content=draw.redeemedAt
       ? '<p>该奖品已完成核销，请勿重复领取。</p>'
-      : expired ? '<p>领取期限已过，不能生成二维码或再次抽奖，未领取库存保持锁定。</p>'
-      : `<p>请本人现场打开自己的微信活动页面，工作人员核对资格后领取。不接受截图或代领。</p>${active?`<div class="claim-qr" id="claimQr"><div id="claimQrImage"></div><div class="claim-qr__message" id="claimQrMessage" hidden></div></div><p class="claim-countdown" id="claimCountdown" role="timer" aria-live="off"></p><div class="claim-validity" role="progressbar" aria-label="二维码剩余有效时间" aria-valuemin="0" aria-valuemax="120" id="claimValidity"><span id="claimValidityBar"></span></div><details class="claim-fallback"><summary>无法扫码？查看备用确认码</summary><code class="claim-code" id="liveClaimCode">${escapeHtml(confirmation.code)}</code></details>`:'<p class="claim-hint">到领取现场后生成二维码，两分钟内有效。</p>'}<button class="claim-button" id="claimConfirmButton" type="button">${active?'刷新领取二维码':'生成领取二维码'}</button><p class="claim-hint">刷新后旧二维码和旧确认码立即失效，请勿转发。扫码后仍须工作人员核验，不能自动领取。</p>`;
-    openModal('PRIZE','本人领取二维码',`<div class="empty claim-voucher"><b>${escapeHtml(draw.prize.name)}</b><p>兑奖码：${escapeHtml(draw.claimCode)}</p>${deadline}${content}</div>`);
+      : expired ? '<p>领取期限已过，不能生成核销码或再次抽奖，未领取库存保持锁定。</p>'
+      : `<p>请本人现场打开自己的微信活动页面，工作人员核对资格后领取。不接受截图或代领。</p>${active?`<div class="claim-code-display"><span>核销码（二码合一）</span><code class="claim-code" id="liveClaimCode">${escapeHtml(combined)}</code><button class="claim-button" id="claimCopyButton" type="button">复制核销码</button></div><p class="claim-countdown" id="claimCountdown" role="timer" aria-live="off"></p><div class="claim-validity" role="progressbar" aria-label="核销码剩余有效时间" aria-valuemin="0" aria-valuemax="120" id="claimValidity"><span id="claimValidityBar"></span></div>`:'<p class="claim-hint">到领取现场后生成核销码，两分钟内有效。</p>'}<button class="claim-button" id="claimConfirmButton" type="button">${active?'刷新核销码':'生成核销码'}</button><p class="claim-hint">将完整核销码交给现场工作人员输入。刷新后旧码立即失效，请勿转发；工作人员核验后再确认核销。</p>`;
+    openModal('PRIZE','本人领取核销码',`<div class="empty claim-voucher"><b>${escapeHtml(draw.prize.name)}</b>${deadline}${content}</div>`);
     $('#claimConfirmButton')?.addEventListener('click',event=>{
       try{event.currentTarget.disabled=true;submitServerForm('claim');}
       catch(error){event.currentTarget.disabled=false;showToast(error.message);}
     });
     if(active){
-      let qrFailed=false;
-      const invalidateQr=message=>{
-        $('#claimQrImage')?.replaceChildren();
-        const label=$('#claimQrMessage');
-        if(label){label.hidden=false;label.textContent=message;}
-        $('#claimQr')?.classList.add('is-invalid');
-      };
-      try{window.ABBClaimVoucher.mount($('#claimQrImage'),window.ABBClaimVoucher.encode(draw.claimCode,confirmation.code));}
-      catch(error){qrFailed=true;invalidateQr('二维码生成失败，请使用下方备用确认码。');}
+      $('#claimCopyButton').addEventListener('click',async()=>{
+        if(claimRemaining(confirmation)===0){showToast('核销码已过期，请重新生成。');return;}
+        try{
+          if(!navigator.clipboard?.writeText)throw new Error('clipboard unavailable');
+          await navigator.clipboard.writeText(combined);
+          showToast('核销码已复制，请交给现场工作人员。');
+        }catch{
+          const range=document.createRange();range.selectNodeContents($('#liveClaimCode'));
+          const selection=window.getSelection();selection?.removeAllRanges();selection?.addRange(range);
+          showToast('请长按已选中的核销码复制，或由工作人员直接输入。');
+        }
+      });
       const update=()=>{
         const remaining=claimRemaining(confirmation);
         const label=$('#claimCountdown');
         if(!label)return;
         const time=`${String(Math.floor(remaining/60)).padStart(2,'0')}:${String(remaining%60).padStart(2,'0')}`;
-        label.textContent=remaining?`${qrFailed?'确认码':'二维码'}有效倒计时 ${time}`:'二维码已过期，请重新生成。';
+        label.textContent=remaining?`核销码有效倒计时 ${time}`:'核销码已过期，请重新生成。';
         label.classList.toggle('is-urgent',remaining<=20);
         $('#claimValidity').setAttribute('aria-valuenow',String(remaining));
         $('#claimValidityBar').style.width=`${remaining/120*100}%`;
         if(!remaining){
-          invalidateQr('二维码已过期');
           $('#liveClaimCode').textContent='已过期';
+          $('#claimCopyButton').disabled=true;
           const ended=awardRemaining()===0;
-          $('#claimConfirmButton').textContent=ended?'领取期限已过':'重新生成领取二维码';
+          $('#claimConfirmButton').textContent=ended?'领取期限已过':'重新生成核销码';
           $('#claimConfirmButton').disabled=ended;
           clearInterval(claimCountdown);
         }
@@ -780,6 +784,7 @@
       };
     }
   }
+
   function escapeHtml(value){
     return String(value).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
   }
