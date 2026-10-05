@@ -440,6 +440,7 @@
   function renderInteraction(id){
     const data=DATA[id];
     ui.className=`interaction-ui ui-scene-${id}`;
+    $('#interactionStage').dataset.scene=String(id);
     ui.innerHTML='';
     currentState={submitted:false};
 

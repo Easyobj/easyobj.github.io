@@ -120,11 +120,20 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .tip-label{font-weight:700;display:block;margin-bottom:.02rem}
 
 .ui-scene-1 .interaction-card,.ui-scene-2 .interaction-card,.ui-scene-4 .interaction-card,.ui-scene-6 .interaction-card,.ui-scene-7 .interaction-card{min-height:10.27rem}
-.ui-scene-3 .interaction-card{min-height:10.68rem}
+
 .ui-scene-5 .interaction-card{min-height:8.24rem}
-.ui-scene-3 .interaction-card{margin-bottom:.08rem}
+/* 备品备件判断题：取消固定卡片高度，压缩空隙，短屏仍允许自然滚动。 */
+.interaction-stage[data-scene="3"]{padding-bottom:calc(.16rem + var(--safe-bottom))}
+.ui-scene-3 .interaction-card{min-height:0;margin-bottom:.10rem;padding:.79rem .41rem clamp(12px,.24rem,18px) .55rem}
+.ui-scene-3 .interaction-copy{font-size:clamp(12px,.24rem,16px)}
+.ui-scene-3 .judge-item{padding:clamp(3px,.06rem,4px) 0}
+.ui-scene-3 .judge-q{font-size:clamp(12px,.225rem,16px);margin-bottom:clamp(3px,.06rem,4px)}
+.ui-scene-3 .judge-btn{min-height:clamp(24px,.48rem,28px);font-size:clamp(12px,.225rem,16px)}
+.ui-scene-3 .result-badge{font-size:clamp(11px,.22rem,14px);padding:2px 8px;margin-left:.10rem}
+.ui-scene-3 .interaction-tip{gap:.16rem;margin:.12rem .50rem .12rem;font-size:clamp(11px,.225rem,14px);line-height:1.4}
+.ui-scene-3 .tip-icon{flex-basis:clamp(28px,.66rem,44px);width:clamp(28px,.66rem,44px);height:clamp(28px,.66rem,44px)}
 .ui-scene-3 .interaction-copy .question{margin-bottom:.15rem}
-.ui-scene-3 .quiz-submit{margin-top:1.46rem}
+.ui-scene-3 .quiz-submit{margin-top:clamp(12px,.28rem,20px);height:clamp(36px,.72rem,48px);font-size:clamp(15px,.30rem,20px)}
 .ui-scene-5 .interaction-card{margin-bottom:.225rem}
 .ui-scene-2 .interaction-title{top:1.25rem;width:3.75rem;font-size:.34rem;line-height:1.08}
 .ui-scene-5 .interaction-title{top:1.70rem;width:3.85rem;font-size:.34rem;line-height:1.10}
