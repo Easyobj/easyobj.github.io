@@ -1,5 +1,17 @@
 # ABB 2026 正式服务器部署指南
 
+## 当前 HTTP 部署与登录会话修复（ops-http-session-20261005）
+
+用户明确要求目前不使用 HTTPS。本阶段仅将今年服务器 `api/config.local.php` 的 `app_url` 协议改为 HTTP，域名、二级目录、数据库和公众号凭据均不变；仍是 production、空 dev_openid、微信环境限制。之前各阶段保留 HTTPS 的说明为历史状态，以下通用部署指南仍以推荐的 HTTPS 为默认方案。
+
+- 根因：HTTP 页面访问时，私密 app_url 原为 HTTPS，应用因此发送 Secure Session Cookie；浏览器不在 HTTP 请求回传该 Cookie，POST CSRF 校验落到新会话而报“页面会话已失效”。Session 目录权限核对正常。
+- 先将现有配置备份到本地私密目录和今年 Runtime 内 root-only 目录；校验变更前文件哈希，仅修改 app_url，语法检查后原子替换，保持 root:www 0640。不改通用 bootstrap，不禁用 CSRF，不开启开发登录，不改 Nginx 或其他活动目录。
+- 在实际 375/390px 浏览器上先复现 Cookie 丢失，再验证修复后 Session 连续、有效 CSRF 可提交、错误 CSRF 仍被拒绝；这些公网请求不含用户名密码、不执行登录或业务操作。
+- 实际管理员登录、后续页面会话和退出在服务器回环地址验证；Curl 禁用代理、固定域名解析到 127.0.0.1、禁用自动跟随跳转，密码通过加密 SSH 输入，不通过公网 HTTP 传输。测试结束已退出并移除临时 Cookie 文件。
+- 用户请关闭旧页面，以 HTTP 地址重新打开后台。若旧 Secure Cookie 或旧表单仍在浏览器中，清除该域名 Cookie 或使用新的无痕窗口后再登录。账号与密码不变。
+- 当前 HTTP Cookie 不带 Secure，但仍有 HttpOnly / SameSite=Lax；私密配置直接访问仍为 404，配置备份不可由 Web 用户读取。微信入口重定向也使用当前 HTTP origin/path；真实微信授权仍需现场测试。
+- HTTP 不加密，网络上的登录密码、会话和活动数据存在被监听或篡改风险，CSRF/HttpOnly 不能消除这个风险。此配置按用户当前要求应用，不等于安全上线验收通过；将来改用 HTTPS 时，把 app_url 改回 HTTPS 并重新验证 Secure Cookie。
+
 ## 今年数据库增量升级（ops-db-upgrade-20261005）
 
 用户另行授权备份、升级今年独立库、同步七奖品并创建运营管理员。本阶段仅操作 `abb20260919game` 数据库；未修改去年库、数据库实例全局设置、Nginx/HTTPS 或指定目录外的服务器文件。
