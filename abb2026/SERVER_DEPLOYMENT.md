@@ -1,5 +1,15 @@
 # ABB 2026 正式服务器部署指南
 
+## 手输核销码与答题反馈正式部署（ops-manual-redemption-20261005）
+
+已于 2026-10-05 将此前已发布的 V5.9.11 / V5.9.13 / V5.9.14 / V5.9.15 客户端及核验流程同步到正式目录 `/data/www/abb20260919game/`，共十四个代码文件。领取页改为可复制的二码合一核销码，后台只有一个手输查询框，二维码和微信扫一扫暂时停用；答题后按钮显示“已提交”，答对/未通过结果页不再重复弹 toast，提交异常提示保留。页面高度、背景铺满及备品备件页紧凑布局一起同步。
+
+使用 Git 已提交版本构建本次部署内容，未上传尚未发布的后台导航改动。替换前核对现有版本及哈希、备份旧文件，逐个通过正式服务器 PHP 7.4 语法检查后原子替换。`index.php` 最后切换到新的 `Application/Runtime/5.9.15/` 模板缓存；备份位于 `Application/Runtime/release-backup-v5915-20261005/`，仅 root 可读。现有私密配置、Session、旧 Runtime、数据库结构及账号密码不变，无 SQL 迁移。
+
+十四文件安装后 SHA-256 核对通过，公开 JS/CSS/核销码辅助资源与部署哈希一致。正式核验员登录、单框输入界面、退出与七项运营操作 403 已通过服务器回环验证；凭据仅经 SSH 输入，未向公网 HTTP 提交。375/390px 正式门禁、登录页及服务器渲染的核验页均无横向溢出。部署前后 users、answers、draws、prizes、prize_daily_stock、activity_settings、admins、admin_audit_logs 八表只读指纹一致；未查询或核销真实奖品、未生成真实领取凭证。此前隔离数据库 307 项回归及 20 项移动端页面检查通过；真实用户微信领取仍由现场工作人员完成。
+
+正式入口：`http://www.abbrobotics.com.cn/abb20260919game/index.php`；后台：`http://www.abbrobotics.com.cn/abb20260919game/index.php?m=Admin&c=Index&a=index`。HTTP 为用户当前选择，沿用现有配置。
+
 ## 微信基本信息与后台扫一扫（V5.9.10 / 2026-10-05）
 
 本轮仅备份、更新今年目录的十四个部署文件，保持原 HTTP app_url、数据库/公众号私密配置、账号密码和已有业务数据；使用新的 Application/Runtime/5.9.10/ 版本缓存，未修改去年目录、Nginx/FPM或全局配置，未导入SQL。备份位于今年 Runtime 的 root-only release-backup-v5910-20261005；后续诊断提示的两个小修补也先备份再按哈希/语法检查原子替换。

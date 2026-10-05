@@ -1,5 +1,7 @@
 # FTP 部署目录（V5.9.9）
 
+V5.9.15 手输核销码、答题“已提交”文案及结果页取消重复 toast 已同步到正式服务器。本次从 Git 已提交代码精确部署十四文件，不包含尚未发布的后台导航；入口使用新的 Runtime/5.9.15/ 缓存，配置、现有 Runtime 和业务数据保留。后续 FTP 上传仍需保留服务器 api/config.local.php，不上传私密记录。详见 `SERVER_DEPLOYMENT.md` 顶部部署记录。
+
 V5.9.9 更新整个部署包后，已有数据库先备份并在 phpMyAdmin 导入 `api/database/migrations/2026_10_05_activity_rules.sql`，再由 operator 后台设置开始日期。无需改服务器私密配置中的日期或权重，旧 activity 日期字段已不生效；有库存时按当日实际件数加权，中奖当天/两小时内核销、超时不回补。旧奖品及旧测试中奖通过后台专用确认按钮清理，不能删新七奖品记录。详见 `PRIZE_RULES_2026.md`。下方 V5.9.8/V5.9.7 说明是历史版本记录。
 
 V5.9.8：上传新的 Application 服务/模板、app.js、runtime-config.js、styles.css、index.php 和 assets/scene6/option-*-psd-v598.webp。已有库须备份后在 operator 后台点击“同步今年七奖品方案”，保留历史库存/中奖；不要重导 schema.sql。配置新增私密 activity.draw_starts_on，日期和权重须确认后才能新增抽奖，详见 `PRIZE_RULES_2026.md`。
