@@ -298,3 +298,7 @@ button:focus-visible,textarea:focus-visible,.sheet:focus-visible{outline:.055rem
   .scene{opacity:1;transform:none}
   .scene-content,.saucer{animation:none!important}
 }
+
+/* Same-day collection text replaces the original raster instruction region. */
+.status-stage[data-status="lottery-win"] .status-safety{left:1.15rem;top:8.29rem;width:5.2rem;min-height:.86rem;padding:.06rem .08rem;background:#2e303b;border-radius:0;box-shadow:none;color:#fff;font-size:.21rem;line-height:1.5;text-align:center}
+.claim-code-display .claim-code{font-size:.54rem;letter-spacing:.15em}
