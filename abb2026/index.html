@@ -6,15 +6,15 @@
   <meta name="format-detection" content="telephone=no,email=no,address=no">
   <meta name="theme-color" content="#dcecff">
   <meta name="description" content="ABB Robotics 互动体验页面">
-  <meta name="abb-release" content="5.9.24-real-slot-machine">
-  <meta name="abb-ui-release" content="5.9.24-real-slot-machine">
+  <meta name="abb-release" content="5.9.25-badge-page">
+  <meta name="abb-ui-release" content="5.9.25-badge-page">
   <meta property="og:title" content="ABB Robotics H5">
   <meta property="og:description" content="探索 ABB Robotics 互动体验">
   <meta property="og:type" content="website">
   <title>ABB Robotics H5</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/ABBvoice_CNSG_Rg.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=5.9.24-real-slot-machine">
+  <link rel="stylesheet" href="styles.css?v=5.9.25-badge-page">
 </head>
 <body>
   <!-- 仅首次加载显示；SPA 内部切页不会再次出现 -->
@@ -99,6 +99,25 @@
       </div>
     </main>
 
+    <!-- PERSONAL CENTER / BADGES -->
+    <main class="view view--badges" id="badgeView" data-view="badges" aria-hidden="true">
+      <div class="badge-shell">
+        <section class="badge-page" aria-labelledby="badgePageTitle">
+          <button class="badge-back pressable" id="badgeBack" type="button" aria-label="返回">‹</button>
+          <div class="badge-page__head">
+            <p>PERSONAL CENTER</p>
+            <h1 id="badgePageTitle">我的徽章</h1>
+            <span>完成互动，点亮属于您的 ABB 徽章</span>
+          </div>
+          <div class="badge-page__body">
+            <div class="badge-summary" id="badgePageSummary"></div>
+            <div class="badge-grid" id="badgePageGrid"></div>
+            <div class="badge-page__action" id="badgePageAction"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+
     <!-- PSD RESULT / LOTTERY / ACTIVITY STATE VIEW -->
     <main class="view view--status" id="statusView" data-view="status" aria-hidden="true">
       <div class="status-shell">
@@ -130,7 +149,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
   <script>window.ABB_SERVER_STATE=null;</script>
   <script>window.ABB_PRIZE_PLAN={"items":[{"code":"canvas-bag","name":"红色定制帆布袋","total":1000,"daily":250},{"code":"blind-box","name":"积木\/公仔盲盒","total":288,"daily":72},{"code":"robot-phone-stand","name":"6720 手机支架","total":8,"daily":2},{"code":"mouse-pad","name":"鼠标垫","total":100,"daily":25},{"code":"fe-car-model","name":"FE 小车模型","total":40,"daily":10},{"code":"abb-power-strip","name":"ABB 排插","total":20,"daily":5},{"code":"notebook","name":"笔记本","total":40,"daily":10}],"days":4,"total":1496,"daily":374};</script>
-  <script src="runtime-config.js?v=5.9.24-real-slot-machine"></script>
-  <script src="app.js?v=5.9.24-real-slot-machine"></script>
+  <script src="runtime-config.js?v=5.9.25-badge-page"></script>
+  <script src="app.js?v=5.9.25-badge-page"></script>
 </body>
 </html>

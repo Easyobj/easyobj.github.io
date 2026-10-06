@@ -275,6 +275,20 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .status-stage[data-status="lottery"][data-lottery-state="paused"] .status-safety{border:.02rem solid #d39031;background:#fff8e9;color:#6d4914}
 .status-stage[data-status="lottery"][data-lottery-state="closed"] .status-safety,.status-stage[data-status="lottery"][data-lottery-state="unavailable"] .status-safety{border:.02rem solid #ca6f6f;background:#fff2f2;color:#772d2d}
 
+/* 个人中心：独立徽章页面 */
+.view--badges{background:#dcecff}
+.badge-shell{width:7.5rem;max-width:750px;min-height:100vh;margin:0 auto;background:#dcecff;box-shadow:0 0 .28rem rgba(0,0,0,.18)}
+.badge-page{position:relative;width:7.5rem;min-height:max(var(--page-h),100vh);overflow:hidden;padding:0 .44rem calc(.54rem + var(--safe-bottom));background:linear-gradient(180deg,#99bce5 0,#c9dff4 3.45rem,#eaf3fb 7.2rem,#f5f9fd 100%)}
+.badge-page::before{content:"";position:absolute;inset:0;background:url("assets/ui/interaction-background-v595.webp") center top/7.5rem 100% no-repeat;opacity:.22;pointer-events:none}
+.badge-back{position:absolute;z-index:3;left:.24rem;top:calc(.22rem + var(--safe-top));width:.72rem;height:.72rem;display:grid;place-items:center;padding:0;border-radius:50%;background:rgba(255,255,255,.88);box-shadow:0 .04rem .14rem rgba(40,67,109,.16);color:#4f54ba;font-family:Arial,sans-serif;font-size:.46rem;font-weight:700;line-height:1;cursor:pointer}
+.badge-page__head{position:relative;z-index:1;padding:1.42rem .18rem .78rem;text-align:center;color:#263858}
+.badge-page__head p{margin:0 0 .08rem;color:#5965bd;font-size:.19rem;font-weight:700;letter-spacing:.08rem}
+.badge-page__head h1{margin:0;font-size:.52rem;line-height:1.25}
+.badge-page__head span{display:block;margin-top:.14rem;color:#536985;font-size:.23rem;line-height:1.5}
+.badge-page__body{position:relative;z-index:1;padding:.38rem .34rem .42rem;border:.018rem solid rgba(255,255,255,.86);border-radius:.28rem;background:rgba(255,255,255,.92);box-shadow:0 .16rem .44rem rgba(52,82,123,.16);backdrop-filter:blur(10px)}
+.badge-page__action{min-height:.90rem}
+.badge-page__action:empty{min-height:0}
+
 /* Modal / Sheet */
 .modal{position:fixed;z-index:1500;inset:0;display:grid;align-items:end;justify-items:center;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease,visibility .22s ease}
 .modal.open{opacity:1;visibility:visible;pointer-events:auto}

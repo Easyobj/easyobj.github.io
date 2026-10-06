@@ -139,6 +139,7 @@
   };
   const homeView = $('#homeView');
   const interactionView = $('#interactionView');
+  const badgeView = $('#badgeView');
   const statusView = $('#statusView');
   const ui = $('#interactionUI');
   const backBtn = $('#interactionBack');
@@ -150,6 +151,10 @@
   const statusPrize = $('#statusPrize');
   const lotteryMachine = $('#lotteryMachine');
   const lotteryNotice = $('#lotteryNotice');
+  const badgeBack = $('#badgeBack');
+  const badgePageSummary = $('#badgePageSummary');
+  const badgePageGrid = $('#badgePageGrid');
+  const badgePageAction = $('#badgePageAction');
   const toast = $('#toast');
   const appRoot = $('#app');
   const STORAGE_KEY = 'abb-robotics-h5-progress-v1';
@@ -345,7 +350,7 @@
 
   /* ---------- SPA view switching ---------- */
   function activateView(name){
-    [[homeView,'home'],[interactionView,'interaction'],[statusView,'status']].forEach(([view,key])=>{
+    [[homeView,'home'],[interactionView,'interaction'],[badgeView,'badges'],[statusView,'status']].forEach(([view,key])=>{
       const active=name===key;
       view.classList.toggle('is-active',active);
       view.setAttribute('aria-hidden',active?'false':'true');
@@ -512,7 +517,14 @@
     const st=e.state;
     if(st?.view==='interaction' && st.scene){ openScene(Number(st.scene), {push:false}); }
     else if(st?.view==='status' && STATUS_VIEWS[st.kind]){currentScene=Number(st.scene)||null;showStatus(st.kind,{push:false});}
+    else if(st?.view==='badges'){showBadgeCenter({push:false});}
     else closeInteraction({fromPop:true});
+  });
+
+  badgeBack.addEventListener('click',()=>{
+    if(history.state?.fromHome){history.back();return;}
+    closeInteraction({fromPop:true});
+    history.replaceState({view:'home'},'', '#home');
   });
 
   statusBack.addEventListener('click',()=>closeInteraction());
@@ -952,7 +964,7 @@
   }
   $$('[data-close]',modal).forEach(x=>x.addEventListener('click',closeModal));
 
-  function showBadgeCenter(){
+  function showBadgeCenter({push=true}={}){
     const summary=progressSummary();
     const cards=Array.from({length:6},(_,index)=>{
       const id=index+1;
@@ -961,16 +973,18 @@
       const state=lit?'已点亮':saved.submitted?'未点亮':'未作答';
       return `<article class="badge-card ${lit?'is-lit':'is-dim'}"><span class="badge-card__icon" aria-hidden="true">${String(id).padStart(2,'0')}</span><div><b>${escapeHtml(DATA[id].title)}</b><small>${state}</small></div></article>`;
     }).join('');
-    let action='';
-    if(pageState.draw)action='<button class="badge-primary" id="badgePrimary" type="button">查看中奖礼品</button>';
-    else if(summary.eligible)action='<button class="badge-primary" id="badgePrimary" type="button">参与抽奖</button>';
-    else if(summary.submitted===6)action='<p class="badge-unavailable">需要至少点亮 5 枚徽章才可抽奖。</p>';
-    else action=`<p class="badge-unavailable">还需完成 ${6-summary.submitted} 道题。每题只有一次作答机会。</p>`;
-    openModal('BADGES','我的徽章',`<div class="badge-summary"><strong>${summary.badges}</strong><span>/ 6 枚已点亮</span></div><div class="badge-grid">${cards}</div>${action}`);
+    badgePageSummary.innerHTML=`<strong>${summary.badges}</strong><span>/ 6 枚已点亮</span>`;
+    badgePageGrid.innerHTML=cards;
+    if(pageState.draw)badgePageAction.innerHTML='<button class="badge-primary" id="badgePrimary" type="button">查看中奖礼品</button>';
+    else if(summary.eligible)badgePageAction.innerHTML='<button class="badge-primary" id="badgePrimary" type="button">参与抽奖</button>';
+    else if(summary.submitted===6)badgePageAction.innerHTML='<p class="badge-unavailable">需要至少点亮 5 枚徽章才可抽奖。</p>';
+    else badgePageAction.innerHTML=`<p class="badge-unavailable">还需完成 ${6-summary.submitted} 道题。每题只有一次作答机会。</p>`;
+    activateView('badges');
+    if(push)history.pushState({view:'badges',fromHome:true},'','#badges');
+    window.scrollTo(0,0);
     $('#badgePrimary')?.addEventListener('click',()=>{
       const target=pageState.draw?'lottery-win':'lottery';
-      closeModal();
-      setTimeout(()=>showStatus(target),240);
+      showStatus(target);
     });
   }
 
@@ -994,6 +1008,7 @@
     openModal('ACTIVITY','活动规则与奖品',`<ol class="rule-list"><li><i>1</i><span>浏览展区并完成 01～06 的互动题目，07 不计入答题进度。每题只有一次作答机会，再次进入会直接显示本题结果。</span></li><li><i>2</i><span>完成全部六道题并点亮至少 5 枚徽章，即可参与抽奖。</span></li><li><i>3</i><span>同一微信账号整个活动只能中奖一次，次日不能再次抽奖；过期未领也不恢复机会。${storageRule}</span></li><li><i>4</i><span>礼品仅限中奖当天现场领取。参与者点击“兑换礼品”后，由现场工作人员在参与者手机上核对并确认核销，随后发放礼品。</span></li><li><i>5</i><span>兑奖前请关注 ABB 机器人其他社交媒体账号；核销确认后不能重复领取。</span></li><li><i>6</i><span>发布时间由后台运营管理员设置，正式活动仅连续前四个自然日发奖。${pageState.drawWindow?.startsOn?`日期：${escapeHtml(pageState.drawWindow.startsOn)} 至 ${escapeHtml(pageState.drawWindow.lastDay)}。`:'具体活动日期请查看正式活动通知。'}</span></li></ol>${prizeTable}`);
   });
   $('[data-action="prize"]').addEventListener('click',()=>{
+    homeScrollY=window.scrollY;
     showBadgeCenter();
   });
 
@@ -1010,6 +1025,7 @@
 
   // 初始化 SPA 路由：直接刷新 #scene-N 时仍能恢复互动页；返回首页不触发 Loading。
   const statusRoute=location.hash.match(/^#(result-correct|result-fail|all-complete|lottery|lottery-win|lottery-lose|activity-ended)$/);
+  const badgeRoute=location.hash==='#badges';
   const routeMatch = location.hash.match(/^#scene-([1-7])$/);
   if(statusRoute){
     const kind=statusRoute[1];
@@ -1017,6 +1033,9 @@
     currentScene=routeScene;
     history.replaceState({view:'status',kind,scene:routeScene,fromHome:false},'',location.hash);
     showStatus(animateNewDraw&&kind==='lottery-win'?'lottery':kind,{push:false});
+  }else if(badgeRoute){
+    history.replaceState({view:'badges',fromHome:false},'',location.hash);
+    showBadgeCenter({push:false});
   }else if(routeMatch){
     const id = Number(routeMatch[1]);
     history.replaceState({view:'interaction',scene:id,fromHome:false},'', location.hash);
