@@ -168,7 +168,7 @@
   const STATUS_VIEWS = {
     'result-correct':{asset:'result-correct.webp',alt:'恭喜回答正确',action:'收下徽章'},
     'result-fail':{asset:'result-fail.webp',alt:'很遗憾，本次回答未通过',action:'返回首页'},
-    'all-complete':{asset:'all-complete.webp',alt:'恭喜您已全部通关',action:'立即兑奖'},
+    'all-complete':{asset:'all-complete.webp',alt:'恭喜您已全部通关',action:'参与抽奖'},
     'lottery':{asset:'lottery.webp',alt:'幸运大转盘界面预览',action:'立即抽奖',safety:'设计预览 · 不执行实际抽奖'},
     'lottery-win':{asset:'lottery-win.webp',alt:'中奖结果设计预览',action:'兑换礼品',safety:'设计预览 · 不代表真实中奖或奖品库存'},
     'lottery-lose':{asset:'lottery-lose.webp',alt:'未中奖结果设计预览',safety:'设计预览 · 正式结果须由服务端产生'},
@@ -228,7 +228,7 @@
 
   function submitServerForm(action,fields={}){
     const form=$('#serverActionForm');
-    if(!form)throw new Error('PHP 提交表单未渲染，请刷新页面。');
+    if(!form)throw new Error('页面提交功能暂不可用，请刷新后重试。');
     const key=action==='answer'?`answer-${fields.station}`:action;
     const token=renderedState?.formChallenges?.[key];
     if(!token)throw new Error('提交凭证不可用，请稍后刷新页面。已保存进度不会丢失。');
@@ -338,7 +338,7 @@
     statusArtwork.alt=config.alt;
     statusAction.hidden=!config.action;
     statusAction.setAttribute('aria-label',config.action||'');
-    statusAction.textContent='';
+    statusAction.textContent=kind==='all-complete'?config.action:'';
     const realPrize=kind==='lottery-win'&&pageState.serverRendered&&pageState.draw;
     statusPrize.hidden=!realPrize;
     statusPrize.textContent=realPrize?`中奖礼品：${pageState.draw.prize.name}`:'';
@@ -824,7 +824,7 @@
   });
   $('[data-action="rules"]').addEventListener('click',()=>{
     const storageRule=pageState.serverRendered
-      ? '答题结果由 PHP 表单提交并保存到活动服务器；浏览器只保留未提交草稿。'
+      ? '答题结果提交并保存到活动服务器；浏览器只保留未提交草稿。'
       : '当前为 Pages 演示模式，进度只保存在本机浏览器。';
     const plan=window.ABB_PRIZE_PLAN;
     const prizeTable=plan?`<section class="prize-plan-summary"><h3>今年奖品计划</h3><p>只发前四天，每日计划 ${escapeHtml(String(plan.daily))} 份，合计 ${escapeHtml(String(plan.total))} 份。下表为活动奖品计划，领取以现场核验为准。</p><table class="prize-plan"><thead><tr><th>奖品</th><th>总量</th><th>每日</th></tr></thead><tbody>${plan.items.map(p=>`<tr><td>${escapeHtml(p.name)}</td><td>${escapeHtml(String(p.total))}</td><td>${escapeHtml(String(p.daily))}</td></tr>`).join('')}</tbody></table></section>`:'';
@@ -835,8 +835,8 @@
     const completed=Array.from({length:6},(_,i)=>Boolean(getSceneProgress(i+1).passed)).filter(Boolean).length;
     const ready=completed===6;
     if(ready){showStatus('all-complete');return;}
-    const progressNote=pageState.serverRendered?'进度以 PHP 模板中的服务器记录为准。':'当前为 Pages 演示模式，进度只保存在本机。';
-    openModal('PRIZE','兑奖中心',`<div class="progress-summary"><b>互动完成进度</b><strong>${completed} / 6</strong><div class="progress-track" aria-label="已完成 ${completed} 个，共 6 个"><span style="width:${completed/6*100}%"></span></div></div><div class="empty"><b>尚未完成全部互动</b><p>完成 01～06 后可进入抽奖与兑奖。${progressNote}</p></div>`);
+    const progressNote=pageState.serverRendered?'进度以活动服务器记录为准。':'当前为 Pages 演示模式，进度只保存在本机。';
+    openModal('PROGRESS','活动进度',`<div class="progress-summary"><b>互动完成进度</b><strong>${completed} / 6</strong><div class="progress-track" aria-label="已完成 ${completed} 个，共 6 个"><span style="width:${completed/6*100}%"></span></div></div><div class="empty"><b>尚未完成全部互动</b><p>完成 01～06 后可进入抽奖；中奖后再领取礼品。${progressNote}</p></div>`);
   });
 
   let toastTimer;
