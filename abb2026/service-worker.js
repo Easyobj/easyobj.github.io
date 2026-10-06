@@ -1,4 +1,4 @@
-const ASSET_CACHE='abb-static-v5923';
+const ASSET_CACHE='abb-static-v5924';
 self.addEventListener('install',event=>event.waitUntil(self.skipWaiting()));
 self.addEventListener('activate',event=>{
   event.waitUntil(caches.keys().then(keys=>Promise.all(

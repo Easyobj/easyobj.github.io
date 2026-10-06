@@ -216,11 +216,26 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .status-stage[data-status="all-complete"] .status-action{top:10.07rem}
 .status-stage[data-status="all-complete"] .status-action{display:grid;place-items:center;background:linear-gradient(180deg,#7771df,#514bb8);border:.025rem solid #aaa8ff;box-shadow:inset 0 .025rem .04rem rgba(255,255,255,.44),0 .035rem .075rem rgba(62,57,166,.22);color:#fff;font-size:.30rem;font-weight:700}
 .status-stage[data-status="lottery"] .status-action{left:2.494rem;top:8.976rem;width:2.498rem;height:.738rem}
+.status-stage[data-status="lottery"] .status-action.is-submitting{display:grid;place-items:center;background:linear-gradient(180deg,#7771df,#514bb8);color:#fff;font-size:.27rem;font-weight:700}
 .status-stage[data-status="lottery-win"] .status-action{left:2.72rem;top:6.756rem;width:2.044rem;height:.604rem}
+.lottery-machine{position:absolute;z-index:2;left:1.28rem;top:5.10rem;width:4.96rem;height:2.08rem;display:grid;grid-template-columns:repeat(3,1fr);gap:.10rem;overflow:hidden}
+.lottery-machine[hidden]{display:none}
+.lottery-reel{position:relative;height:2.08rem;overflow:hidden;border-radius:.12rem;background:#fff;box-shadow:inset 0 0 .08rem rgba(45,65,126,.16)}
+.lottery-reel::before,.lottery-reel::after{content:"";position:absolute;z-index:2;left:0;right:0;height:.22rem;pointer-events:none}
+.lottery-reel::before{top:0;background:linear-gradient(#e3e7f3,transparent)}
+.lottery-reel::after{bottom:0;background:linear-gradient(transparent,#e3e7f3)}
+.lottery-reel__track{display:block;will-change:transform}
+.lottery-reel__item{height:2.04rem;display:grid;place-items:center;padding:.14rem .10rem;background:#fff}
+.lottery-reel__item img{display:block;width:100%;height:100%;object-fit:contain}
+.lottery-machine.is-spinning .lottery-reel__track{filter:blur(.012rem)}
+.lottery-machine.is-spinning .lottery-reel:nth-child(2) .lottery-reel__track{filter:blur(.018rem)}
+.lottery-machine.is-starting .lottery-reel__item{animation:slot-start .18s linear infinite alternate}
+@keyframes slot-start{to{transform:translateY(-.08rem);filter:blur(.025rem)}}
 /* PSD gift and guarantee are examples, never authoritative business results. */
-.status-prize{position:absolute;z-index:3;left:2.12rem;top:3.70rem;width:3.25rem;height:2.70rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.10rem;padding:.24rem;background:radial-gradient(circle at 50% 18%,#fff 0,#eff0ff 45%,#c8cdeb 100%);border:.025rem solid rgba(255,255,255,.82);border-radius:.18rem;box-shadow:inset 0 .03rem .08rem rgba(255,255,255,.8),0 .08rem .20rem rgba(45,43,108,.18);color:#172033;text-align:center;overflow-wrap:anywhere}
+.status-prize{position:absolute;z-index:3;left:2.12rem;top:3.70rem;width:3.25rem;height:2.70rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.06rem;padding:.14rem .24rem;background:radial-gradient(circle at 50% 18%,#fff 0,#eff0ff 45%,#c8cdeb 100%);border:.025rem solid rgba(255,255,255,.82);border-radius:.18rem;box-shadow:inset 0 .03rem .08rem rgba(255,255,255,.8),0 .08rem .20rem rgba(45,43,108,.18);color:#172033;text-align:center;overflow-wrap:anywhere}
+.status-prize__image{display:block;width:2.30rem;height:1.58rem;object-fit:contain}
 .status-prize__label{color:#625dc7;font-size:.20rem;font-weight:700;letter-spacing:.03rem}
-.status-prize strong{font-size:.31rem;line-height:1.32}
+.status-prize strong{font-size:.27rem;line-height:1.25}
 .status-prize small{color:#53627a;font-size:.17rem;font-weight:400;line-height:1.3}
 .lottery-notice{position:absolute;z-index:3;left:2.54rem;top:8.38rem;width:2.42rem;min-height:.54rem;display:grid;place-items:center;padding:.06rem .12rem;border:.018rem solid #b9b7ef;border-radius:999px;background:#f9f9ff;color:#514bb8;font-size:.18rem;font-weight:700;text-align:center;cursor:pointer}
 .lottery-notice:focus-visible{outline:.045rem solid #154fc1;outline-offset:.035rem}
@@ -280,6 +295,8 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .prize-plan-summary p{font-size:.27rem;line-height:1.55;margin:.12rem 0}
 .prize-plan th,.prize-plan td{padding:.12rem .06rem;border-bottom:1px solid #e5e4f0;text-align:left}
 .prize-plan th:not(:first-child),.prize-plan td:not(:first-child){text-align:right;white-space:nowrap}
+.prize-plan__item{display:flex;align-items:center;gap:.10rem;min-width:0}
+.prize-plan__item img{flex:0 0 .52rem;width:.52rem;height:.52rem;object-fit:contain}
 .availability{padding:.22rem;border:.018rem solid #d4dbea;border-radius:.16rem;background:#f7f9fc;color:#40516a;font-size:.28rem;line-height:1.6}
 .social-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.14rem;margin-top:.24rem}
 .social-btn{min-height:.82rem;border:.018rem solid #ccd4e2;border-radius:.12rem;background:#f2f4f8;color:#6b778b;font-size:.25rem}
