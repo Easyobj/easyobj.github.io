@@ -6,15 +6,15 @@
   <meta name="format-detection" content="telephone=no,email=no,address=no">
   <meta name="theme-color" content="#dcecff">
   <meta name="description" content="ABB Robotics 互动体验页面">
-  <meta name="abb-release" content="5.9.22-ui-p3">
-  <meta name="abb-ui-release" content="5.9.22-ui-p3">
+  <meta name="abb-release" content="5.9.23-client-redemption">
+  <meta name="abb-ui-release" content="5.9.23-client-redemption">
   <meta property="og:title" content="ABB Robotics H5">
   <meta property="og:description" content="探索 ABB Robotics 互动体验">
   <meta property="og:type" content="website">
   <title>ABB Robotics H5</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/ABBvoice_CNSG_Rg.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=5.9.22-ui-p3">
+  <link rel="stylesheet" href="styles.css?v=5.9.23-client-redemption">
 </head>
 <body>
   <!-- 仅首次加载显示；SPA 内部切页不会再次出现 -->
@@ -24,6 +24,7 @@
       <div class="loader__sub">ROBOTICS EXPERIENCE</div>
       <div class="loader__track"><div class="loader__bar" id="loaderBar"></div></div>
       <div class="loader__pct" id="loaderPct">0%</div>
+      <button class="loader__retry" id="loaderRetry" type="button" hidden>重新加载</button>
     </div>
   </div>
 
@@ -82,7 +83,7 @@
           </button>
 
           <button class="layer utility" data-action="rules" aria-label="活动规则" style="--x:.279rem;--y:.327rem;--w:1.965rem;--h:.606rem"><img src="assets/home/layer_16.webp" decoding="async" alt="活动规则"></button>
-          <button class="layer utility" data-action="prize" aria-label="活动进度" style="--x:5.130rem;--y:12.387rem;--w:1.929rem;--h:.699rem"><img src="assets/home/layer_17.webp" decoding="async" loading="lazy" alt=""></button>
+          <button class="layer utility" data-action="prize" aria-label="个人中心" style="--x:5.130rem;--y:12.387rem;--w:1.929rem;--h:.699rem"><img src="assets/home/layer_17.webp" decoding="async" loading="lazy" alt=""></button>
         </section>
       </div>
     </main>
@@ -128,7 +129,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
   <script>window.ABB_SERVER_STATE=null;</script>
   <script>window.ABB_PRIZE_PLAN={"items":[{"code":"canvas-bag","name":"红色定制帆布袋","total":1000,"daily":250},{"code":"blind-box","name":"积木\/公仔盲盒","total":288,"daily":72},{"code":"robot-phone-stand","name":"6720 手机支架","total":8,"daily":2},{"code":"mouse-pad","name":"鼠标垫","total":100,"daily":25},{"code":"fe-car-model","name":"FE 小车模型","total":40,"daily":10},{"code":"abb-power-strip","name":"ABB 排插","total":20,"daily":5},{"code":"notebook","name":"笔记本","total":40,"daily":10}],"days":4,"total":1496,"daily":374};</script>
-  <script src="runtime-config.js?v=5.9.22-ui-p3"></script>
-  <script src="app.js?v=5.9.22-ui-p3"></script>
+  <script src="runtime-config.js?v=5.9.23-client-redemption"></script>
+  <script src="app.js?v=5.9.23-client-redemption"></script>
 </body>
 </html>

@@ -2,16 +2,17 @@
   const $ = (s, root=document) => root.querySelector(s);
   const $$ = (s, root=document) => [...root.querySelectorAll(s)];
   const HOME_ASSETS = Array.from({length:17},(_,i)=>`assets/home/layer_${i+1}.webp`);
-  const CRITICAL_HOME_ASSETS = [
-    'assets/home/layer_1.webp',   // background
-    'assets/home/layer_14.webp',  // saucer
-    'assets/home/layer_2.webp',   // scene 01
-    'assets/home/layer_3.webp',   // badge 01
-    'assets/home/layer_4.webp',   // scene 02
-    'assets/home/layer_5.webp',   // badge 02
-    'assets/home/layer_16.webp'   // rules button
+  const STATIC_ASSETS = [
+    'favicon.svg',
+    'assets/fonts/ABBvoice_CNSG_Rg.woff2',
+    'assets/fonts/ABBvoice_CNSG_Bd.woff2',
+    ...HOME_ASSETS,
+    ...['a','b','c','d'].map(key=>`assets/scene6/option-${key}-psd-v598.webp`),
+    'assets/social/weibo.png','assets/social/douyin.png','assets/social/bilibili.png','assets/social/social-guide.webp',
+    'assets/states/result-correct.webp','assets/states/result-fail.webp','assets/states/all-complete.webp',
+    'assets/states/lottery.webp','assets/states/lottery-win.webp','assets/states/lottery-lose.webp','assets/states/activity-ended.webp',
+    'assets/ui/interaction-background-v595.webp','assets/ui/tip-v595.webp'
   ];
-  const DEFERRED_HOME_ASSETS = HOME_ASSETS.filter(src => !CRITICAL_HOME_ASSETS.includes(src));
 
   function preloadImage(src, {decode=false}={}){
     return new Promise(resolve => {
@@ -27,13 +28,14 @@
     });
   }
 
-  function preloadDeferredHome(){
-    const run = () => DEFERRED_HOME_ASSETS.forEach(src => preloadImage(src));
-    if('requestIdleCallback' in window){
-      requestIdleCallback(run, {timeout:1800});
-    } else {
-      setTimeout(run, 500);
-    }
+  async function preloadStaticAsset(src){
+    if(/\.(?:png|jpe?g|webp|svg)$/i.test(src))return preloadImage(src,{decode:true});
+    try{
+      const response=await fetch(src,{cache:'force-cache'});
+      if(!response.ok)throw new Error(String(response.status));
+      await response.arrayBuffer();
+      return {src,ok:true};
+    }catch{return {src,ok:false};}
   }
 
 
@@ -153,6 +155,7 @@
     activity:renderedState?.activity||null,
     drawWindow:renderedState?.drawWindow||null,
     lotteryAvailability:renderedState?.lotteryAvailability||null,
+    badgeSummary:renderedState?.badgeSummary||null,
     flash:renderedState?.flash||null
   };
   const voucherClockStart=performance.now();
@@ -246,31 +249,41 @@
     return new Promise(()=>{});
   }
 
-  /* ---------- Loading：仅加载首屏关键资源 ---------- */
-  const loader = $('#loader'), bar = $('#loaderBar'), pct = $('#loaderPct');
+  /* ---------- Loading：首次进入前完整加载活动素材 ---------- */
+  const loader = $('#loader'), bar = $('#loaderBar'), pct = $('#loaderPct'), loaderRetry=$('#loaderRetry');
   document.body.classList.add('booting');
-  let loaded = 0;
-  let failedCritical = 0;
-  const totalCritical = CRITICAL_HOME_ASSETS.length;
-  const done = () => {
-    bar.style.width='100%'; pct.textContent='100%';
+  async function loadAllAssets(){
+    let loaded=0;
+    loaderRetry.hidden=true;
+    bar.style.width='0%';pct.textContent='0%';
+    const results=await Promise.all(STATIC_ASSETS.map(src=>preloadStaticAsset(src).then(result=>{
+      loaded+=1;
+      const value=Math.round(loaded/STATIC_ASSETS.length*100);
+      bar.style.width=`${value}%`;pct.textContent=`${value}%`;
+      return result;
+    })));
+    const failed=results.filter(result=>!result.ok);
+    if(failed.length){
+      pct.textContent=`${failed.length} 项素材加载失败`;
+      loaderRetry.hidden=false;
+      return;
+    }
+    if(document.fonts){
+      await Promise.all([
+        document.fonts.load('400 16px "ABBvoice CNSG"'),
+        document.fonts.load('700 16px "ABBvoice CNSG"')
+      ]);
+    }
+    bar.style.width='100%';pct.textContent='100%';
     setTimeout(()=>{
       loader.classList.add('hide');
       document.body.classList.remove('booting');
       document.body.classList.add('ready');
       startReveal();
-      preloadDeferredHome();
-      if(failedCritical) showToast(`有 ${failedCritical} 项关键资源加载失败，请刷新重试`);
     },120);
-  };
-  const tick = result => {
-    loaded += 1;
-    if(!result.ok) failedCritical += 1;
-    const p = Math.min(100, Math.round(loaded/totalCritical*100));
-    bar.style.width = p+'%'; pct.textContent=p+'%';
-    if(loaded >= totalCritical) done();
-  };
-  CRITICAL_HOME_ASSETS.forEach(src => preloadImage(src,{decode:true}).then(tick));
+  }
+  loaderRetry.addEventListener('click',loadAllAssets);
+  loadAllAssets();
 
   /* ---------- 首页动效：进入视口才入场；离开视口暂停持续动画 ---------- */
   let revealObserver, motionObserver;
@@ -358,8 +371,8 @@
       else if(!pageState.draw&&pageState.drawWindow&&!pageState.drawWindow.open){statusStage.dataset.lotteryState='closed';safety='当前未到开放时间或活动已结束，不能新增抽奖；具体日期请查看活动通知。';}
     }
     if(kind==='lottery-win')safety=pageState.serverRendered
-      ? '礼品仅限当天现场本人领取。请点击“兑换礼品”生成 4 位核销码，并向工作人员出示；工作人员核验资格、本人及奖品后办理核销。'
-      : '设计预览 · 正式中奖后请本人点击“兑换礼品”生成 4 位核销码，并交由现场工作人员核验。';
+      ? '礼品仅限中奖当天现场领取。请由现场工作人员核对中奖页面，点击“兑换礼品”确认核销后发放礼品。'
+      : '设计预览 · 正式中奖后由现场工作人员在参与者手机上确认核销并发放礼品。';
     if(pageState.serverRendered&&kind==='lottery'&&!pageState.draw&&pageState.lotteryAvailability){
       if(!pageState.drawPaused&&(!pageState.drawWindow||pageState.drawWindow.open)){
         statusStage.dataset.lotteryState=pageState.lotteryAvailability.available?'available':'unavailable';
@@ -376,14 +389,22 @@
     updateClaimAvailability();
   }
 
-  function allScenesPassed(){
-    return Array.from({length:6},(_,i)=>Boolean(getSceneProgress(i+1).passed)).every(Boolean);
+  function progressSummary(){
+    const items=Array.from({length:6},(_,i)=>getSceneProgress(i+1));
+    const submitted=items.filter(item=>Boolean(item.submitted)).length;
+    const badges=items.filter(item=>Boolean(item.passed)).length;
+    return {submitted,badges,eligible:submitted===6&&badges>=5};
   }
 
   function openScene(id, {push=true}={}){
     if(id >=1 && id <=7){
       homeScrollY = window.scrollY;
       currentScene = id;
+      const saved=id<=6?getSceneProgress(id):null;
+      if(saved?.submitted){
+        showStatus(saved.passed?'result-correct':'result-fail',{push});
+        return;
+      }
       renderInteraction(id);
       setView('interaction',{push});
       window.scrollTo(0,0);
@@ -416,13 +437,13 @@
   statusBack.addEventListener('click',()=>closeInteraction());
   statusAction.addEventListener('click',async()=>{
     if(currentStatus==='result-correct'){
-      if(allScenesPassed())showStatus('all-complete');
+      if(progressSummary().submitted===6)showBadgeCenter();
       else closeInteraction();
       return;
     }
     if(currentStatus==='result-fail'){
-      if(currentScene)saveSceneProgress(currentScene,{submitted:false,passed:false});
-      closeInteraction();
+      if(progressSummary().submitted===6)showBadgeCenter();
+      else closeInteraction();
       return;
     }
     if(currentStatus==='all-complete'){
@@ -442,7 +463,7 @@
     }
     if(currentStatus==='lottery-win'){
       if(!pageState.serverRendered||!pageState.draw){showToast('这是设计预览，不代表真实中奖结果');return;}
-      showClaimVoucher();
+      showRedemptionReminder();
     }
   });
 
@@ -718,7 +739,7 @@
     return Math.min(window.ABBClaimCode.remaining(Number(confirmation.expiresAt),voucherServerTime,elapsed),awardRemaining());
   }
   function awardRemaining(){
-    if(!pageState.draw||!window.ABBClaimCode)return 0;
+    if(!pageState.draw)return 0;
     const elapsed=Math.max(performance.now()-voucherClockStart,Date.now()-voucherWallStart,0)+voucherLoadElapsed;
     const deadline=Number(pageState.draw.redeemBy);
     if(!Number.isFinite(deadline)||!Number.isFinite(voucherServerTime))return 0;
@@ -730,12 +751,27 @@
     if(!pageState.serverRendered||currentStatus!=='lottery-win'||!draw)return;
     const remaining=awardRemaining();
     statusSafety.hidden=false;
-    statusSafety.textContent=draw.redeemedAt?'该奖品已领取，请勿重复兑换。':remaining?'礼品仅限当天现场本人领取。请点击“兑换礼品”生成 4 位核销码，并向工作人员出示；工作人员核验资格、本人及奖品后办理核销。':'当天领取期限已过，不能领取或再次抽奖。';
+    statusSafety.textContent=draw.redeemedAt?'该奖品已核销并领取，请勿重复兑换。':remaining?'礼品仅限中奖当天现场领取。请由现场工作人员核对中奖页面，点击“兑换礼品”确认核销后发放礼品。':'当天领取期限已过，不能领取或再次抽奖。';
     statusAction.disabled=Boolean(draw.redeemedAt)||remaining===0;
     statusAction.textContent=draw.redeemedAt?'已领取':remaining===0?'已过期':'';
     if(remaining===0){const button=$('#claimConfirmButton');if(button){button.disabled=true;button.textContent='当天领取期限已过';}}
     clearTimeout(awardExpiryTimer);
     if(remaining&&!draw.redeemedAt)awardExpiryTimer=setTimeout(updateClaimAvailability,remaining*1000);
+  }
+
+  function showRedemptionReminder(){
+    openModal('PRIZE','兑奖提醒',`<div class="redemption-dialog"><p class="redemption-reminder">关注ABB机器人其他社交媒体账号才能兑奖哦</p><button class="claim-button" id="redemptionContinue" type="button">继续兑奖</button><button class="secondary-button" id="redemptionCancel" type="button">暂不兑奖</button></div>`);
+    $('#redemptionContinue').addEventListener('click',showStaffRedemptionConfirm);
+    $('#redemptionCancel').addEventListener('click',closeModal);
+  }
+
+  function showStaffRedemptionConfirm(){
+    openModal('STAFF','工作人员核销确认',`<div class="redemption-dialog"><p>请现场工作人员核对参与者本人、中奖页面和礼品。礼品交给参与者后，再选择“是”。</p><p class="redemption-warning">确认后将记录为已核销，不能重复领取。</p><div class="redemption-actions"><button class="secondary-button" id="redemptionNo" type="button">否</button><button class="claim-button" id="redemptionYes" type="button">是，确认核销</button></div></div>`);
+    $('#redemptionNo').addEventListener('click',closeModal);
+    $('#redemptionYes').addEventListener('click',event=>{
+      try{event.currentTarget.disabled=true;submitServerForm('redeem');}
+      catch(error){event.currentTarget.disabled=false;showToast(error.message);}
+    });
   }
   function showClaimVoucher(){
     const draw=pageState.draw;
@@ -822,6 +858,29 @@
     modalCloseTimer=setTimeout(()=>{modalBody.innerHTML='';returnTarget?.focus();},220);
   }
   $$('[data-close]',modal).forEach(x=>x.addEventListener('click',closeModal));
+
+  function showBadgeCenter(){
+    const summary=progressSummary();
+    const cards=Array.from({length:6},(_,index)=>{
+      const id=index+1;
+      const saved=getSceneProgress(id);
+      const lit=Boolean(saved.passed);
+      const state=lit?'已点亮':saved.submitted?'未点亮':'未作答';
+      return `<article class="badge-card ${lit?'is-lit':'is-dim'}"><span class="badge-card__icon" aria-hidden="true">${String(id).padStart(2,'0')}</span><div><b>${escapeHtml(DATA[id].title)}</b><small>${state}</small></div></article>`;
+    }).join('');
+    let action='';
+    if(pageState.draw)action='<button class="badge-primary" id="badgePrimary" type="button">查看中奖礼品</button>';
+    else if(summary.eligible)action='<button class="badge-primary" id="badgePrimary" type="button">参与抽奖</button>';
+    else if(summary.submitted===6)action='<p class="badge-unavailable">需要至少点亮 5 枚徽章才可抽奖。</p>';
+    else action=`<p class="badge-unavailable">还需完成 ${6-summary.submitted} 道题。每题只有一次作答机会。</p>`;
+    openModal('BADGES','我的徽章',`<div class="badge-summary"><strong>${summary.badges}</strong><span>/ 6 枚已点亮</span></div><div class="badge-grid">${cards}</div>${action}`);
+    $('#badgePrimary')?.addEventListener('click',()=>{
+      const target=pageState.draw?'lottery-win':'lottery';
+      closeModal();
+      setTimeout(()=>showStatus(target),240);
+    });
+  }
+
   lotteryNotice.addEventListener('click',()=>{$('[data-action="rules"]').click();});
   document.addEventListener('keydown',e=>{
     if(!modal.classList.contains('open'))return;
@@ -839,15 +898,10 @@
       : '当前为 Pages 演示模式，进度只保存在本机浏览器。';
     const plan=window.ABB_PRIZE_PLAN;
     const prizeTable=plan?`<section class="prize-plan-summary"><h3>今年奖品计划</h3><p>只发前四天，每日计划 ${escapeHtml(String(plan.daily))} 份，合计 ${escapeHtml(String(plan.total))} 份。下表为活动奖品计划，领取以现场核验为准。</p><table class="prize-plan"><thead><tr><th>奖品</th><th>总量</th><th>每日</th></tr></thead><tbody>${plan.items.map(p=>`<tr><td>${escapeHtml(p.name)}</td><td>${escapeHtml(String(p.total))}</td><td>${escapeHtml(String(p.daily))}</td></tr>`).join('')}</tbody></table></section>`:'';
-    openModal('ACTIVITY','活动规则与奖品',`<ol class="rule-list"><li><i>1</i><span>浏览展区并完成 01～06 的互动题目，07 不计入答题进度。</span></li><li><i>3</i><span>同一微信账号整个活动只能中奖一次，次日不能再次抽奖；过期未领也不恢复机会。${storageRule}</span></li><li><i>4</i><span>礼品仅限当天现场本人领取。领奖前工作人员核验资格，不接受截图或代领。未兑换库存保持锁定，不能重新参与抽奖。</span></li><li><i>5</i><span>核销码仅供现场核验，过期需重新生成，刷新后旧码失效。工作人员核验资格及本人领取后才可核销。</span></li><li><i>6</i><span>发布时间由后台运营管理员设置，正式活动仅连续前四个自然日发奖。${pageState.drawWindow?.startsOn?`日期：${escapeHtml(pageState.drawWindow.startsOn)} 至 ${escapeHtml(pageState.drawWindow.lastDay)}。`:'具体活动日期请查看正式活动通知。'}</span></li></ol>${prizeTable}`);
+    openModal('ACTIVITY','活动规则与奖品',`<ol class="rule-list"><li><i>1</i><span>浏览展区并完成 01～06 的互动题目，07 不计入答题进度。每题只有一次作答机会，再次进入会直接显示本题结果。</span></li><li><i>2</i><span>完成全部六道题并点亮至少 5 枚徽章，即可参与抽奖。</span></li><li><i>3</i><span>同一微信账号整个活动只能中奖一次，次日不能再次抽奖；过期未领也不恢复机会。${storageRule}</span></li><li><i>4</i><span>礼品仅限中奖当天现场领取。参与者点击“兑换礼品”后，由现场工作人员在参与者手机上核对并确认核销，随后发放礼品。</span></li><li><i>5</i><span>兑奖前请关注 ABB 机器人其他社交媒体账号；核销确认后不能重复领取。</span></li><li><i>6</i><span>发布时间由后台运营管理员设置，正式活动仅连续前四个自然日发奖。${pageState.drawWindow?.startsOn?`日期：${escapeHtml(pageState.drawWindow.startsOn)} 至 ${escapeHtml(pageState.drawWindow.lastDay)}。`:'具体活动日期请查看正式活动通知。'}</span></li></ol>${prizeTable}`);
   });
   $('[data-action="prize"]').addEventListener('click',()=>{
-    if(pageState.serverRendered&&pageState.draw){showStatus('lottery-win');return;}
-    const completed=Array.from({length:6},(_,i)=>Boolean(getSceneProgress(i+1).passed)).filter(Boolean).length;
-    const ready=completed===6;
-    if(ready){showStatus('all-complete');return;}
-    const progressNote=pageState.serverRendered?'进度以活动服务器记录为准。':'当前为 Pages 演示模式，进度只保存在本机。';
-    openModal('PROGRESS','活动进度',`<div class="progress-summary"><b>互动完成进度</b><strong>${completed} / 6</strong><div class="progress-track" aria-label="已完成 ${completed} 个，共 6 个"><span style="width:${completed/6*100}%"></span></div></div><div class="empty"><b>尚未完成全部互动</b><p>完成 01～06 后可进入抽奖；中奖后再领取礼品。${progressNote}</p></div>`);
+    showBadgeCenter();
   });
 
   let toastTimer;
@@ -866,23 +920,20 @@
   const routeMatch = location.hash.match(/^#scene-([1-7])$/);
   if(statusRoute){
     const kind=statusRoute[1];
-    history.replaceState({view:'status',kind,scene:null,fromHome:false},'',location.hash);
+    const routeScene=Number(new URLSearchParams(location.search).get('scene'))||null;
+    currentScene=routeScene;
+    history.replaceState({view:'status',kind,scene:routeScene,fromHome:false},'',location.hash);
     showStatus(kind,{push:false});
   }else if(routeMatch){
     const id = Number(routeMatch[1]);
     history.replaceState({view:'interaction',scene:id,fromHome:false},'', location.hash);
-    currentScene = id;
-    renderInteraction(id);
-    setView('interaction',{push:false});
-    window.scrollTo(0,0);
+    openScene(id,{push:false});
   }else{
     history.replaceState({view:'home'},'', '#home');
   }
 
   if(pageState.serverRendered&&pageState.activity?.code==='ended'&&!statusRoute)showStatus('activity-ended',{push:false});
-  // The opened voucher already acknowledges generation; avoid a toast covering its refresh button.
-  if(pageState.serverRendered&&pageState.flash?.message&&pageState.flash.code!=='claim_created')setTimeout(()=>showToast(pageState.flash.message),300);
-  if(pageState.serverRendered&&pageState.draw&&pageState.flash?.code==='claim_created')showClaimVoucher();
+  if(pageState.serverRendered&&pageState.flash?.message)setTimeout(()=>showToast(pageState.flash.message),300);
   if(pageState.serverRendered&&pageState.draw){
     updateClaimAvailability();
     document.addEventListener('visibilitychange',updateClaimAvailability);
