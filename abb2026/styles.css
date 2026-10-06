@@ -186,12 +186,16 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .social-card p{margin:0;font-size:.215rem;line-height:1.42;color:#34445b}
 .social-note{margin:.24rem 0 0;padding:.15rem .17rem;border-radius:.11rem;background:rgba(242,245,250,.76);color:#52627a;font-size:.20rem;line-height:1.5}
 
-/* 07 源稿是三组无边框大图标指引，不使用通用社交卡片排版。 */
+/* 07 保留源稿图标构图，以可见搜索说明覆盖无跳转能力的“点击关注”旧文案。 */
 .ui-scene-7 .interaction-card{padding:0}
 .ui-scene-7 .interaction-copy{display:none}
 .ui-scene-7 .social-guide-art{position:absolute;left:-.043rem;top:2.34rem;width:5.912rem;height:4.906rem;object-fit:contain}
-.ui-scene-7 .social-list{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-.ui-scene-7 .social-note{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.ui-scene-7 .social-list{position:absolute;z-index:2;left:2.35rem;top:2.26rem;width:3.88rem;display:grid;grid-template-rows:repeat(3,1.38rem);gap:.72rem;margin:0}
+.ui-scene-7 .social-card{display:block;min-height:1.38rem;padding:.08rem .10rem;background:#f2f7fd;border:0;border-radius:.04rem}
+.ui-scene-7 .social-card__logo{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%)}
+.ui-scene-7 .social-card h2{margin:0;font-size:.235rem;line-height:1.35;font-weight:700}
+.ui-scene-7 .social-card p{margin:.02rem 0 0;font-size:.205rem;line-height:1.35;color:#111}
+.ui-scene-7 .social-note{position:absolute;z-index:2;left:.62rem;top:8.05rem;width:4.72rem;margin:0;padding:.12rem .16rem;border-radius:.10rem;background:rgba(242,245,250,.94);font-size:.19rem;line-height:1.45;text-align:center}
 
 /* PSD 结果、通关、抽奖与活动结束状态 */
 .view--status{background:#bad3ec}
@@ -234,12 +238,13 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .status-stage[data-status="lottery-lose"] .status-action,.status-stage[data-status="activity-ended"] .status-action{display:none}
 .status-stage[data-status="result-correct"] .status-back,.status-stage[data-status="result-fail"] .status-back,.status-stage[data-status="all-complete"] .status-back{display:none}
 .status-stage[data-status="activity-ended"] .status-back{left:5.84rem;top:4.03rem;width:.60rem;height:.60rem;background:transparent;box-shadow:none;color:transparent}
+.status-stage[data-status="lottery-win"] .status-back,.status-stage[data-status="lottery-lose"] .status-back{left:5.86rem;top:2.77rem;width:.62rem;height:.62rem;background:transparent;box-shadow:none;color:transparent}
 .status-safety{position:absolute;z-index:4;left:.72rem;top:10.48rem;width:6.06rem;margin:0;padding:.13rem .20rem;border-radius:.12rem;background:rgba(255,255,255,.90);box-shadow:0 .03rem .10rem rgba(30,56,96,.16);color:#34445f;font-size:.21rem;line-height:1.35;text-align:center}
 .status-stage[data-status="lottery-win"] .status-safety,.status-stage[data-status="lottery-lose"] .status-safety{top:9.18rem}
 .status-stage[data-status="all-complete"] .status-safety{top:11.18rem}
 .award-deadline{position:absolute;z-index:4;left:.72rem;top:7.6rem;width:6.06rem;margin:0;padding:.18rem .2rem;background:rgba(255,255,255,.94);border-radius:.12rem;color:#a12823;font-size:.23rem;line-height:1.5;text-align:center}
 .award-deadline[hidden]{display:none}
-.status-stage[data-status="lottery-win"] .status-safety{top:10.4rem}
+.status-stage[data-status="lottery-win"] .status-safety{left:.80rem;top:8.52rem;width:5.90rem;min-height:1.05rem;display:grid;place-items:center;background:rgba(29,31,38,.98);box-shadow:none;color:#fff;font-size:.20rem;line-height:1.42}
 .status-stage[data-status="lottery-win"],.status-stage[data-status="lottery-lose"],.status-stage[data-status="activity-ended"]{background-color:#22272d;background-image:linear-gradient(rgba(18,23,28,.90),rgba(18,23,28,.90)),url("assets/ui/interaction-background-v595.webp")}
 
 /* Modal / Sheet */

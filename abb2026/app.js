@@ -115,9 +115,9 @@
       hero:'assets/home/layer_15.webp',
       intro:['关注 ABB 机器人官方社交媒体账号，解锁更多机器人资讯与精彩内容。'],
       channels:[
-        {name:'点击关注',image:'assets/social/weibo.png',imageAlt:'微博',instruction:'ABB机器人官方微博'},
-        {name:'打开抖音搜索ABB机器人',image:'assets/social/douyin.png',imageAlt:'抖音',instruction:'点击关注'},
-        {name:'点击关注',image:'assets/social/bilibili.png',imageAlt:'B站',instruction:'ABB机器人B站'}
+        {name:'微博',image:'assets/social/weibo.png',imageAlt:'微博',instruction:'搜索“ABB机器人”，核对官方认证后关注'},
+        {name:'抖音',image:'assets/social/douyin.png',imageAlt:'抖音',instruction:'搜索“ABB机器人”，核对官方认证后关注'},
+        {name:'哔哩哔哩',image:'assets/social/bilibili.png',imageAlt:'哔哩哔哩',instruction:'搜索“ABB机器人”，核对官方认证后关注'}
       ]
     }
   };
@@ -345,12 +345,17 @@
     lotteryNotice.hidden=kind!=='lottery';
     lotteryNotice.textContent='完成互动后参与抽奖';
     statusArtwork.alt=realPrize?'中奖结果，礼品以您的实际中奖记录为准':config.alt;
+    const hasArtworkClose=kind==='lottery-win'||kind==='lottery-lose'||kind==='activity-ended';
+    statusBack.textContent=hasArtworkClose?'×':'‹';
+    statusBack.setAttribute('aria-label',hasArtworkClose?'关闭结果并返回首页':'返回首页');
     let safety=config.safety||'';
     if(!pageState.serverRendered && ['result-correct','result-fail','all-complete'].includes(kind))safety='设计预览 · 不执行判题、不记录活动资格';
     if(pageState.serverRendered&&kind==='lottery')safety='';
     if(pageState.serverRendered&&kind==='lottery'&&pageState.drawPaused)safety='运营已暂停新增抽奖，已有中奖记录和核销继续。';
     if(pageState.serverRendered&&kind==='lottery'&&!pageState.draw&&pageState.drawWindow&&!pageState.drawWindow.open)safety='仅前四天开放新增抽奖；当前尚未开放或已结束，具体日期请咨询工作人员。';
-    if(kind==='lottery-win')safety='礼品仅限当天现场本人领取。请勿自行点击兑换按钮，需到前台兑奖处由工作人员操作。';
+    if(kind==='lottery-win')safety=pageState.serverRendered
+      ? '礼品仅限当天现场本人领取。请点击“兑换礼品”生成 4 位核销码，并向工作人员出示；工作人员核验资格、本人及奖品后办理核销。'
+      : '设计预览 · 正式中奖后请本人点击“兑换礼品”生成 4 位核销码，并交由现场工作人员核验。';
     if(pageState.serverRendered&&kind==='lottery'&&!pageState.draw&&pageState.lotteryAvailability){
       safety=pageState.lotteryAvailability.available?(!pageState.drawWindow?.testing?'':'当前为发布前测试'):pageState.lotteryAvailability.message;
       statusAction.disabled=!pageState.lotteryAvailability.available;
@@ -687,7 +692,7 @@
       </article>`).join('');
     const note=document.createElement('p');
     note.className='social-note';
-    note.textContent='源稿未包含可核验的账号链接，因此本页提供准确的站内搜索指引，不会跳转到未经确认的账号。';
+    note.textContent='请在对应平台搜索“ABB机器人”，核对官方认证后关注。当前未提供可核验的官方主页链接。';
     card.append(art,list,note);
   }
 
@@ -715,7 +720,7 @@
     if(!pageState.serverRendered||currentStatus!=='lottery-win'||!draw)return;
     const remaining=awardRemaining();
     statusSafety.hidden=false;
-    statusSafety.textContent=draw.redeemedAt?'该奖品已领取，请勿重复兑换。':remaining?'礼品仅限当天现场本人领取。请勿自行点击兑换按钮，需到前台兑奖处由工作人员操作。':'当天领取期限已过，不能领取或再次抽奖。';
+    statusSafety.textContent=draw.redeemedAt?'该奖品已领取，请勿重复兑换。':remaining?'礼品仅限当天现场本人领取。请点击“兑换礼品”生成 4 位核销码，并向工作人员出示；工作人员核验资格、本人及奖品后办理核销。':'当天领取期限已过，不能领取或再次抽奖。';
     statusAction.disabled=Boolean(draw.redeemedAt)||remaining===0;
     statusAction.textContent=draw.redeemedAt?'已领取':remaining===0?'已过期':'';
     if(remaining===0){const button=$('#claimConfirmButton');if(button){button.disabled=true;button.textContent='当天领取期限已过';}}
