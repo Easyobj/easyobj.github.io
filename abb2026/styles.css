@@ -93,6 +93,7 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .interaction-ui{position:relative;z-index:4;width:100%;padding-top:.01rem}
 .interaction-head{position:relative;height:2.55rem}
 .interaction-title{position:absolute;left:.53rem;top:1.89rem;width:4.18rem;margin:0;font-size:clamp(18px,.39rem,39px);line-height:1.12;font-weight:700;letter-spacing:-.004rem;color:#070707}
+.interaction-title .trademark{position:relative;top:-.18em;margin-left:.02em;font-size:.46em;line-height:0;vertical-align:baseline}
 .interaction-hero{position:absolute;right:.52rem;top:.75rem;width:2.68rem;height:2.49rem;object-fit:contain;object-position:center;content-visibility:auto}
 .interaction-card{position:relative;margin:0 .33rem .34rem;padding:.79rem .41rem .50rem .73rem;border:.018rem solid rgba(255,255,255,.78);border-radius:.42rem;background:linear-gradient(90deg,rgba(255,255,255,.98),rgba(255,255,255,.48));box-shadow:inset 0 0 0 .018rem rgba(139,161,198,.18),0 .035rem .11rem rgba(83,111,153,.13)}
 .interaction-copy{font-size:clamp(12px,.24rem,24px);line-height:1.5;color:#111}
@@ -114,7 +115,7 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .image-option__label{display:block;min-height:.42rem;padding:.02rem;font-weight:700}
 .image-option.selected{border-color:#342dc2;box-shadow:0 0 0 .055rem #fff,0 0 0 .10rem #342dc2;background:#342dc2}
 .image-option.selected::after{content:"✓";position:absolute;z-index:3;right:.10rem;top:.10rem;width:.46rem;height:.46rem;display:grid;place-items:center;border-radius:50%;background:#342dc2;border:.035rem solid #fff;color:#fff;font-size:.30rem;font-weight:700;line-height:1;box-shadow:0 .03rem .10rem rgba(0,0,0,.24)}
-.image-option .result-badge{position:absolute;right:.10rem;top:.10rem;margin:0;box-shadow:0 .02rem .08rem rgba(0,0,0,.18)}
+.image-option .result-badge{position:absolute;right:.08rem;bottom:.08rem;top:auto;margin:0;padding:.025rem .07rem;background:rgba(255,255,255,.92);font-size:.18rem;box-shadow:0 .02rem .08rem rgba(0,0,0,.18)}
 .quiz-submit{position:relative;left:-.16rem;display:block;min-width:2.44rem;height:.72rem;margin:.46rem auto 0;padding:0 .34rem;border-radius:999px;background:linear-gradient(180deg,#7771df 0%,var(--quiz-purple-dark) 100%);border:.025rem solid #aaa8ff;box-shadow:inset 0 .025rem .04rem rgba(255,255,255,.44),0 .035rem .075rem rgba(62,57,166,.22);color:#fff;font-size:clamp(15px,.32rem,32px);font-weight:700;cursor:pointer}
 .quiz-submit::before{content:"";position:absolute;inset:-.12rem}
 .quiz-submit:disabled{opacity:.58}
@@ -215,8 +216,12 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .status-stage[data-status="lottery"] .status-action{left:2.494rem;top:8.976rem;width:2.498rem;height:.738rem}
 .status-stage[data-status="lottery-win"] .status-action{left:2.72rem;top:6.756rem;width:2.044rem;height:.604rem}
 /* PSD gift and guarantee are examples, never authoritative business results. */
-.status-prize{position:absolute;z-index:3;left:2.12rem;top:3.70rem;width:3.25rem;height:2.70rem;display:grid;place-items:center;padding:.22rem;background:linear-gradient(125deg,#f9f9ff,#c7cbe7);color:#172033;font-size:.30rem;font-weight:700;text-align:center;overflow-wrap:anywhere}
-.lottery-notice{position:absolute;z-index:3;left:2.85rem;top:8.45rem;width:1.82rem;height:.45rem;display:grid;place-items:center;background:#f9f9ff;color:#514bb8;font-size:.18rem;text-align:center}
+.status-prize{position:absolute;z-index:3;left:2.12rem;top:3.70rem;width:3.25rem;height:2.70rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.10rem;padding:.24rem;background:radial-gradient(circle at 50% 18%,#fff 0,#eff0ff 45%,#c8cdeb 100%);border:.025rem solid rgba(255,255,255,.82);border-radius:.18rem;box-shadow:inset 0 .03rem .08rem rgba(255,255,255,.8),0 .08rem .20rem rgba(45,43,108,.18);color:#172033;text-align:center;overflow-wrap:anywhere}
+.status-prize__label{color:#625dc7;font-size:.20rem;font-weight:700;letter-spacing:.03rem}
+.status-prize strong{font-size:.31rem;line-height:1.32}
+.status-prize small{color:#53627a;font-size:.17rem;font-weight:400;line-height:1.3}
+.lottery-notice{position:absolute;z-index:3;left:2.54rem;top:8.38rem;width:2.42rem;min-height:.54rem;display:grid;place-items:center;padding:.06rem .12rem;border:.018rem solid #b9b7ef;border-radius:999px;background:#f9f9ff;color:#514bb8;font-size:.18rem;font-weight:700;text-align:center;cursor:pointer}
+.lottery-notice:focus-visible{outline:.045rem solid #154fc1;outline-offset:.035rem}
 .status-prize[hidden],.lottery-notice[hidden]{display:none}
 .claim-code{display:block;overflow-wrap:anywhere;letter-spacing:.02em;font-family:monospace;font-size:.30rem;user-select:text}
 .claim-button{max-width:100%;border:0;border-radius:.12rem;background:#e62820;color:#fff;padding:.18rem .24rem;font:inherit;cursor:pointer}
@@ -250,6 +255,8 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .award-deadline[hidden]{display:none}
 .status-stage[data-status="lottery-win"] .status-safety{left:.80rem;top:8.52rem;width:5.90rem;min-height:1.05rem;display:grid;place-items:center;background:rgba(29,31,38,.98);box-shadow:none;color:#fff;font-size:.20rem;line-height:1.42}
 .status-stage[data-status="lottery-win"],.status-stage[data-status="lottery-lose"],.status-stage[data-status="activity-ended"]{background-color:#22272d;background-image:linear-gradient(rgba(18,23,28,.90),rgba(18,23,28,.90)),url("assets/ui/interaction-background-v595.webp")}
+.status-stage[data-status="lottery"][data-lottery-state="paused"] .status-safety{border:.02rem solid #d39031;background:#fff8e9;color:#6d4914}
+.status-stage[data-status="lottery"][data-lottery-state="closed"] .status-safety,.status-stage[data-status="lottery"][data-lottery-state="unavailable"] .status-safety{border:.02rem solid #ca6f6f;background:#fff2f2;color:#772d2d}
 
 /* Modal / Sheet */
 .modal{position:fixed;z-index:1500;inset:0;display:grid;align-items:end;justify-items:center;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease,visibility .22s ease}
@@ -292,6 +299,8 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .wechat-gate h1{margin:0;font-size:.42rem;line-height:1.35}
 .wechat-gate__card>p:not(.wechat-gate__kicker){margin:.22rem 0 0;color:#506176;font-size:.28rem;line-height:1.7}
 .wechat-gate__notice{margin-top:.3rem;padding:.18rem .22rem;border-radius:.14rem;background:#edf8f0;color:#198535;font-size:.25rem;line-height:1.5}
+.auth-error-page .wechat-gate__notice{background:#fff2f2;color:#9b2c2c}
+.wechat-gate__action{display:inline-flex;align-items:center;justify-content:center;min-height:.78rem;margin-top:.30rem;padding:.12rem .34rem;border-radius:999px;background:linear-gradient(180deg,#ff453d,#e21e18);box-shadow:inset 0 .02rem .03rem rgba(255,255,255,.42),0 .04rem .12rem rgba(149,30,24,.22);color:#fff;font-size:.27rem;font-weight:700;text-decoration:none}
 .progress-summary{margin-bottom:.18rem;padding:.22rem;border:.018rem solid #d4dbea;border-radius:.16rem;background:#fff;font-size:.27rem}
 .progress-summary b{display:block;color:#40516a}.progress-summary strong{display:block;margin:.08rem 0;font-size:.44rem;color:#514bb8}
 .progress-track{height:.12rem;overflow:hidden;border-radius:999px;background:#e5e9f1}

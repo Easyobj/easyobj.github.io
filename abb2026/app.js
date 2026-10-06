@@ -171,7 +171,7 @@
     'all-complete':{asset:'all-complete.webp',alt:'恭喜您已全部通关',action:'参与抽奖'},
     'lottery':{asset:'lottery.webp',alt:'幸运大转盘界面预览',action:'立即抽奖',safety:'设计预览 · 不执行实际抽奖'},
     'lottery-win':{asset:'lottery-win.webp',alt:'中奖结果设计预览',action:'兑换礼品',safety:'设计预览 · 不代表真实中奖或奖品库存'},
-    'lottery-lose':{asset:'lottery-lose.webp',alt:'未中奖结果设计预览',safety:'设计预览 · 正式结果须由服务端产生'},
+    'lottery-lose':{asset:'lottery-lose.webp',alt:'未中奖结果设计预览',safety:'设计稿预览 · 正式活动有库存时 100% 中奖；暂停或库存不足会显示对应状态，不产生随机未中奖记录。'},
     'activity-ended':{asset:'activity-ended.webp',alt:'今日活动已结束'}
   };
 
@@ -334,6 +334,7 @@
     if(!config)return;
     currentStatus=kind;
     statusStage.dataset.status=kind;
+    delete statusStage.dataset.lotteryState;
     statusArtwork.src=`assets/states/${config.asset}`;
     statusArtwork.alt=config.alt;
     statusAction.hidden=!config.action;
@@ -341,26 +342,31 @@
     statusAction.textContent=kind==='all-complete'?config.action:'';
     const realPrize=kind==='lottery-win'&&pageState.serverRendered&&pageState.draw;
     statusPrize.hidden=!realPrize;
-    statusPrize.textContent=realPrize?`中奖礼品：${pageState.draw.prize.name}`:'';
+    statusPrize.innerHTML=realPrize?`<span class="status-prize__label">您的中奖礼品</span><strong>${escapeHtml(pageState.draw.prize.name)}</strong><small>以当前中奖记录为准</small>`:'';
     lotteryNotice.hidden=kind!=='lottery';
-    lotteryNotice.textContent='完成互动后参与抽奖';
+    lotteryNotice.textContent='示意图 · 查看 7 种奖品';
     statusArtwork.alt=realPrize?'中奖结果，礼品以您的实际中奖记录为准':config.alt;
     const hasArtworkClose=kind==='lottery-win'||kind==='lottery-lose'||kind==='activity-ended';
     statusBack.textContent=hasArtworkClose?'×':'‹';
     statusBack.setAttribute('aria-label',hasArtworkClose?'关闭结果并返回首页':'返回首页');
     let safety=config.safety||'';
     if(!pageState.serverRendered && ['result-correct','result-fail','all-complete'].includes(kind))safety='设计预览 · 不执行判题、不记录活动资格';
-    if(pageState.serverRendered&&kind==='lottery')safety='';
-    if(pageState.serverRendered&&kind==='lottery'&&pageState.drawPaused)safety='运营已暂停新增抽奖，已有中奖记录和核销继续。';
-    if(pageState.serverRendered&&kind==='lottery'&&!pageState.draw&&pageState.drawWindow&&!pageState.drawWindow.open)safety='仅前四天开放新增抽奖；当前尚未开放或已结束，具体日期请咨询工作人员。';
+    if(pageState.serverRendered&&kind==='lottery'){
+      statusStage.dataset.lotteryState='available';
+      safety='';
+      if(pageState.drawPaused){statusStage.dataset.lotteryState='paused';safety='新增抽奖已暂停；已有中奖记录仍可查看并继续现场核销。';}
+      else if(!pageState.draw&&pageState.drawWindow&&!pageState.drawWindow.open){statusStage.dataset.lotteryState='closed';safety='当前未到开放时间或活动已结束，不能新增抽奖；具体日期请查看活动通知。';}
+    }
     if(kind==='lottery-win')safety=pageState.serverRendered
       ? '礼品仅限当天现场本人领取。请点击“兑换礼品”生成 4 位核销码，并向工作人员出示；工作人员核验资格、本人及奖品后办理核销。'
       : '设计预览 · 正式中奖后请本人点击“兑换礼品”生成 4 位核销码，并交由现场工作人员核验。';
     if(pageState.serverRendered&&kind==='lottery'&&!pageState.draw&&pageState.lotteryAvailability){
-      safety=pageState.lotteryAvailability.available?(!pageState.drawWindow?.testing?'':'当前为发布前测试'):pageState.lotteryAvailability.message;
+      if(!pageState.drawPaused&&(!pageState.drawWindow||pageState.drawWindow.open)){
+        statusStage.dataset.lotteryState=pageState.lotteryAvailability.available?'available':'unavailable';
+        safety=pageState.lotteryAvailability.available?(!pageState.drawWindow?.testing?'':'当前为发布前测试，正式奖品结果以活动发布后为准。'):pageState.lotteryAvailability.message;
+      }
       statusAction.disabled=!pageState.lotteryAvailability.available;
       statusAction.textContent=pageState.lotteryAvailability.available?'':'暂不可抽';
-      lotteryNotice.textContent=pageState.lotteryAvailability.available?'完成互动后参与抽奖':'当前无法新增抽奖';
     } else {statusAction.disabled=false;}
     statusSafety.hidden=!safety;
     statusSafety.textContent=safety;
@@ -455,7 +461,11 @@
     title.className='interaction-title';
     (data.titleLines||[data.title]).forEach((line,index)=>{
       if(index)title.append(document.createElement('br'));
-      title.append(document.createTextNode(line));
+      const parts=line.split('™');
+      parts.forEach((part,partIndex)=>{
+        title.append(document.createTextNode(part));
+        if(partIndex<parts.length-1){const mark=document.createElement('sup');mark.className='trademark';mark.textContent='™';title.append(mark);}
+      });
     });
     const hero=document.createElement('img');
     hero.className='interaction-hero';hero.src=data.hero;hero.alt='';
@@ -812,6 +822,7 @@
     modalCloseTimer=setTimeout(()=>{modalBody.innerHTML='';returnTarget?.focus();},220);
   }
   $$('[data-close]',modal).forEach(x=>x.addEventListener('click',closeModal));
+  lotteryNotice.addEventListener('click',()=>{$('[data-action="rules"]').click();});
   document.addEventListener('keydown',e=>{
     if(!modal.classList.contains('open'))return;
     if(e.key==='Escape'){closeModal();return;}
