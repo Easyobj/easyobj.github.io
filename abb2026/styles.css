@@ -155,8 +155,10 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .ui-scene-5 .quiz-submit{margin-top:1.19rem}
 .ui-scene-6 .interaction-copy .question{margin-bottom:.25rem}
 .ui-scene-6 .image-options{width:5.4rem;gap:.29rem .26rem}
-.ui-scene-6 .image-option{padding:0;gap:0}
-.ui-scene-6 .image-option__media{aspect-ratio:540/362}
+.ui-scene-6 .image-option{padding:0;gap:0;border:.025rem solid #f20d22;border-radius:0;background:transparent;box-shadow:none}
+.ui-scene-6 .image-option__media{aspect-ratio:540/362;border-radius:0;background:transparent}
+.ui-scene-6 .image-option.selected{border-color:#f20d22;background:transparent;box-shadow:none}
+.ui-scene-6 .image-option.selected::after{content:"已选";right:0;top:0;width:.68rem;height:.36rem;border:0;border-radius:0;background:#f20d22;box-shadow:none;color:#fff;font-size:.21rem;line-height:1}
 .ui-scene-6 .image-option__label{position:absolute;width:1px;height:1px;min-height:0;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%)}
 .ui-scene-6 .quiz-submit{margin-top:1.13rem}
 .ui-scene-4 .interaction-copy{font-size:clamp(12px,.24rem,24px);line-height:1.5}
@@ -231,15 +233,15 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .lottery-machine.is-spinning .lottery-reel:nth-child(2) .lottery-reel__track{filter:blur(.018rem)}
 .lottery-machine.is-starting .lottery-reel__item{animation:slot-start .18s linear infinite alternate}
 @keyframes slot-start{to{transform:translateY(-.08rem);filter:blur(.025rem)}}
-/* PSD gift and guarantee are examples, never authoritative business results. */
-.status-prize{position:absolute;z-index:3;left:2.12rem;top:3.70rem;width:3.25rem;height:2.70rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.06rem;padding:.14rem .24rem;background:radial-gradient(circle at 50% 18%,#fff 0,#eff0ff 45%,#c8cdeb 100%);border:.025rem solid rgba(255,255,255,.82);border-radius:.18rem;box-shadow:inset 0 .03rem .08rem rgba(255,255,255,.8),0 .08rem .20rem rgba(45,43,108,.18);color:#172033;text-align:center;overflow-wrap:anywhere}
-.status-prize__image{display:block;width:2.30rem;height:1.58rem;object-fit:contain}
-.status-prize__label{color:#625dc7;font-size:.20rem;font-weight:700;letter-spacing:.03rem}
-.status-prize strong{font-size:.27rem;line-height:1.25}
+/* 动态奖品覆盖区只使用中奖 PSD 面板中采样的底色，不增加卡片、边框或阴影。 */
+.status-prize{position:absolute;z-index:3;left:1.50rem;top:3.35rem;width:4.50rem;height:3.45rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.08rem;padding:.28rem .80rem .18rem;background:linear-gradient(to top right,#f9f9fc 0%,#bdc8e5 100%);border:0;border-radius:0;box-shadow:none;color:#000;text-align:center;overflow-wrap:anywhere;-webkit-mask-image:radial-gradient(ellipse at center,#000 0 72%,transparent 100%);mask-image:radial-gradient(ellipse at center,#000 0 72%,transparent 100%)}
+.status-prize__image{display:block;width:2.12rem;height:1.72rem;object-fit:contain}
+.status-prize strong{font-size:.29rem;line-height:1.25}
 .status-prize small{color:#53627a;font-size:.17rem;font-weight:400;line-height:1.3}
+.status-redemption{position:absolute;z-index:4;left:2.18rem;top:6.48rem;width:3.14rem;min-height:1.04rem;display:grid;place-items:center;margin:0;background:linear-gradient(to top right,#f9f9fc 0%,#d4d8ee 100%);color:#514bb8;font-size:.30rem;font-weight:700;line-height:1.2;text-align:center;-webkit-mask-image:radial-gradient(ellipse at center,#000 0 68%,transparent 100%);mask-image:radial-gradient(ellipse at center,#000 0 68%,transparent 100%)}
 .lottery-notice{position:absolute;z-index:3;left:2.54rem;top:8.38rem;width:2.42rem;min-height:.54rem;display:grid;place-items:center;padding:.06rem .12rem;border:.018rem solid #b9b7ef;border-radius:999px;background:#f9f9ff;color:#514bb8;font-size:.18rem;font-weight:700;text-align:center;cursor:pointer}
 .lottery-notice:focus-visible{outline:.045rem solid #154fc1;outline-offset:.035rem}
-.status-prize[hidden],.lottery-notice[hidden]{display:none}
+.status-prize[hidden],.status-redemption[hidden],.lottery-notice[hidden]{display:none}
 .claim-code{display:block;overflow-wrap:anywhere;letter-spacing:.02em;font-family:monospace;font-size:.30rem;user-select:text}
 .claim-button{max-width:100%;border:0;border-radius:.12rem;background:#e62820;color:#fff;padding:.18rem .24rem;font:inherit;cursor:pointer}
 .claim-button:disabled{opacity:.55}
@@ -270,7 +272,7 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .status-stage[data-status="all-complete"] .status-safety{top:11.18rem}
 .award-deadline{position:absolute;z-index:4;left:.72rem;top:7.6rem;width:6.06rem;margin:0;padding:.18rem .2rem;background:rgba(255,255,255,.94);border-radius:.12rem;color:#a12823;font-size:.23rem;line-height:1.5;text-align:center}
 .award-deadline[hidden]{display:none}
-.status-stage[data-status="lottery-win"] .status-safety{left:.80rem;top:8.52rem;width:5.90rem;min-height:1.05rem;display:grid;place-items:center;background:rgba(29,31,38,.98);box-shadow:none;color:#fff;font-size:.20rem;line-height:1.42}
+.status-stage[data-status="lottery-win"] .status-safety{left:.80rem;top:8.52rem;width:5.90rem;min-height:1.05rem;display:grid;place-items:center;background:transparent;box-shadow:none;color:#fff;font-size:.20rem;line-height:1.42}
 .status-stage[data-status="lottery-win"],.status-stage[data-status="lottery-lose"],.status-stage[data-status="activity-ended"]{background-color:#22272d;background-image:linear-gradient(rgba(18,23,28,.90),rgba(18,23,28,.90)),url("assets/ui/interaction-background-v595.webp")}
 .status-stage[data-status="lottery"][data-lottery-state="paused"] .status-safety{border:.02rem solid #d39031;background:#fff8e9;color:#6d4914}
 .status-stage[data-status="lottery"][data-lottery-state="closed"] .status-safety,.status-stage[data-status="lottery"][data-lottery-state="unavailable"] .status-safety{border:.02rem solid #ca6f6f;background:#fff2f2;color:#772d2d}
@@ -367,6 +369,6 @@ button:focus-visible,textarea:focus-visible,.sheet:focus-visible{outline:.055rem
   .scene-content,.saucer{animation:none!important}
 }
 
-/* Same-day collection text replaces the original raster instruction region. */
-.status-stage[data-status="lottery-win"] .status-safety{left:1.15rem;top:8.29rem;width:5.2rem;min-height:.86rem;padding:.06rem .08rem;background:#2e303b;border-radius:0;box-shadow:none;color:#fff;font-size:.21rem;line-height:1.5;text-align:center}
+/* The original note must be replaced for the client-side redemption flow; use the exact sampled PSD panel color. */
+.status-stage[data-status="lottery-win"] .status-safety{left:1.15rem;top:8.29rem;width:5.2rem;min-height:.86rem;padding:.06rem .08rem;background:#2c2d33;border-radius:0;box-shadow:none;color:#fff;font-size:.21rem;line-height:1.5;text-align:center}
 .claim-code-display .claim-code{font-size:.54rem;letter-spacing:.15em}
