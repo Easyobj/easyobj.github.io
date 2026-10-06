@@ -971,10 +971,12 @@
       const saved=getSceneProgress(id);
       const lit=Boolean(saved.passed);
       const state=lit?'已点亮':saved.submitted?'未点亮':'未作答';
-      return `<article class="badge-card ${lit?'is-lit':'is-dim'}"><span class="badge-card__icon" aria-hidden="true">${String(id).padStart(2,'0')}</span><div><b>${escapeHtml(DATA[id].title)}</b><small>${state}</small></div></article>`;
+      return `<span class="badge-state badge-state--${id} ${lit?'is-lit':'is-dim'}" role="img" aria-label="${String(id).padStart(2,'0')} ${escapeHtml(DATA[id].title)}，${state}"></span>`;
     }).join('');
-    badgePageSummary.innerHTML=`<strong>${summary.badges}</strong><span>/ 6 枚已点亮</span>`;
+    $('#badgePageTitle').textContent=summary.badges===6?'恭喜您已全部通关':'我的徽章';
+    badgePageSummary.innerHTML=`已点亮 <strong>${summary.badges}</strong> / 6 枚徽章`;
     badgePageGrid.innerHTML=cards;
+    badgePageAction.classList.toggle('has-button',Boolean(pageState.draw||summary.eligible));
     if(pageState.draw)badgePageAction.innerHTML='<button class="badge-primary" id="badgePrimary" type="button">查看中奖礼品</button>';
     else if(summary.eligible)badgePageAction.innerHTML='<button class="badge-primary" id="badgePrimary" type="button">参与抽奖</button>';
     else if(summary.submitted===6)badgePageAction.innerHTML='<p class="badge-unavailable">需要至少点亮 5 枚徽章才可抽奖。</p>';
