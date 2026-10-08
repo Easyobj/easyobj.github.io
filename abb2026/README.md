@@ -1,6 +1,6 @@
 # ABB Robotics H5（ThinkPHP 3.2.3 / PHP 模板）
 
-V5.9.34 为已授权页面预加载并顺序加载微信 JS-SDK，减少用户刚打开页面就分享时回退为网址的时序问题；方形 ABB Robotics 分享封面、标题、加载页 Logo 与业务规则不变。
+V5.9.35 对微信签名失败采用 fail-closed：生产环境拿不到真实 JS-SDK 签名时不再进入活动页，只显示刷新提示；签名成功才允许进入活动。方形 ABB Robotics 分享封面、标题、加载页 Logo 与业务规则不变。
 
 V5.9.30 接入微信好友/朋友圈自定义分享，文案和封面统一在 `Application/Common/Conf/share.php`。PHP注入签名、官方SDK异步配置，不新增业务API、不重新启用扫码；分享链接固定首页，不带个人状态。失败不阻塞活动，当前服务器接口仍报40164/IP白名单阻塞，真机分享待公众号配置后验收。详见 [`WECHAT_SHARE.md`](WECHAT_SHARE.md)。
 

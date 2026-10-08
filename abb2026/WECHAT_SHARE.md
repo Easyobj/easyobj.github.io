@@ -24,7 +24,7 @@ return [
 - 服务端签名使用配置的固定 origin、实际 REQUEST_URI 完整查询参数，排除 hash。应用页内导航仅改变 #，无需反复重签；PHP 表单跳转后新文档重新生成签名。
 - 票据/令牌仅缓存于今年 Application/Runtime/wechat-js-sdk，目录实际 PHP 用户0700，缓存文件0600且 PHP guard 防直访。AppSecret、access_token、jsapi_ticket 不下发浏览器。
 - stable_token force_refresh=false 与去年普通令牌分离；不强制刷新、不关闭 TLS校验。共享缓存及30秒错误冷却避免重复请求。分享签名网络超时限制为3秒，授权兑换仍保持原有超时。
-- wx.ready 后设置分享参数，wx.error/加载失败安全降级。接口 success 仅表示“分享参数设置成功”，不是用户已实际分享，不增加徽章、抽奖次数、库存或奖励，也不自动给好友发消息。
+- wx.ready 后设置分享参数，wx.error/加载失败不会进入生产活动页。接口 success 仅表示“分享参数设置成功”，不是用户已实际分享，不增加徽章、抽奖次数、库存或奖励，也不自动给好友发消息。
 
 ## 公众号配置和当前阻塞
 
