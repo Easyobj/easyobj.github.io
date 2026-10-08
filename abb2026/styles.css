@@ -78,7 +78,8 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .loader{position:fixed;z-index:2000;inset:0;display:grid;place-items:center;background:linear-gradient(180deg,#d9edff,#f8fbff);transition:opacity .32s ease,visibility .32s ease}
 .loader.hide{opacity:0;visibility:hidden;pointer-events:none}
 .loader__card{width:3.35rem;text-align:center}
-.loader__brand{font-size:.45rem;line-height:1;font-weight:900;letter-spacing:-.035rem;color:var(--abb-red)}
+.loader__brand{line-height:0}
+.loader__logo{display:block;width:100%;height:auto;object-fit:contain}
 .loader__sub{font-size:.22rem;font-weight:700;margin-top:.09rem;color:#34445f;letter-spacing:.025rem}
 .loader__track{height:.09rem;margin:.28rem auto .1rem;border-radius:1rem;background:rgba(50,90,150,.13);overflow:hidden}
 .loader__bar{height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#ff4a41,#ff2119);transition:width .13s linear}

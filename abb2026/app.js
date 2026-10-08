@@ -17,6 +17,7 @@
   })).filter(item=>item.image);
   const STATIC_ASSETS = [
     'favicon.svg',
+    'assets/ui/abb-robotics-loader-v5931.png',
     'assets/fonts/ABBvoice_CNSG_Rg.woff2',
     'assets/fonts/ABBvoice_CNSG_Bd.woff2',
     ...HOME_ASSETS,
