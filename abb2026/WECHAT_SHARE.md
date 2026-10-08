@@ -7,7 +7,7 @@
 ```php
 return [
     'enabled' => true,
-    'title' => 'ABB Robotics H5',
+    'title' => 'ABB机器人工博会',
     'description' => '探索 ABB Robotics 互动体验',
     'image_path' => 'assets/social/wechat-share-logo-v5930.png',
 ];
