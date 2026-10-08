@@ -9,11 +9,11 @@ return [
     'enabled' => true,
     'title' => 'ABB机器人工博会',
     'description' => '探索 ABB Robotics 互动体验',
-    'image_path' => 'assets/social/wechat-share-logo-v5930.png',
+    'image_path' => 'assets/social/wechat-share-logo-v5933.png',
 ];
 ```
 
-当前沿用原页面标题/描述，封面直接复用去年项目现有 ABB 标志 PNG，没有制作或修改品牌图。可替换为用户提供的正式 PNG/JPG 封面，放在 assets 下并更新 image_path；不填密钥或临时链接。网页 title、description、og:title、og:description、og:image 与原生分享使用同一配置，不再分别编辑模板里的硬编码。
+当前沿用原页面标题/描述，封面使用官方 ABB Robotics 横向标志的方形安全留白 PNG，适配微信卡片缩略图；不填密钥或临时链接。网页 title、description、og:title、og:description、og:image 与原生分享使用同一配置，不再分别编辑模板里的硬编码。
 
 好友分享使用标题、描述、链接和图片；朋友圈接口设置标题、链接和图片，不传描述。分享链接固定为服务器配置 app_url 加 `/index.php`，不携带当前页面 scene、OAuth code/state、用户 ID、兑奖码或中奖状态。Pages 元信息指向 index.html，仅静态预览，不调用微信接口。
 
