@@ -1013,12 +1013,7 @@
     else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   });
   $('[data-action="rules"]').addEventListener('click',()=>{
-    const storageRule=pageState.serverRendered
-      ? '答题结果提交并保存到活动服务器；浏览器只保留未提交草稿。'
-      : '当前为 Pages 演示模式，进度只保存在本机浏览器。';
-    const plan=window.ABB_PRIZE_PLAN;
-    const prizeTable=plan?`<section class="prize-plan-summary"><h3>今年奖品计划</h3><p>按后台设置的活动开始和结束时间发奖，每日限额 ${escapeHtml(String(plan.daily))} 份，合计 ${escapeHtml(String(plan.total))} 份。下表为活动奖品计划，领取以现场核验为准。</p><table class="prize-plan"><thead><tr><th>奖品</th><th>总量</th><th>每日</th></tr></thead><tbody>${plan.items.map(p=>`<tr><td><span class="prize-plan__item"><img src="${PRIZE_IMAGE_BY_CODE[p.code]||''}" alt="">${escapeHtml(p.name)}</span></td><td>${escapeHtml(String(p.total))}</td><td>${escapeHtml(String(p.daily))}</td></tr>`).join('')}</tbody></table></section>`:'';
-    openModal('ACTIVITY','活动规则与奖品',`<ol class="rule-list"><li><i>1</i><span>浏览展区完成 01～06 的互动题目，07 不计入答题进度。每题只有一次作答机会，再次进入会直接显示本题结果。</span></li><li><i>2</i><span>点亮至少 5 枚徽章后，即可参与抽奖。</span></li><li><i>3</i><span>同一微信账号整个活动只能中奖一次，次日不能再次抽奖；过期未领也不恢复机会。${storageRule}</span></li><li><i>4</i><span>礼品仅限中奖当天现场领取。参与者点击“兑换礼品”后，由现场工作人员在参与者手机上核对并确认核销，随后发放礼品。</span></li><li><i>5</i><span>兑奖前请关注 ABB 机器人其他社交媒体账号；核销确认后不能重复领取。</span></li><li><i>6</i><span>活动开始与结束时间由后台运营管理员设置，不固定持续天数。${pageState.drawWindow?.startsAt&&pageState.drawWindow?.endsAtText?`时间：${escapeHtml(pageState.drawWindow.startsAt)} 至 ${escapeHtml(pageState.drawWindow.endsAtText)}（活动时区）。`:'具体活动时间请查看正式活动通知。'}</span></li></ol>${prizeTable}`);
+    openModal('ACTIVITY','互动及兑奖规则',`<div class="activity-rule-copy"><p>点击主页的六个机器人线上站点参与答题，每答对一题即可点亮一枚徽章。</p><p class="activity-rule-copy__highlight">集齐5枚及以上徽章，即可参与抽奖，中奖率100%！</p><p><strong>温馨提示：</strong>现场每个机器人工作站均设有展品介绍或演示，助您找到正确答案。每个站点仅限一次答题机会，请谨慎作答。</p><p>抽奖成功后，请关注ABB机器人微博、抖音、B站等社交媒体账号，向工作人员出示2个及以上已关注页面，经工作人员点击“礼品核销”按钮确认后，方可领取礼品。</p><ul class="activity-rule-copy__notes"><li>每日礼品数量有限，先到先得。</li><li>礼品仅限当日现场兑换，不支持邮寄。</li><li>活动最终解释权归ABB机器人所有。</li></ul></div>`);
   });
   $('[data-action="prize"]').addEventListener('click',()=>{
     homeScrollY=window.scrollY;

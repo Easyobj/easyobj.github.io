@@ -316,6 +316,12 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .rule-list{list-style:none;margin:.08rem 0 0;padding:0;display:grid;gap:.18rem}
 .rule-list li{display:grid;grid-template-columns:.58rem 1fr;gap:.16rem;align-items:start;font-size:.29rem;line-height:1.55}
 .rule-list i{display:grid;place-items:center;width:.52rem;height:.52rem;border-radius:50%;background:#ecebfd;color:#514bb8;font-style:normal;font-weight:700}
+.activity-rule-copy{font-size:.29rem;line-height:1.72;color:#27364b}
+.activity-rule-copy p{margin:.18rem 0}
+.activity-rule-copy strong{color:#c52922}
+.activity-rule-copy__highlight{padding:.18rem .2rem;border-radius:.14rem;background:#fff1ef;color:#a52b25;font-weight:700}
+.activity-rule-copy__notes{margin:.24rem 0 0;padding:.2rem .22rem .2rem .58rem;border-radius:.14rem;background:#f3f5f8;color:#4a596d}
+.activity-rule-copy__notes li+li{margin-top:.1rem}
 .prize-plan{width:100%;border-collapse:collapse;font-size:.27rem;line-height:1.5;margin:.2rem 0}
 .prize-plan-summary{font-size:.27rem;line-height:1.55}
 .prize-plan-summary h3{font-size:.32rem;line-height:1.4;margin:.3rem 0 .12rem}
