@@ -211,6 +211,8 @@ body.ready [data-action="prize"]{animation-delay:.18s}
 .status-shell{width:7.5rem;max-width:750px;min-height:100vh;margin:0 auto;background:#bad3ec;box-shadow:0 0 .28rem rgba(0,0,0,.20)}
 .status-stage{position:relative;width:7.5rem;min-height:100vh;height:max(var(--page-h),100vh);overflow:hidden;background:#bad3ec url("assets/ui/interaction-background-v595.webp") center top / 7.5rem 100% no-repeat}
 .status-artwork{position:absolute;z-index:0;left:0;top:0;width:7.5rem;height:var(--page-h);object-fit:fill;-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - .75rem),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - .75rem),transparent)}
+.status-thanks{position:absolute;z-index:1;left:1.1rem;top:4.91rem;width:5.3rem;margin:0;color:#000;font-size:.41rem;font-weight:700;line-height:.52rem;text-align:center;white-space:nowrap}
+.status-thanks[hidden]{display:none}
 /* 状态原图保留设计尺寸，底部渐隐到铺满页面的装饰背景。 */
 .status-back{position:absolute;z-index:4;left:.18rem;top:calc(.16rem + var(--safe-top));width:.72rem;height:.72rem;border-radius:50%;display:grid;place-items:center;padding:0;background:rgba(255,255,255,.78);box-shadow:0 .03rem .10rem rgba(47,78,122,.16);color:#4f54ba;font-family:Arial,sans-serif;font-size:.46rem;font-weight:700;line-height:1;cursor:pointer}
 .status-action{position:absolute;z-index:3;left:2.524rem;top:8.625rem;width:2.438rem;height:.72rem;padding:0;border-radius:999px;background:transparent;color:transparent;cursor:pointer}

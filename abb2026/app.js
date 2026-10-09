@@ -24,7 +24,7 @@
     ...['a','b','c','d'].map(key=>`assets/scene6/option-${key}-psd-v598.webp`),
     'assets/social/weibo.png','assets/social/douyin.png','assets/social/bilibili.png','assets/social/social-guide.webp',
     ...Object.values(PRIZE_IMAGE_BY_CODE),
-    'assets/states/result-correct.webp','assets/states/result-fail.webp','assets/states/all-complete.webp',
+    'assets/states/result-correct.webp','assets/states/result-thanks-v5105.webp','assets/states/result-fail.webp','assets/states/all-complete.webp',
     'assets/states/lottery.webp','assets/states/lottery-win.webp','assets/states/lottery-lose.webp','assets/states/activity-ended.webp',
     'assets/ui/interaction-background-v595.webp','assets/ui/tip-v595.webp'
   ];
@@ -436,6 +436,9 @@
     delete statusStage.dataset.redemptionState;
     statusArtwork.src=`assets/states/${config.asset}`;
     statusArtwork.alt=config.alt;
+    const thanksForIdea=kind==='result-correct'&&currentScene===4;
+    $('#statusThanks').hidden=!thanksForIdea;
+    if(thanksForIdea)statusArtwork.src='assets/states/result-thanks-v5105.webp';
     statusAction.hidden=!config.action;
     statusAction.setAttribute('aria-label',config.action||'');
     statusAction.textContent=kind==='all-complete'?config.action:'';
@@ -449,7 +452,7 @@
     if(kind==='lottery')renderLotteryMachine();
     lotteryNotice.hidden=kind!=='lottery';
     lotteryNotice.textContent='7 种奖品 · 按实时库存抽取';
-    statusArtwork.alt=realPrize?'中奖结果，礼品以您的实际中奖记录为准':config.alt;
+    statusArtwork.alt=thanksForIdea?'感谢您的宝贵想法':realPrize?'中奖结果，礼品以您的实际中奖记录为准':config.alt;
     const hasArtworkClose=kind==='lottery-win'||kind==='lottery-lose'||kind==='activity-ended';
     statusBack.textContent=hasArtworkClose?'×':'‹';
     statusBack.setAttribute('aria-label',hasArtworkClose?'关闭结果并返回首页':'返回首页');
