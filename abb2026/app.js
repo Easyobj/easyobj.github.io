@@ -1,7 +1,7 @@
 (() => {
   const $ = (s, root=document) => root.querySelector(s);
   const $$ = (s, root=document) => [...root.querySelectorAll(s)];
-  const HOME_ASSETS = Array.from({length:17},(_,i)=>`assets/home/layer_${i+1}.webp`);
+  const HOME_ASSETS = [...Array.from({length:17},(_,i)=>`assets/home/layer_${i+1}.webp`),'assets/home/station2-home-v5104.webp','assets/home/rules-home-v5104.webp','assets/home/landing-home-v5104.webp'];
   const PRIZE_IMAGE_BY_CODE = Object.freeze({
     'canvas-bag':'assets/prizes/canvas-bag.png',
     'blind-box':'assets/prizes/blind-box.png',
@@ -68,9 +68,9 @@
     },
     2:{
       type:'single',
-      title:'搭载OmniCore™ Eyemotion的一体化压铸件检测方案',
-      titleLines:['搭载OmniCore™','Eyemotion的一体化','压铸件检测方案'],
-      hero:'assets/home/layer_4.webp',
+      title:'物理AI赋能的一体化压铸件检测方案',
+      titleLines:['物理AI赋能的','一体化压铸件','检测方案'],
+      hero:'assets/home/station2-home-v5104.webp',
       intro:[
         '依托 ABB机器人日益丰富的物理AI工具链，AI 视觉模型经过训练、部署并持续迭代优化，机器人能够对大型汽车一体化压铸铸件展开高速、高精度的表面缺陷检测。',
         '在物理 AI 赋能的一体化压铸件检测方案中，ABB 机器人使用到的软件方案是？'

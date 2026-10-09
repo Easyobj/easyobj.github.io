@@ -43,8 +43,9 @@ img{display:block;width:100%;height:auto;-webkit-user-drag:none;user-select:none
 .scene{z-index:2;opacity:0;transform:translate3d(0,.22rem,0) scale(.965);cursor:pointer;touch-action:manipulation;padding:0;background:transparent}
 .scene07{z-index:3}.badge{z-index:5;opacity:0;transform:scale(.5) rotate(-10deg);pointer-events:none}
 .utility{z-index:8;padding:0;background:transparent;cursor:pointer;touch-action:manipulation;filter:drop-shadow(0 .03rem .05rem rgba(18,50,102,.12))}
+.utility--landing{display:block;text-decoration:none}
 .utility::before{content:"";position:absolute;inset:-.15rem}
-[data-action="rules"]{top:calc(.327rem + var(--safe-top))!important}
+[data-action="rules"],.utility--landing{top:calc(var(--y) + var(--safe-top))!important}
 [data-action="prize"]::after{content:"兑奖中心";position:absolute;z-index:2;left:.58rem;right:.08rem;top:.08rem;height:.53rem;display:grid;place-items:center;border-radius:.28rem;background:linear-gradient(180deg,#f42424,#c90812);box-shadow:inset 0 .02rem .04rem rgba(255,255,255,.42);color:#fff;font-size:.25rem;font-weight:700;line-height:1;white-space:nowrap}
 
 .scene.in{animation:sceneIn .86s cubic-bezier(.2,.82,.25,1) forwards}
